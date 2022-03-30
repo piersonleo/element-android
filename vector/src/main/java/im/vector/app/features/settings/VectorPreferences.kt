@@ -206,6 +206,8 @@ class VectorPreferences @Inject constructor(private val context: Context) {
         const val SETTINGS_LABS_ENABLE_THREAD_MESSAGES = "SETTINGS_LABS_ENABLE_THREAD_MESSAGES_FINAL"
         const val SETTINGS_THREAD_MESSAGES_SYNCED = "SETTINGS_THREAD_MESSAGES_SYNCED"
 
+        private const val SETTINGS_LABS_SHOW_LASTEST_PROFILE = "SETTINGS_LABS_SHOW_LASTEST_PROFILE"
+
         // Possible values for TAKE_PHOTO_VIDEO_MODE
         const val TAKE_PHOTO_VIDEO_MODE_ALWAYS_ASK = 0
         const val TAKE_PHOTO_VIDEO_MODE_PHOTO = 1
@@ -1023,6 +1025,10 @@ class VectorPreferences @Inject constructor(private val context: Context) {
     /**
      * Indicates whether or not thread messages are enabled
      */
+    fun labsRenderIsLatestProfile() : Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_LABS_SHOW_LASTEST_PROFILE, false)
+    }
+
     fun areThreadMessagesEnabled(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_LABS_ENABLE_THREAD_MESSAGES, getDefault(R.bool.settings_labs_thread_messages_default))
     }
