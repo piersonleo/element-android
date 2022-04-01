@@ -1,0 +1,1 @@
+Using the same User Avatar for all messages in the timeline

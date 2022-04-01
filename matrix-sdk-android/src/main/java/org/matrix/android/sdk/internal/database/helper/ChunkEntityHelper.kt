@@ -17,6 +17,7 @@
 package org.matrix.android.sdk.internal.database.helper
 
 import io.realm.Realm
+import io.realm.RealmResults
 import io.realm.Sort
 import io.realm.kotlin.createObject
 import org.matrix.android.sdk.api.session.room.model.RoomMemberContent
@@ -235,4 +236,8 @@ internal fun ChunkEntity.isMoreRecentThan(chunkToCheck: ChunkEntity): Boolean {
     }
     // We don't know, so we assume it's false
     return false
+}
+
+internal fun ChunkEntity.getLiveRoomMember(roomId: String, userId : String): RealmResults<RoomMemberSummaryEntity>? {
+    return RoomMemberSummaryEntity.where(realm, roomId, userId = userId ).findAllAsync()
 }

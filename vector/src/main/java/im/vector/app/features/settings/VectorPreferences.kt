@@ -206,7 +206,7 @@ class VectorPreferences @Inject constructor(private val context: Context) {
         const val SETTINGS_LABS_ENABLE_THREAD_MESSAGES = "SETTINGS_LABS_ENABLE_THREAD_MESSAGES_FINAL"
         const val SETTINGS_THREAD_MESSAGES_SYNCED = "SETTINGS_THREAD_MESSAGES_SYNCED"
 
-        private const val SETTINGS_LABS_SHOW_LASTEST_PROFILE = "SETTINGS_LABS_SHOW_LASTEST_PROFILE"
+        private const val SETTINGS_LABS_IS_LIVE_SENDER_INFO = "SETTINGS_LABS_IS_LIVE_SENDER_INFO"
 
         // Possible values for TAKE_PHOTO_VIDEO_MODE
         const val TAKE_PHOTO_VIDEO_MODE_ALWAYS_ASK = 0
@@ -1022,13 +1022,6 @@ class VectorPreferences @Inject constructor(private val context: Context) {
         return defaultPrefs.getBoolean(SETTINGS_LABS_RENDER_LOCATIONS_IN_TIMELINE, true)
     }
 
-    /**
-     * Indicates whether or not thread messages are enabled
-     */
-    fun labsRenderIsLatestProfile() : Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_LABS_SHOW_LASTEST_PROFILE, false)
-    }
-
     fun areThreadMessagesEnabled(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_LABS_ENABLE_THREAD_MESSAGES, getDefault(R.bool.settings_labs_thread_messages_default))
     }
@@ -1077,5 +1070,9 @@ class VectorPreferences @Inject constructor(private val context: Context) {
                 .edit()
                 .putBoolean(SETTINGS_THREAD_MESSAGES_SYNCED, shouldMigrate)
                 .apply()
+    }
+
+    fun isLiveSenderInfo(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_LABS_IS_LIVE_SENDER_INFO, false)
     }
 }

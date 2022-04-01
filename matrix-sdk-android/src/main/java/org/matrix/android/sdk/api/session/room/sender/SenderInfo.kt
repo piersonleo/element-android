@@ -23,15 +23,15 @@ data class SenderInfo(
         /**
          * Consider using [disambiguatedDisplayName]
          */
-        val displayName: String?,
+        var displayName: String?,
         val isUniqueDisplayName: Boolean,
-        val avatarUrl: String?
+        var avatarUrl: String?
 ) {
     val disambiguatedDisplayName: String
         get() = when {
-            displayName == null                       -> userId
-            displayName.replaceSpaceChars().isBlank() -> "$displayName ($userId)"
-            isUniqueDisplayName                       -> displayName
+            displayName == null                         -> userId
+            displayName!!.replaceSpaceChars().isBlank() -> "$displayName ($userId)"
+            isUniqueDisplayName                         -> displayName!!
             else                                      -> "$displayName ($userId)"
         }
 }

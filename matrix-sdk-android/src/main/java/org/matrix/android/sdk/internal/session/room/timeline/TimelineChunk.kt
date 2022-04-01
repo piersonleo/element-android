@@ -30,6 +30,7 @@ import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineSettings
+import org.matrix.android.sdk.internal.database.helper.getLiveRoomMember
 import org.matrix.android.sdk.internal.database.lightweight.LightweightSettingsStorage
 import org.matrix.android.sdk.internal.database.mapper.EventMapper
 import org.matrix.android.sdk.internal.database.mapper.TimelineEventMapper
@@ -133,7 +134,24 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             val prevEvents = prevChunk?.builtItems(includesNext = false, includesPrev = true).orEmpty()
             deepBuiltItems.addAll(prevEvents)
         }
+
+        if (timelineSettings.isLiveSenderInfo)
+            updateToLiveSenderData(deepBuiltItems)
+
         return deepBuiltItems
+    }
+
+    private fun updateToLiveSenderData(deepBuiltItems: ArrayList<TimelineEvent>) {
+        val list = deepBuiltItems.filter { it.root.type == EventType.STATE_ROOM_MEMBER && it.root.prevContent != null }
+                .groupBy { it.senderInfo.userId }.map { it.value.firstOrNull() }
+
+        for (item in list) {
+            deepBuiltItems.filter { it.root.senderId == item?.root?.senderId }
+                    .map {
+                        it.senderInfo.displayName = item?.senderInfo?.displayName
+                        it.senderInfo.avatarUrl = item?.senderInfo?.avatarUrl
+                    }
+        }
     }
 
     /**

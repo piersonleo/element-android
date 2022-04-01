@@ -70,7 +70,7 @@
 
     <im.vector.app.core.preference.VectorSwitchPreference
         android:defaultValue="false"
-        android:key="SETTINGS_LABS_SHOW_LASTEST_PROFILE"
+        android:key="SETTINGS_LABS_IS_LIVE_SENDER_INFO"
         android:summary="@string/labs_show_latest_profile_description"
         android:title="@string/labs_show_latest_profile" />
 
