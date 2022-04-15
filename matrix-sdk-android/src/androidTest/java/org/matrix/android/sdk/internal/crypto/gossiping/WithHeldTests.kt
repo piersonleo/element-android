@@ -39,6 +39,7 @@ import org.matrix.android.sdk.common.CryptoTestHelper
 import org.matrix.android.sdk.common.MockOkHttpInterceptor
 import org.matrix.android.sdk.common.SessionTestParams
 import org.matrix.android.sdk.common.TestConstants
+import org.matrix.android.sdk.internal.crypto.RequestResult
 
 @RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.JVM)
@@ -67,7 +68,6 @@ class WithHeldTests : InstrumentedTest {
         val roomAlicePOV = aliceSession.getRoom(roomId)!!
 
         val bobUnverifiedSession = testHelper.logIntoAccount(bobSession.myUserId, SessionTestParams(true))
-
         // =============================
         // ACT
         // =============================
@@ -86,6 +86,7 @@ class WithHeldTests : InstrumentedTest {
 
         val eventBobPOV = bobUnverifiedSession.getRoom(roomId)?.getTimelineEvent(timelineEvent.eventId)!!
 
+        val megolmSessionId = eventBobPOV.root.content.toModel<EncryptedEventContent>()!!.sessionId!!
         // =============================
         // ASSERT
         // =============================
@@ -101,9 +102,23 @@ class WithHeldTests : InstrumentedTest {
             val type = (failure as MXCryptoError.Base).errorType
             val technicalMessage = failure.technicalMessage
             Assert.assertEquals("Error should be withheld", MXCryptoError.ErrorType.KEYS_WITHHELD, type)
-            Assert.assertEquals("Cause should be unverified", WithHeldCode.UNVERIFIED.value, technicalMessage)
+            Assert.assertEquals("Cause should be unverified", WithHeldCode.UNAUTHORISED.value, technicalMessage)
         }
 
+        // Let's see if the reply we got from bob first session is unverified
+        testHelper.waitWithLatch { latch ->
+            testHelper.retryPeriodicallyWithLatch(latch) {
+                bobUnverifiedSession.cryptoService().getOutgoingRoomKeyRequests()
+                        .firstOrNull { it.sessionId == megolmSessionId }
+                        ?.results
+                        ?.firstOrNull { it.fromDevice == bobSession.sessionParams.deviceId }
+                        ?.result
+                        ?.let {
+                           it as? RequestResult.Failure
+                        }
+                        ?.code == WithHeldCode.UNVERIFIED
+            }
+        }
         // enable back sending to unverified
         aliceSession.cryptoService().setGlobalBlacklistUnverifiedDevices(false)
 
@@ -128,7 +143,7 @@ class WithHeldTests : InstrumentedTest {
             val type = (failure as MXCryptoError.Base).errorType
             val technicalMessage = failure.technicalMessage
             Assert.assertEquals("Error should be withheld", MXCryptoError.ErrorType.KEYS_WITHHELD, type)
-            Assert.assertEquals("Cause should be unverified", WithHeldCode.UNVERIFIED.value, technicalMessage)
+            Assert.assertEquals("Cause should be unverified", WithHeldCode.UNAUTHORISED.value, technicalMessage)
         }
 
         testHelper.signOutAndClose(aliceSession)
@@ -137,7 +152,7 @@ class WithHeldTests : InstrumentedTest {
     }
 
     @Test
-    fun  test_WithHeldNoOlm() {
+    fun test_WithHeldNoOlm() {
         val testHelper = CommonTestHelper(context())
         val cryptoTestHelper = CryptoTestHelper(testHelper)
 
@@ -220,7 +235,7 @@ class WithHeldTests : InstrumentedTest {
     }
 
     @Test
-    fun  test_WithHeldKeyRequest() {
+    fun test_WithHeldKeyRequest() {
         val testHelper = CommonTestHelper(context())
         val cryptoTestHelper = CryptoTestHelper(testHelper)
 
