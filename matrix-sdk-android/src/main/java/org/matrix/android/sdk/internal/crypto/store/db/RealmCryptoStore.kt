@@ -744,6 +744,7 @@ internal class RealmCryptoStore @Inject constructor(
                         primaryKey = key
                         sessionId = sessionIdentifier
                         senderKey = session.senderKey
+                        roomId = session.roomId
                         putInboundGroupSession(session)
                     }
 
@@ -817,11 +818,10 @@ internal class RealmCryptoStore @Inject constructor(
     override fun getInboundGroupSessions(roomId: String): List<OlmInboundGroupSessionWrapper2> {
         return doWithRealm(realmConfiguration) {
             it.where<OlmInboundGroupSessionEntity>()
+                    .equalTo(OlmInboundGroupSessionEntityFields.ROOM_ID, roomId)
                     .findAll()
                     .mapNotNull { inboundGroupSessionEntity ->
                         inboundGroupSessionEntity.getInboundGroupSession()
-                    }.filter { inboundSession ->
-                        inboundSession.roomId == roomId
                     }
         }
     }
