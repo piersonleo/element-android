@@ -56,5 +56,4 @@ class UserPreferencesProvider @Inject constructor(private val vectorPreferences:
     fun isLiveSenderInfo(): Boolean {
         return vectorPreferences.isLiveSenderInfo()
     }
-
 }

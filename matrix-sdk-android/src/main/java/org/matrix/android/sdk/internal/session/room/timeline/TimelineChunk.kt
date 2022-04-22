@@ -30,7 +30,6 @@ import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineSettings
-import org.matrix.android.sdk.internal.database.helper.getLiveRoomMember
 import org.matrix.android.sdk.internal.database.lightweight.LightweightSettingsStorage
 import org.matrix.android.sdk.internal.database.mapper.EventMapper
 import org.matrix.android.sdk.internal.database.mapper.TimelineEventMapper
@@ -135,8 +134,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             deepBuiltItems.addAll(prevEvents)
         }
 
-        if (timelineSettings.isLiveSenderInfo)
+        if (timelineSettings.isLiveSenderInfo) {
             updateToLiveSenderData(deepBuiltItems)
+        }
 
         return deepBuiltItems
     }
