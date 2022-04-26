@@ -69,6 +69,5 @@ internal class RealmCryptoStoreMigration @Inject constructor() : RealmMigration 
         if (oldVersion < 14) MigrateCryptoTo014(realm).perform()
         if (oldVersion < 15) MigrateCryptoTo015(realm).perform()
         if (oldVersion < 16) MigrateCryptoTo016(realm).perform()
-
     }
 }

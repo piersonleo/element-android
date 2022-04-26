@@ -653,9 +653,22 @@ internal class RealmCryptoStore @Inject constructor(
                 ?: false
     }
 
+    override fun shouldShareHistory(roomId: String): Boolean {
+        return doWithRealm(realmConfiguration) {
+            CryptoRoomEntity.getById(it, roomId)?.shouldShareHistory
+        }
+                ?: false
+    }
+
     override fun setShouldEncryptForInvitedMembers(roomId: String, shouldEncryptForInvitedMembers: Boolean) {
         doRealmTransaction(realmConfiguration) {
             CryptoRoomEntity.getOrCreate(it, roomId).shouldEncryptForInvitedMembers = shouldEncryptForInvitedMembers
+        }
+    }
+
+    override fun setShouldShareHistory(roomId: String, shouldShareHistory: Boolean) {
+        doRealmTransaction(realmConfiguration) {
+            CryptoRoomEntity.getOrCreate(it, roomId).shouldShareHistory = shouldShareHistory
         }
     }
 
@@ -738,6 +751,10 @@ internal class RealmCryptoStore @Inject constructor(
                 }
 
                 if (sessionIdentifier != null) {
+                    val shouldShareHistory = session.roomId?.let { roomId ->
+                        CryptoRoomEntity.getById(realm, roomId)?.shouldShareHistory
+                    } ?: false
+                    session.sharedHistory = shouldShareHistory
                     val key = OlmInboundGroupSessionEntity.createPrimaryKey(sessionIdentifier, session.senderKey)
 
                     val realmOlmInboundGroupSession = OlmInboundGroupSessionEntity().apply {
@@ -745,9 +762,10 @@ internal class RealmCryptoStore @Inject constructor(
                         sessionId = sessionIdentifier
                         senderKey = session.senderKey
                         roomId = session.roomId
+                        sharedHistory = shouldShareHistory
                         putInboundGroupSession(session)
                     }
-
+                    Timber.i("## CRYPTO | shouldShareHistory: $shouldShareHistory for $key")
                     realm.insertOrUpdate(realmOlmInboundGroupSession)
                 }
             }
@@ -893,7 +911,8 @@ internal class RealmCryptoStore @Inject constructor(
                 try {
                     val key = OlmInboundGroupSessionEntity.createPrimaryKey(
                             olmInboundGroupSessionWrapper.olmInboundGroupSession?.sessionIdentifier(),
-                            olmInboundGroupSessionWrapper.senderKey)
+                            olmInboundGroupSessionWrapper.senderKey
+                    )
 
                     it.where<OlmInboundGroupSessionEntity>()
                             .equalTo(OlmInboundGroupSessionEntityFields.PRIMARY_KEY, key)
@@ -1068,13 +1087,16 @@ internal class RealmCryptoStore @Inject constructor(
                             localCreationTimestamp = 0
                     )
         }
-        return monarchy.findAllPagedWithChanges(realmDataSourceFactory,
-                LivePagedListBuilder(dataSourceFactory,
+        return monarchy.findAllPagedWithChanges(
+                realmDataSourceFactory,
+                LivePagedListBuilder(
+                        dataSourceFactory,
                         PagedList.Config.Builder()
                                 .setPageSize(20)
                                 .setEnablePlaceholders(false)
                                 .setPrefetchDistance(1)
-                                .build())
+                                .build()
+                )
         )
     }
 
@@ -1083,13 +1105,16 @@ internal class RealmCryptoStore @Inject constructor(
             realm.where<GossipingEventEntity>().sort(GossipingEventEntityFields.AGE_LOCAL_TS, Sort.DESCENDING)
         }
         val dataSourceFactory = realmDataSourceFactory.map { it.toModel() }
-        val trail = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
-                LivePagedListBuilder(dataSourceFactory,
+        val trail = monarchy.findAllPagedWithChanges(
+                realmDataSourceFactory,
+                LivePagedListBuilder(
+                        dataSourceFactory,
                         PagedList.Config.Builder()
                                 .setPageSize(20)
                                 .setEnablePlaceholders(false)
                                 .setPrefetchDistance(1)
-                                .build())
+                                .build()
+                )
         )
         return trail
     }
@@ -1337,7 +1362,7 @@ internal class RealmCryptoStore @Inject constructor(
                     .findAll()
                     .mapNotNull { entity ->
                         when (entity.type) {
-                            GossipRequestType.KEY    -> {
+                            GossipRequestType.KEY -> {
                                 IncomingRoomKeyRequest(
                                         userId = entity.otherUserId,
                                         deviceId = entity.otherDeviceId,
@@ -1547,13 +1572,16 @@ internal class RealmCryptoStore @Inject constructor(
             it.toOutgoingGossipingRequest() as? OutgoingRoomKeyRequest
                     ?: OutgoingRoomKeyRequest(requestBody = null, requestId = "?", recipients = emptyMap(), state = OutgoingGossipingRequestState.CANCELLED)
         }
-        val trail = monarchy.findAllPagedWithChanges(realmDataSourceFactory,
-                LivePagedListBuilder(dataSourceFactory,
+        val trail = monarchy.findAllPagedWithChanges(
+                realmDataSourceFactory,
+                LivePagedListBuilder(
+                        dataSourceFactory,
                         PagedList.Config.Builder()
                                 .setPageSize(20)
                                 .setEnablePlaceholders(false)
                                 .setPrefetchDistance(1)
-                                .build())
+                                .build()
+                )
         )
         return trail
     }
