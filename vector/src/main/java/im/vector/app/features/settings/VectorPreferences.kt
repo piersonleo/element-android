@@ -206,6 +206,7 @@ class VectorPreferences @Inject constructor(private val context: Context) {
         const val SETTINGS_LABS_ENABLE_THREAD_MESSAGES = "SETTINGS_LABS_ENABLE_THREAD_MESSAGES_FINAL"
         const val SETTINGS_THREAD_MESSAGES_SYNCED = "SETTINGS_THREAD_MESSAGES_SYNCED"
 
+        // This key will be used to enable user for using live user info or not.
         private const val SETTINGS_LABS_IS_LIVE_SENDER_INFO = "SETTINGS_LABS_IS_LIVE_SENDER_INFO"
 
         // Possible values for TAKE_PHOTO_VIDEO_MODE
