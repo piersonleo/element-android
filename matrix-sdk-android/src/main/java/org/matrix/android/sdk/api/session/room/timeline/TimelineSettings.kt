@@ -36,7 +36,7 @@ data class TimelineSettings(
         /**
          * If true Sender Info shown in room will get the latest data information (avatar + displayName)
          */
-        val isLiveSenderInfo: Boolean = false) {
+        val useLiveSenderInfo: Boolean = false) {
 
     /**
      * Returns true if this is a thread timeline or false otherwise

@@ -207,7 +207,7 @@ class VectorPreferences @Inject constructor(private val context: Context) {
         const val SETTINGS_THREAD_MESSAGES_SYNCED = "SETTINGS_THREAD_MESSAGES_SYNCED"
 
         // This key will be used to enable user for using live user info or not.
-        private const val SETTINGS_LABS_IS_LIVE_SENDER_INFO = "SETTINGS_LABS_IS_LIVE_SENDER_INFO"
+        private const val SETTINGS_LABS_USE_LIVE_SENDER_INFO = "SETTINGS_LABS_IS_LIVE_SENDER_INFO"
 
         // Possible values for TAKE_PHOTO_VIDEO_MODE
         const val TAKE_PHOTO_VIDEO_MODE_ALWAYS_ASK = 0
@@ -1073,7 +1073,7 @@ class VectorPreferences @Inject constructor(private val context: Context) {
                 .apply()
     }
 
-    fun isLiveSenderInfo(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_LABS_IS_LIVE_SENDER_INFO, getDefault(R.bool.settings_labs_is_live_sender_info))
+    fun useLiveSenderInfo(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_LABS_USE_LIVE_SENDER_INFO, getDefault(R.bool.settings_labs_use_live_sender_info))
     }
 }

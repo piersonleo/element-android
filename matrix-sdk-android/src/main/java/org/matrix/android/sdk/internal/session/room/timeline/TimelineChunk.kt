@@ -134,7 +134,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             deepBuiltItems.addAll(prevEvents)
         }
 
-        if (timelineSettings.isLiveSenderInfo) {
+        if (timelineSettings.useLiveSenderInfo) {
             updateToLiveSenderData(deepBuiltItems)
         }
 

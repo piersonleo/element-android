@@ -53,7 +53,7 @@ class UserPreferencesProvider @Inject constructor(private val vectorPreferences:
         return vectorPreferences.areThreadMessagesEnabled()
     }
 
-    fun isLiveSenderInfo(): Boolean {
-        return vectorPreferences.isLiveSenderInfo()
+    fun useLiveSenderInfo(): Boolean {
+        return vectorPreferences.useLiveSenderInfo()
     }
 }

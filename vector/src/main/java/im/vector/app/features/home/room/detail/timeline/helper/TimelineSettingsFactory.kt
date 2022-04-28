@@ -27,7 +27,7 @@ class TimelineSettingsFactory @Inject constructor(private val userPreferencesPro
                 initialSize = 30,
                 buildReadReceipts = userPreferencesProvider.shouldShowReadReceipts(),
                 rootThreadEventId = rootThreadEventId,
-                isLiveSenderInfo = userPreferencesProvider.isLiveSenderInfo()
+                useLiveSenderInfo = userPreferencesProvider.useLiveSenderInfo()
         )
     }
 }
