@@ -1073,6 +1073,6 @@ class VectorPreferences @Inject constructor(private val context: Context) {
     }
 
     fun isLiveSenderInfo(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_LABS_IS_LIVE_SENDER_INFO, false)
+        return defaultPrefs.getBoolean(SETTINGS_LABS_IS_LIVE_SENDER_INFO, getDefault(R.bool.settings_labs_is_live_sender_info))
     }
 }
