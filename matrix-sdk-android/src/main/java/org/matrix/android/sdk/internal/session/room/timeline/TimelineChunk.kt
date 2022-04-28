@@ -27,6 +27,7 @@ import kotlinx.coroutines.CompletableDeferred
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.events.model.EventType
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineSettings
@@ -134,24 +135,33 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             deepBuiltItems.addAll(prevEvents)
         }
 
-        if (timelineSettings.useLiveSenderInfo) {
+        return if (timelineSettings.useLiveSenderInfo) {
             updateToLiveSenderData(deepBuiltItems)
+        } else {
+            deepBuiltItems
         }
-
-        return deepBuiltItems
     }
 
-    private fun updateToLiveSenderData(deepBuiltItems: ArrayList<TimelineEvent>) {
-        val list = deepBuiltItems.filter { it.root.type == EventType.STATE_ROOM_MEMBER && it.root.prevContent != null }
+    private fun updateToLiveSenderData(deepBuiltItems: List<TimelineEvent>): List<TimelineEvent> {
+        // group room users events that are m.room.member and which have a prevContent.
+        // those two conditions filter the list to extract events where related action is a profile info update.
+        // if it true we group these events by userId (User can change many times his info profiles) and we extract the last changes
+        // that was made
+        val usersByIds = deepBuiltItems.filter { it.root.type == EventType.STATE_ROOM_MEMBER && it.root.prevContent != null }
                 .groupBy { it.senderInfo.userId }.map { it.value.firstOrNull() }
 
-        for (item in list) {
+        // loop on the resulted list in order to change its event sender info
+        val updatedEventList = ArrayList<TimelineEvent>(deepBuiltItems.size)
+        for (item in usersByIds) {
             deepBuiltItems.filter { it.root.senderId == item?.root?.senderId }
                     .map {
-                        it.senderInfo.displayName = item?.senderInfo?.displayName
-                        it.senderInfo.avatarUrl = item?.senderInfo?.avatarUrl
+                        updatedEventList.add(it.copy(
+                                senderInfo = SenderInfo(it.senderInfo.userId, item?.senderInfo?.displayName, it.senderInfo.isUniqueDisplayName, item?.senderInfo?.avatarUrl)
+                        ))
                     }
         }
+
+        return updatedEventList
     }
 
     /**
