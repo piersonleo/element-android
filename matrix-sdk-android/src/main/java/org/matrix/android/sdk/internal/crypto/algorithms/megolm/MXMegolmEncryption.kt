@@ -148,8 +148,10 @@ internal class MXMegolmEncryption(
                 "ed25519" to olmDevice.deviceEd25519Key!!
         )
 
-        olmDevice.addInboundGroupSession(sessionId!!, olmDevice.getSessionKey(sessionId)!!, roomId, olmDevice.deviceCurve25519Key!!,
-                emptyList(), keysClaimedMap, false)
+        olmDevice.addInboundGroupSession(
+                sessionId!!, olmDevice.getSessionKey(sessionId)!!, roomId, olmDevice.deviceCurve25519Key!!,
+                emptyList(), keysClaimedMap, false
+        )
 
         defaultKeysBackupService.maybeBackupKeys()
 
@@ -168,7 +170,11 @@ internal class MXMegolmEncryption(
                 // Need to make a brand new session?
                 session.needsRotation(sessionRotationPeriodMsgs, sessionRotationPeriodMs) ||
                 // Is there a room history visibility change since the last outboundSession
-                cryptoStore.needsRotationDueToVisibilityChange(roomId) ||
+                cryptoStore.needsRotationDueToVisibilityChange(roomId).also {
+                    if (it) {
+                        Timber.tag(loggerTag.value).d("roomId:$roomId Room history visibility change detected since the last outbound session")
+                    }
+                } ||
                 // Determine if we have shared with anyone we shouldn't have
                 session.sharedWithTooManyDevices(devicesInRoom)) {
             Timber.tag(loggerTag.value).d("roomId:$roomId Starting new megolm session because we need to rotate.")
@@ -336,7 +342,8 @@ internal class MXMegolmEncryption(
                                           senderKey: String?,
                                           code: WithHeldCode) {
         Timber.tag(loggerTag.value).d("notifyKeyWithHeld() :sending withheld for session:$sessionId and code $code to" +
-                " ${targets.joinToString { "${it.userId}|${it.deviceId}" }}")
+                " ${targets.joinToString { "${it.userId}|${it.deviceId}" }}"
+        )
         val withHeldContent = RoomKeyWithHeldContent(
                 roomId = roomId,
                 senderKey = senderKey,
