@@ -159,7 +159,11 @@ internal class TimelineChunk(
             deepBuiltItems.filter { it.root.senderId == item?.root?.senderId }
                     .map {
                         updatedEventList.add(it.copy(
-                                senderInfo = SenderInfo(it.senderInfo.userId, item?.senderInfo?.displayName, it.senderInfo.isUniqueDisplayName, item?.senderInfo?.avatarUrl)
+                                senderInfo = SenderInfo(
+                                        it.senderInfo.userId,
+                                        item?.senderInfo?.displayName,
+                                        it.senderInfo.isUniqueDisplayName,
+                                        item?.senderInfo?.avatarUrl)
                         ))
                     }
         }
