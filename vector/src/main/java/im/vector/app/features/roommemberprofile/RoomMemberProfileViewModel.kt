@@ -48,6 +48,7 @@ import org.matrix.android.sdk.api.session.accountdata.UserAccountDataTypes
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.events.model.toModel
+import org.matrix.android.sdk.api.session.getRoom
 import org.matrix.android.sdk.api.session.room.Room
 import org.matrix.android.sdk.api.session.room.members.roomMemberQueryParams
 import org.matrix.android.sdk.api.session.room.model.Membership
@@ -55,7 +56,7 @@ import org.matrix.android.sdk.api.session.room.model.RoomEncryptionAlgorithm
 import org.matrix.android.sdk.api.session.room.model.RoomType
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
 import org.matrix.android.sdk.api.session.room.powerlevels.Role
-import org.matrix.android.sdk.api.util.MatrixItem
+import org.matrix.android.sdk.api.session.user.model.User
 import org.matrix.android.sdk.api.util.toMatrixItem
 import org.matrix.android.sdk.api.util.toOptional
 import org.matrix.android.sdk.flow.flow
@@ -112,8 +113,8 @@ class RoomMemberProfileViewModel @AssistedInject constructor(
         session.flow().liveUserCryptoDevices(initialState.userId)
                 .map {
                     Pair(
-                            it.fold(true, { prev, dev -> prev && dev.isVerified }),
-                            it.fold(true, { prev, dev -> prev && (dev.trustLevel?.crossSigningVerified == true) })
+                            it.fold(true) { prev, dev -> prev && dev.isVerified },
+                            it.fold(true) { prev, dev -> prev && (dev.trustLevel?.crossSigningVerified == true) }
                     )
                 }
                 .execute { it ->
@@ -327,14 +328,10 @@ class RoomMemberProfileViewModel @AssistedInject constructor(
 
     private suspend fun fetchProfileInfo() {
         val result = runCatchingToAsync {
-            session.getProfileAsUser(initialState.userId)
-                    .let {
-                        MatrixItem.UserItem(
-                                id = initialState.userId,
-                                displayName = it.displayName,
-                                avatarUrl = it.avatarUrl
-                        )
-                    }
+            session.profileService()
+                    .getProfile(initialState.userId)
+                    .let { User.fromJson(initialState.userId, it) }
+                    .toMatrixItem()
         }
 
         setState {
@@ -391,9 +388,9 @@ class RoomMemberProfileViewModel @AssistedInject constructor(
         viewModelScope.launch {
             val event = try {
                 if (isIgnored) {
-                    session.unIgnoreUserIds(listOf(state.userId))
+                    session.userService().unIgnoreUserIds(listOf(state.userId))
                 } else {
-                    session.ignoreUserIds(listOf(state.userId))
+                    session.userService().ignoreUserIds(listOf(state.userId))
                 }
                 RoomMemberProfileViewEvents.OnIgnoreActionSuccess
             } catch (failure: Throwable) {

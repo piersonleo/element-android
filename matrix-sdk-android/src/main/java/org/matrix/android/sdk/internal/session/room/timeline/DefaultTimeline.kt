@@ -35,7 +35,7 @@ import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineSettings
-import org.matrix.android.sdk.internal.database.lightweight.LightweightSettingsStorage
+import org.matrix.android.sdk.api.settings.LightweightSettingsStorage
 import org.matrix.android.sdk.internal.database.mapper.TimelineEventMapper
 import org.matrix.android.sdk.internal.session.room.membership.LoadRoomMembersTask
 import org.matrix.android.sdk.internal.session.room.relation.threads.FetchThreadTimelineTask
@@ -100,6 +100,7 @@ internal class DefaultTimeline(private val roomId: String,
             threadsAwarenessHandler = threadsAwarenessHandler,
             lightweightSettingsStorage = lightweightSettingsStorage,
             onEventsUpdated = this::sendSignalToPostSnapshot,
+            onEventsDeleted = this::onEventsDeleted,
             onLimitedTimeline = this::onLimitedTimeline,
             onNewTimelineEvents = this::onNewTimelineEvents
     )
@@ -302,6 +303,12 @@ internal class DefaultTimeline(private val roomId: String,
             loadMore(settings.initialSize, Timeline.Direction.BACKWARDS, false)
             postSnapshot()
         }
+    }
+
+    private fun onEventsDeleted() {
+        // Some event have been deleted, for instance when a user has been ignored.
+        // Restart the timeline (live)
+        restartWithEventId(null)
     }
 
     private suspend fun postSnapshot() {

@@ -28,34 +28,39 @@ import kotlinx.coroutines.withContext
 import org.matrix.android.sdk.api.MatrixCallback
 import org.matrix.android.sdk.api.MatrixCoroutineDispatchers
 import org.matrix.android.sdk.api.auth.data.Credentials
+import org.matrix.android.sdk.api.crypto.MXCRYPTO_ALGORITHM_MEGOLM_BACKUP
 import org.matrix.android.sdk.api.failure.Failure
 import org.matrix.android.sdk.api.failure.MatrixError
 import org.matrix.android.sdk.api.listeners.ProgressListener
 import org.matrix.android.sdk.api.listeners.StepProgressListener
+import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysBackupLastVersionResult
 import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysBackupService
 import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysBackupState
 import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysBackupStateListener
-import org.matrix.android.sdk.internal.crypto.MXCRYPTO_ALGORITHM_MEGOLM_BACKUP
+import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysBackupVersionTrust
+import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysBackupVersionTrustSignature
+import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysVersion
+import org.matrix.android.sdk.api.session.crypto.keysbackup.KeysVersionResult
+import org.matrix.android.sdk.api.session.crypto.keysbackup.MegolmBackupAuthData
+import org.matrix.android.sdk.api.session.crypto.keysbackup.MegolmBackupCreationInfo
+import org.matrix.android.sdk.api.session.crypto.keysbackup.SavedKeyBackupKeyInfo
+import org.matrix.android.sdk.api.session.crypto.keysbackup.computeRecoveryKey
+import org.matrix.android.sdk.api.session.crypto.keysbackup.extractCurveKeyFromRecoveryKey
+import org.matrix.android.sdk.api.session.crypto.keysbackup.toKeysVersionResult
+import org.matrix.android.sdk.api.session.crypto.model.ImportRoomKeysResult
+import org.matrix.android.sdk.api.util.awaitCallback
+import org.matrix.android.sdk.api.util.fromBase64
 import org.matrix.android.sdk.internal.crypto.MXOlmDevice
 import org.matrix.android.sdk.internal.crypto.MegolmSessionData
 import org.matrix.android.sdk.internal.crypto.ObjectSigner
 import org.matrix.android.sdk.internal.crypto.actions.MegolmSessionDataImporter
-import org.matrix.android.sdk.internal.crypto.crosssigning.fromBase64
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.KeysBackupLastVersionResult
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.KeysBackupVersionTrust
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.KeysBackupVersionTrustSignature
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.MegolmBackupAuthData
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.MegolmBackupCreationInfo
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.SignalableMegolmBackupAuthData
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.BackupKeysResult
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.CreateKeysBackupVersionBody
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.KeyBackupData
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.KeysBackupData
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.KeysVersion
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.KeysVersionResult
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.RoomKeysBackupData
 import org.matrix.android.sdk.internal.crypto.keysbackup.model.rest.UpdateKeysBackupVersionBody
-import org.matrix.android.sdk.internal.crypto.keysbackup.model.toKeysVersionResult
 import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.CreateKeysBackupVersionTask
 import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.DeleteBackupTask
 import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.DeleteRoomSessionDataTask
@@ -70,12 +75,8 @@ import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.StoreRoomSessionD
 import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.StoreRoomSessionsDataTask
 import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.StoreSessionsDataTask
 import org.matrix.android.sdk.internal.crypto.keysbackup.tasks.UpdateKeysBackupVersionTask
-import org.matrix.android.sdk.internal.crypto.keysbackup.util.computeRecoveryKey
-import org.matrix.android.sdk.internal.crypto.keysbackup.util.extractCurveKeyFromRecoveryKey
-import org.matrix.android.sdk.internal.crypto.model.ImportRoomKeysResult
 import org.matrix.android.sdk.internal.crypto.model.OlmInboundGroupSessionWrapper2
 import org.matrix.android.sdk.internal.crypto.store.IMXCryptoStore
-import org.matrix.android.sdk.internal.crypto.store.SavedKeyBackupKeyInfo
 import org.matrix.android.sdk.internal.crypto.store.db.model.KeysBackupDataEntity
 import org.matrix.android.sdk.internal.di.MoshiProvider
 import org.matrix.android.sdk.internal.di.UserId
@@ -86,7 +87,6 @@ import org.matrix.android.sdk.internal.task.TaskExecutor
 import org.matrix.android.sdk.internal.task.TaskThread
 import org.matrix.android.sdk.internal.task.configureWith
 import org.matrix.android.sdk.internal.util.JsonCanonicalizer
-import org.matrix.android.sdk.internal.util.awaitCallback
 import org.matrix.olm.OlmException
 import org.matrix.olm.OlmPkDecryption
 import org.matrix.olm.OlmPkEncryption
@@ -409,19 +409,21 @@ internal class DefaultKeysBackupService @Inject constructor(
      */
     @WorkerThread
     private fun getKeysBackupTrustBg(keysBackupVersion: KeysVersionResult): KeysBackupVersionTrust {
-        val keysBackupVersionTrust = KeysBackupVersionTrust()
         val authData = keysBackupVersion.getAuthDataAsMegolmBackupAuthData()
 
         if (authData == null || authData.publicKey.isEmpty() || authData.signatures.isNullOrEmpty()) {
             Timber.v("getKeysBackupTrust: Key backup is absent or missing required data")
-            return keysBackupVersionTrust
+            return KeysBackupVersionTrust(usable = false)
         }
 
         val mySigs = authData.signatures[userId]
         if (mySigs.isNullOrEmpty()) {
             Timber.v("getKeysBackupTrust: Ignoring key backup because it lacks any signatures from this user")
-            return keysBackupVersionTrust
+            return KeysBackupVersionTrust(usable = false)
         }
+
+        var keysBackupVersionTrustIsUsable = false
+        val keysBackupVersionTrustSignatures = mutableListOf<KeysBackupVersionTrustSignature>()
 
         for ((keyId, mySignature) in mySigs) {
             // XXX: is this how we're supposed to get the device id?
@@ -449,19 +451,23 @@ internal class DefaultKeysBackupService @Inject constructor(
                     }
 
                     if (isSignatureValid && device.isVerified) {
-                        keysBackupVersionTrust.usable = true
+                        keysBackupVersionTrustIsUsable = true
                     }
                 }
 
-                val signature = KeysBackupVersionTrustSignature()
-                signature.device = device
-                signature.valid = isSignatureValid
-                signature.deviceId = deviceId
-                keysBackupVersionTrust.signatures.add(signature)
+                val signature = KeysBackupVersionTrustSignature(
+                        deviceId = deviceId,
+                        device = device,
+                        valid = isSignatureValid,
+                )
+                keysBackupVersionTrustSignatures.add(signature)
             }
         }
 
-        return keysBackupVersionTrust
+        return KeysBackupVersionTrust(
+                usable = keysBackupVersionTrustIsUsable,
+                signatures = keysBackupVersionTrustSignatures
+        )
     }
 
     override fun trustKeysBackupVersion(keysBackupVersion: KeysVersionResult,
@@ -1097,6 +1103,13 @@ internal class DefaultKeysBackupService @Inject constructor(
                 callback.onSuccess(it)
             }
         }
+    }
+
+    override fun computePrivateKey(passphrase: String,
+                                   privateKeySalt: String,
+                                   privateKeyIterations: Int,
+                                   progressListener: ProgressListener): ByteArray {
+        return deriveKey(passphrase, privateKeySalt, privateKeyIterations, progressListener)
     }
 
     /**

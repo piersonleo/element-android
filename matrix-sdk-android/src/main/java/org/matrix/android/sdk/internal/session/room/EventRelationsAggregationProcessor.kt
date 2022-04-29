@@ -16,14 +16,15 @@
 package org.matrix.android.sdk.internal.session.room
 
 import io.realm.Realm
-import org.matrix.android.sdk.api.crypto.VerificationState
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.query.QueryStringValue
+import org.matrix.android.sdk.api.session.crypto.verification.VerificationState
 import org.matrix.android.sdk.api.session.events.model.AggregatedAnnotation
 import org.matrix.android.sdk.api.session.events.model.Event
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.LocalEcho
 import org.matrix.android.sdk.api.session.events.model.RelationType
+import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventContent
 import org.matrix.android.sdk.api.session.events.model.getRelationContent
 import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.events.model.toModel
@@ -43,7 +44,6 @@ import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.internal.SessionManager
-import org.matrix.android.sdk.internal.crypto.model.event.EncryptedEventContent
 import org.matrix.android.sdk.internal.crypto.verification.toState
 import org.matrix.android.sdk.internal.database.helper.findRootThreadEvent
 import org.matrix.android.sdk.internal.database.mapper.ContentMapper
@@ -316,14 +316,16 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
             ContentMapper
                     .map(eventAnnotationsSummaryEntity.pollResponseSummary?.aggregatedContent)
                     ?.toModel<PollSummaryContent>()
-                    ?.apply {
-                        totalVotes = 0
-                        winnerVoteCount = 0
-                        votes = emptyList()
-                        votesSummary = emptyMap()
-                    }
-                    ?.apply {
-                        eventAnnotationsSummaryEntity.pollResponseSummary?.aggregatedContent = ContentMapper.map(toContent())
+                    ?.let { existingPollSummaryContent ->
+                        eventAnnotationsSummaryEntity.pollResponseSummary?.aggregatedContent = ContentMapper.map(
+                                PollSummaryContent(
+                                        myVote = existingPollSummaryContent.myVote,
+                                        votes = emptyList(),
+                                        votesSummary = emptyMap(),
+                                        totalVotes = 0,
+                                        winnerVoteCount = 0,
+                                )
+                                        .toContent())
                     }
 
             val txId = event.unsignedData?.transactionId
@@ -410,15 +412,15 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
                     existing.pollResponseSummary = it
                 }
 
-        val closedTime = existingPollSummary?.closedTime
+        val closedTime = existingPollSummary.closedTime
         if (closedTime != null && eventTimestamp > closedTime) {
             Timber.v("## POLL is closed ignore event poll:$targetEventId, event :${event.eventId}")
             return
         }
 
-        val sumModel = ContentMapper.map(existingPollSummary?.aggregatedContent).toModel<PollSummaryContent>() ?: PollSummaryContent()
+        val currentModel = ContentMapper.map(existingPollSummary.aggregatedContent).toModel<PollSummaryContent>()
 
-        if (existingPollSummary!!.sourceEvents.contains(eventId)) {
+        if (existingPollSummary.sourceEvents.contains(eventId)) {
             // ignore this event, we already know it (??)
             Timber.v("## POLL  ignoring event for summary, it's known eventId:$eventId")
             return
@@ -443,7 +445,9 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
             return
         }
 
-        val votes = sumModel.votes?.toMutableList() ?: ArrayList()
+        val votes = currentModel?.votes.orEmpty().toMutableList()
+
+        var myVote: String? = null
         val existingVoteIndex = votes.indexOfFirst { it.userId == senderId }
         if (existingVoteIndex != -1) {
             // Is the vote newer?
@@ -452,7 +456,7 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
                 // Take the new one
                 votes[existingVoteIndex] = VoteInfo(senderId, option, eventTimestamp)
                 if (userId == senderId) {
-                    sumModel.myVote = option
+                    myVote = option
                 }
                 Timber.v("## POLL adding vote $option for user $senderId in poll :$targetEventId ")
             } else {
@@ -461,16 +465,14 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
         } else {
             votes.add(VoteInfo(senderId, option, eventTimestamp))
             if (userId == senderId) {
-                sumModel.myVote = option
+                myVote = option
             }
             Timber.v("## POLL adding vote $option for user $senderId in poll :$targetEventId ")
         }
-        sumModel.votes = votes
 
         // Precompute the percentage of votes for all options
         val totalVotes = votes.size
-        sumModel.totalVotes = totalVotes
-        sumModel.votesSummary = votes
+        val newVotesSummary = votes
                 .groupBy({ it.option }, { it.userId })
                 .mapValues {
                     VoteSummary(
@@ -478,7 +480,7 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
                             percentage = if (totalVotes == 0 && it.value.isEmpty()) 0.0 else it.value.size.toDouble() / totalVotes
                     )
                 }
-        sumModel.winnerVoteCount = sumModel.votesSummary?.maxOf { it.value.total } ?: 0
+        val newWinnerVoteCount = newVotesSummary.maxOf { it.value.total }
 
         if (isLocalEcho) {
             existingPollSummary.sourceLocalEchoEvents.add(eventId)
@@ -486,7 +488,15 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
             existingPollSummary.sourceEvents.add(eventId)
         }
 
-        existingPollSummary.aggregatedContent = ContentMapper.map(sumModel.toContent())
+        val newSumModel = PollSummaryContent(
+                myVote = myVote,
+                votes = votes,
+                votesSummary = newVotesSummary,
+                totalVotes = totalVotes,
+                winnerVoteCount = newWinnerVoteCount
+        )
+
+        existingPollSummary.aggregatedContent = ContentMapper.map(newSumModel.toContent())
     }
 
     private fun handleEndPoll(realm: Realm,
@@ -532,7 +542,7 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
 
     private fun getPollEvent(roomId: String, eventId: String): TimelineEvent? {
         val session = sessionManager.getSessionComponent(sessionId)?.session()
-        return session?.getRoom(roomId)?.getTimelineEvent(eventId) ?: return null.also {
+        return session?.roomService()?.getRoom(roomId)?.getTimelineEvent(eventId) ?: return null.also {
             Timber.v("## POLL target poll event $eventId not found in room $roomId")
         }
     }

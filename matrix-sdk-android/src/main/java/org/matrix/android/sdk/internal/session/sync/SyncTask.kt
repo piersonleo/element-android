@@ -24,6 +24,8 @@ import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.initsync.InitSyncStep
 import org.matrix.android.sdk.api.session.initsync.SyncStatusService
 import org.matrix.android.sdk.api.session.statistics.StatisticEvent
+import org.matrix.android.sdk.api.session.sync.InitialSyncStrategy
+import org.matrix.android.sdk.api.session.sync.initialSyncStrategy
 import org.matrix.android.sdk.api.session.sync.model.LazyRoomSyncEphemeral
 import org.matrix.android.sdk.api.session.sync.model.SyncResponse
 import org.matrix.android.sdk.internal.di.SessionFilesDirectory
@@ -105,7 +107,7 @@ internal class DefaultSyncTask @Inject constructor(
         val isInitialSync = token == null
         if (isInitialSync) {
             // We might want to get the user information in parallel too
-            val user = tryOrNull { session.getProfileAsUser(userId) }
+            val user = tryOrNull { session.profileService().getProfileAsUser(userId) }
             userStore.createOrUpdate(
                     userId = userId,
                     displayName = user?.displayName,
@@ -170,7 +172,7 @@ internal class DefaultSyncTask @Inject constructor(
             val nbToDevice = syncResponse.toDevice?.events.orEmpty().size
             val nextBatch = syncResponse.nextBatch
             Timber.tag(loggerTag.value).d(
-                "Incremental sync request parsing, $nbRooms room(s) $nbToDevice toDevice(s). Got nextBatch: $nextBatch"
+                    "Incremental sync request parsing, $nbRooms room(s) $nbToDevice toDevice(s). Got nextBatch: $nextBatch"
             )
             defaultSyncStatusService.setStatus(SyncStatusService.Status.IncrementalSyncParsing(
                     rooms = nbRooms,
