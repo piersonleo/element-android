@@ -728,6 +728,7 @@ internal class RealmCryptoStore @Inject constructor(
         return doWithRealm(realmConfiguration) {
             it.where<OlmSessionEntity>()
                     .equalTo(OlmSessionEntityFields.DEVICE_KEY, deviceKey)
+                    .sort(OlmSessionEntityFields.LAST_RECEIVED_MESSAGE_TS, Sort.DESCENDING)
                     .findAll()
                     .mapNotNull { sessionEntity ->
                         sessionEntity.sessionId
