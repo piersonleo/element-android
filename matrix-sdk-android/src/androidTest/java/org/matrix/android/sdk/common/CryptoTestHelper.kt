@@ -42,6 +42,7 @@ import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.room.Room
 import org.matrix.android.sdk.api.session.room.model.Membership
+import org.matrix.android.sdk.api.session.room.model.RoomHistoryVisibility
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.model.create.CreateRoomParams
 import org.matrix.android.sdk.api.session.room.roomSummaryQueryParams
@@ -60,11 +61,14 @@ class CryptoTestHelper(private val testHelper: CommonTestHelper) {
     /**
      * @return alice session
      */
-    fun doE2ETestWithAliceInARoom(encryptedRoom: Boolean = true): CryptoTestData {
+    fun doE2ETestWithAliceInARoom(encryptedRoom: Boolean = true, roomHistoryVisibility: RoomHistoryVisibility? = null): CryptoTestData {
         val aliceSession = testHelper.createAccount(TestConstants.USER_ALICE, defaultSessionParams)
 
         val roomId = testHelper.runBlockingTest {
-            aliceSession.createRoom(CreateRoomParams().apply { name = "MyRoom" })
+            aliceSession.createRoom(CreateRoomParams().apply {
+                historyVisibility = roomHistoryVisibility
+                name = "MyRoom"
+            })
         }
         if (encryptedRoom) {
             testHelper.waitWithLatch { latch ->
@@ -88,8 +92,8 @@ class CryptoTestHelper(private val testHelper: CommonTestHelper) {
     /**
      * @return alice and bob sessions
      */
-    fun doE2ETestWithAliceAndBobInARoom(encryptedRoom: Boolean = true): CryptoTestData {
-        val cryptoTestData = doE2ETestWithAliceInARoom(encryptedRoom)
+    fun doE2ETestWithAliceAndBobInARoom(encryptedRoom: Boolean = true, roomHistoryVisibility: RoomHistoryVisibility? = null): CryptoTestData {
+        val cryptoTestData = doE2ETestWithAliceInARoom(encryptedRoom, roomHistoryVisibility)
         val aliceSession = cryptoTestData.firstSession
         val aliceRoomId = cryptoTestData.roomId
 
@@ -288,7 +292,8 @@ class CryptoTestHelper(private val testHelper: CommonTestHelper) {
                                             )
                                     )
                                 }
-                            }, it)
+                            }, it
+                    )
         }
     }
 
@@ -305,7 +310,8 @@ class CryptoTestHelper(private val testHelper: CommonTestHelper) {
                 requestID,
                 roomId,
                 bob.myUserId,
-                bob.sessionParams.credentials.deviceId!!)
+                bob.sessionParams.credentials.deviceId!!
+        )
 
         // we should reach SHOW SAS on both
         var alicePovTx: OutgoingSasVerificationTransaction? = null
