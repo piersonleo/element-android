@@ -58,6 +58,7 @@ class SearchResultController @Inject constructor(
 
     interface Listener {
         fun onItemClicked(event: Event)
+        fun onThreadSummaryClicked(event: Event)
         fun loadMore()
     }
 
@@ -133,6 +134,7 @@ class SearchResultController @Inject constructor(
                     .threadSummaryFormatted(displayableEventFormatter.formatThreadSummary(event.threadDetails?.threadSummaryLatestEvent).toString())
                     .areThreadMessagesEnabled(userPreferencesProvider.areThreadMessagesEnabled())
                     .listener { listener?.onItemClicked(eventAndSender.event) }
+                    .threadSummaryListener { listener?.onThreadSummaryClicked(eventAndSender.event) }
                     .let { result.add(it) }
         }
 
