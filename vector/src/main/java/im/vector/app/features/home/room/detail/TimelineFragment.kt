@@ -106,7 +106,7 @@ import im.vector.app.core.utils.colorizeMatchingText
 import im.vector.app.core.utils.copyToClipboard
 import im.vector.app.core.utils.createJSonViewerStyleProvider
 import im.vector.app.core.utils.createUIHandler
-import im.vector.app.core.utils.isAnimationDisabled
+import im.vector.app.core.utils.isAnimationEnabled
 import im.vector.app.core.utils.isValidUrl
 import im.vector.app.core.utils.onPermissionDeniedDialog
 import im.vector.app.core.utils.onPermissionDeniedSnackbar
@@ -588,7 +588,7 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun handleChatEffect(chatEffect: ChatEffect) {
-        if (requireContext().isAnimationDisabled()) {
+        if (!requireContext().isAnimationEnabled()) {
             Timber.d("Do not perform chat effect, animations are disabled.")
             return
         }
