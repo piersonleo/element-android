@@ -21,8 +21,6 @@ import com.vcard.vchat.utils.Utils
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import kotlinx.parcelize.Parcelize
 import org.matrix.android.sdk.api.session.crypto.verification.VerificationState
-import org.matrix.android.sdk.api.session.room.model.message.LocationInfo
-import org.matrix.android.sdk.api.session.room.model.message.MessageBeaconLocationDataContent
 import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.util.MatrixItem
 
