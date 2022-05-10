@@ -104,7 +104,6 @@ import im.vector.app.features.onboarding.ftueauth.FtueAuthChooseProfilePictureFr
 import im.vector.app.features.onboarding.ftueauth.FtueAuthGenericTextInputFormFragment
 import im.vector.app.features.onboarding.ftueauth.FtueAuthLegacyStyleCaptchaFragment
 import im.vector.app.features.onboarding.ftueauth.FtueAuthLoginFragment
-import im.vector.app.features.onboarding.ftueauth.FtueAuthLoginFragmentVchat
 import im.vector.app.features.onboarding.ftueauth.FtueAuthPersonalizationCompleteFragment
 import im.vector.app.features.onboarding.ftueauth.FtueAuthResetPasswordFragment
 import im.vector.app.features.onboarding.ftueauth.FtueAuthResetPasswordMailConfirmationFragment
@@ -427,12 +426,8 @@ interface FragmentModule {
 
     @Binds
     @IntoMap
-    //@FragmentKey(FtueAuthLoginFragment::class)
-    //fun bindFtueAuthLoginFragment(fragment: FtueAuthLoginFragment): Fragment
-
-    //For vChat use
-    @FragmentKey(FtueAuthLoginFragmentVchat::class)
-    fun bindFtueAuthLoginFragment(fragment: FtueAuthLoginFragmentVchat): Fragment
+    @FragmentKey(FtueAuthLoginFragment::class)
+    fun bindFtueAuthLoginFragment(fragment: FtueAuthLoginFragment): Fragment
 
     @Binds
     @IntoMap

@@ -19,7 +19,6 @@ package im.vector.app.features.home.room.detail.timeline.item
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.IdRes
-import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.features.home.AvatarRenderer
 import org.matrix.android.sdk.api.util.MatrixItem
@@ -63,7 +62,7 @@ abstract class BasedMergedItem<H : BasedMergedItem.Holder> : BaseEventItem<H>() 
             val isDirectRoom: Boolean
     )
 
-    fun Data.toMatrixItem() = MatrixItem.UserItem(Utils.removeUrlSuffix(userId)!!, Utils.removeUrlSuffix(memberName), avatarUrl)
+    fun Data.toMatrixItem() = MatrixItem.UserItem(userId, memberName, avatarUrl)
 
     interface Attributes {
         val isCollapsed: Boolean

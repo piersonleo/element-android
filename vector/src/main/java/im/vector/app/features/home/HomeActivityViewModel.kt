@@ -85,8 +85,7 @@ class HomeActivityViewModel @AssistedInject constructor(
         observeInitialSync()
         checkSessionPushIsOn()
         observeCrossSigningReset()
-        //don't need in vChat
-        //observeAnalytics()
+        observeAnalytics()
         initThreadsMigration()
     }
 
