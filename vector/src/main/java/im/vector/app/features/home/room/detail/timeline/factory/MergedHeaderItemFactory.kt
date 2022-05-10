@@ -28,7 +28,9 @@ import im.vector.app.features.home.room.detail.timeline.helper.canBeMerged
 import im.vector.app.features.home.room.detail.timeline.helper.isRoomConfiguration
 import im.vector.app.features.home.room.detail.timeline.item.BasedMergedItem
 import im.vector.app.features.home.room.detail.timeline.item.MergedRoomCreationItem
+import im.vector.app.features.home.room.detail.timeline.item.MergedRoomCreationItemVchat
 import im.vector.app.features.home.room.detail.timeline.item.MergedRoomCreationItem_
+import im.vector.app.features.home.room.detail.timeline.item.MergedRoomCreationItemVchat_
 import im.vector.app.features.home.room.detail.timeline.item.MergedSimilarEventsItem
 import im.vector.app.features.home.room.detail.timeline.item.MergedSimilarEventsItem_
 import im.vector.app.features.home.room.detail.timeline.tools.createLinkMovementMethod
@@ -157,7 +159,7 @@ class MergedHeaderItemFactory @Inject constructor(private val activeSessionHolde
                                                event: TimelineEvent,
                                                eventIdToHighlight: String?,
                                                requestModelBuild: () -> Unit,
-                                               callback: TimelineEventController.Callback?): MergedRoomCreationItem_? {
+                                               callback: TimelineEventController.Callback?): MergedRoomCreationItemVchat_? {
         var prevEvent = items.prevOrNull(currentPosition)
         var tmpPos = currentPosition - 1
         val mergedEvents = mutableListOf(event)
@@ -207,7 +209,7 @@ class MergedHeaderItemFactory @Inject constructor(private val activeSessionHolde
                     ?.let { it.getStateEvent(EventType.STATE_ROOM_POWER_LEVELS, QueryStringValue.NoCondition)?.content?.toModel<PowerLevelsContent>() }
                     ?.let { PowerLevelsHelper(it) }
             val currentUserId = activeSessionHolder.getSafeActiveSession()?.myUserId ?: ""
-            val attributes = MergedRoomCreationItem.Attributes(
+            val attributes = MergedRoomCreationItemVchat.Attributes(
                     isCollapsed = isCollapsed,
                     mergeData = mergedData,
                     avatarRenderer = avatarRenderer,
@@ -225,7 +227,7 @@ class MergedHeaderItemFactory @Inject constructor(private val activeSessionHolde
                     canChangeTopic = powerLevelsHelper?.isUserAllowedToSend(currentUserId, true, EventType.STATE_ROOM_TOPIC) ?: false,
                     canChangeName = powerLevelsHelper?.isUserAllowedToSend(currentUserId, true, EventType.STATE_ROOM_NAME) ?: false
             )
-            MergedRoomCreationItem_()
+            MergedRoomCreationItemVchat_()
                     .id(mergeId)
                     .leftGuideline(avatarSizeProvider.leftGuideline)
                     .highlighted(isCollapsed && highlighted)
