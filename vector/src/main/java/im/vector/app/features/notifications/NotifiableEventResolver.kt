@@ -22,8 +22,7 @@ import im.vector.app.core.extensions.takeAs
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.room.detail.timeline.format.DisplayableEventFormatter
-//import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
-import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatterVchat
+import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentUrlResolver
@@ -58,7 +57,7 @@ import javax.inject.Inject
  */
 class NotifiableEventResolver @Inject constructor(
         private val stringProvider: StringProvider,
-        private val noticeEventFormatter: NoticeEventFormatterVchat,
+        private val noticeEventFormatter: NoticeEventFormatter,
         private val displayableEventFormatter: DisplayableEventFormatter
 ) {
 

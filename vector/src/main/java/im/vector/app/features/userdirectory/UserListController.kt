@@ -21,7 +21,6 @@ import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
-import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.epoxy.errorWithRetryItem
 import im.vector.app.core.epoxy.loadingItem
@@ -38,7 +37,6 @@ import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.identity.IdentityServiceError
 import org.matrix.android.sdk.api.session.identity.ThreePid
 import org.matrix.android.sdk.api.session.user.model.User
-import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.api.util.toMatrixItem
 import javax.inject.Inject
 
@@ -249,7 +247,7 @@ class UserListController @Inject constructor(private val session: Session,
                         userDirectoryUserItem {
                             id(item.userId)
                             selected(isSelected)
-                            matrixItem(MatrixItem.UserItem(Utils.removeUrlSuffix(item.userId)!!, Utils.removeUrlSuffix(item.displayName), item.avatarUrl))
+                            matrixItem(item.toMatrixItem())
                             avatarRenderer(host.avatarRenderer)
                             clickListener {
                                 host.callback?.onItemClick(item)
@@ -279,7 +277,7 @@ class UserListController @Inject constructor(private val session: Session,
                 userDirectoryUserItem {
                     id(user.userId)
                     selected(isSelected)
-                    matrixItem(MatrixItem.UserItem(Utils.removeUrlSuffix(user.userId)!!, Utils.removeUrlSuffix(user.displayName), user.avatarUrl))
+                    matrixItem(user.toMatrixItem())
                     avatarRenderer(host.avatarRenderer)
                     clickListener {
                         host.callback?.onItemClick(user)

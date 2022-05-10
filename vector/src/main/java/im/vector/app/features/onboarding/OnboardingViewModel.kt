@@ -87,7 +87,7 @@ class OnboardingViewModel @AssistedInject constructor(
     companion object : MavericksViewModelFactory<OnboardingViewModel, OnboardingViewState> by hiltMavericksViewModelFactory()
 
     init {
-        //getKnownCustomHomeServersUrls()
+        getKnownCustomHomeServersUrls()
         observeDataStore()
     }
 
@@ -489,7 +489,6 @@ class OnboardingViewModel @AssistedInject constructor(
     }
 
     private fun handleLogin(action: OnboardingAction.LoginOrRegister) {
-        Timber.i("handleLogin")
         val safeLoginWizard = loginWizard
 
         if (safeLoginWizard == null) {
@@ -598,7 +597,6 @@ class OnboardingViewModel @AssistedInject constructor(
             // This is invalid
             _viewEvents.post(OnboardingViewEvents.Failure(Throwable("Unable to create a HomeServerConnectionConfig")))
         } else {
-            Timber.i("handleHomeserverChange")
             startAuthenticationFlow(action, homeServerConnectionConfig)
         }
     }
@@ -613,14 +611,10 @@ class OnboardingViewModel @AssistedInject constructor(
         currentJob = viewModelScope.launch {
             setState { copy(isLoading = true) }
             runCatching { startAuthenticationFlowUseCase.execute(homeServerConnectionConfig) }.fold(
-                    onSuccess = { onAuthenticationStartedSuccess(trigger, homeServerConnectionConfig, it, serverTypeOverride)
-                                  setState { copy(isLoading = true) }
-                    },
-                    onFailure = {
-                        _viewEvents.post(OnboardingViewEvents.Failure(it))
-                        setState { copy(isLoading = false) }
-                    }
+                    onSuccess = { onAuthenticationStartedSuccess(trigger, homeServerConnectionConfig, it, serverTypeOverride) },
+                    onFailure = { _viewEvents.post(OnboardingViewEvents.Failure(it)) }
             )
+            setState { copy(isLoading = false) }
         }
     }
 
@@ -648,7 +642,6 @@ class OnboardingViewModel @AssistedInject constructor(
             is OnboardingAction.HomeServerChange.SelectHomeServer -> {
                 updateServerSelection(config, serverTypeOverride, authResult)
                 if (authResult.selectedHomeserver.preferredLoginMode.supportsSignModeScreen()) {
-                    Timber.i("awaitState onboarding Flow: ${awaitState().onboardingFlow}")
                     when (awaitState().onboardingFlow) {
                         OnboardingFlow.SignIn -> {
                             updateSignMode(SignMode.SignIn)
@@ -660,8 +653,7 @@ class OnboardingViewModel @AssistedInject constructor(
                         }
                         OnboardingFlow.SignInSignUp,
                         null                  -> {
-                            updateSignMode(SignMode.SignIn)
-                            //_viewEvents.post(OnboardingViewEvents.OnLoginFlowRetrieved)
+                            _viewEvents.post(OnboardingViewEvents.OnLoginFlowRetrieved)
                         }
                     }
                 } else {

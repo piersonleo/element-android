@@ -21,7 +21,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
-import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyHolder
@@ -52,8 +51,8 @@ abstract class RoomInvitationItem : VectorEpoxyModel<RoomInvitationItem.Holder>(
         holder.acceptView.commonClicked = acceptListener
         holder.rejectView.commonClicked = rejectListener
         InviteButtonStateBinder.bind(holder.acceptView, holder.rejectView, changeMembershipState)
-        holder.titleView.text = Utils.removeUrlSuffix(matrixItem.getBestName())
-        holder.subtitleView.setTextOrHide(Utils.removeUrlSuffix(secondLine))
+        holder.titleView.text = matrixItem.getBestName()
+        holder.subtitleView.setTextOrHide(secondLine)
         avatarRenderer.render(matrixItem, holder.avatarImageView)
     }
 
