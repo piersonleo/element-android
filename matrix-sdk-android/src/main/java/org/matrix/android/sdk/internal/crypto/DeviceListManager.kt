@@ -318,12 +318,12 @@ internal class DeviceListManager @Inject constructor(
             val t0 = System.currentTimeMillis()
             try {
                 val result = doKeyDownloadForUsers(downloadUsers)
-                Timber.v("## CRYPTO | downloadKeys() : doKeyDownloadForUsers succeeds after ${System.currentTimeMillis() - t0} ms")
+                Timber.v("## CRYPTO | downloadKeys() : doKeyDownloadForUsers succeeds after ${clock.epochMillis() - t0} ms")
                 result.also {
                     it.addEntriesFromMap(stored)
                 }
             } catch (failure: Throwable) {
-                Timber.w(failure, "## CRYPTO | downloadKeys() : doKeyDownloadForUsers failed after ${System.currentTimeMillis() - t0} ms")
+                Timber.w(failure, "## CRYPTO | downloadKeys() : doKeyDownloadForUsers failed after ${clock.epochMillis() - t0} ms")
                 if (forceDownload) {
                     throw failure
                 } else {
