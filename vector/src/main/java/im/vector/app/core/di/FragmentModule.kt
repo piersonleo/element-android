@@ -65,7 +65,6 @@ import im.vector.app.features.home.room.list.RoomListFragment
 import im.vector.app.features.home.room.threads.list.views.ThreadListFragment
 import im.vector.app.features.location.LocationPreviewFragment
 import im.vector.app.features.location.LocationSharingFragment
-import im.vector.app.features.location.live.map.LocationLiveMapViewFragment
 import im.vector.app.features.login.LoginCaptchaFragment
 import im.vector.app.features.login.LoginFragment
 import im.vector.app.features.login.LoginGenericTextInputFormFragment
@@ -1017,9 +1016,4 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(LocationPreviewFragment::class)
     fun bindLocationPreviewFragment(fragment: LocationPreviewFragment): Fragment
-
-    @Binds
-    @IntoMap
-    @FragmentKey(LocationLiveMapViewFragment::class)
-    fun bindLocationLiveMapViewFragment(fragment: LocationLiveMapViewFragment): Fragment
 }
