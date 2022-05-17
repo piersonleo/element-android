@@ -2025,7 +2025,6 @@ class TimelineFragment @Inject constructor(
                 handleShowLocationPreview(messageContent, informationData.senderId)
             }
             is MessageBeaconInfoContent          -> {
-                // TODO navigate only from running live location message: possible after merge of associated PR
                 navigateToLocationLiveMap()
             }
             else                                 -> {
