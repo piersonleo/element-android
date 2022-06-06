@@ -284,7 +284,9 @@ class VectorSettingsGeneralFragment @Inject constructor(
         findPreference<VectorPreference>("SETTINGS_SIGN_OUT_KEY")!!
                 .onPreferenceClickListener = Preference.OnPreferenceClickListener {
             activity?.let {
-                SignOutUiWorker(requireActivity()).perform()
+                //vChat: signout without encryption
+                SignOutUiWorker(requireActivity()).performWithoutSessionCheck()
+                //SignOutUiWorker(requireActivity()).perform()
             }
 
             false
