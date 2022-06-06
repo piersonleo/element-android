@@ -82,7 +82,9 @@ class HomeDrawerFragment @Inject constructor(
         // Sign out
         views.homeDrawerHeaderSignoutView.debouncedClicks {
             sharedActionViewModel.post(HomeActivitySharedAction.CloseDrawer)
-            SignOutUiWorker(requireActivity()).perform()
+            //vChat: signout without encryption
+            SignOutUiWorker(requireActivity()).performWithoutSessionCheck()
+            //SignOutUiWorker(requireActivity()).perform()
         }
 
         views.homeDrawerQRCodeButton.debouncedClicks {
