@@ -434,6 +434,7 @@ class HomeActivity :
                 it.navigator.requestSelfSessionVerification(it)
             }
         }
+        popupAlertManager.cancelAlert("upgradeSecurity")
     }
 
     private fun handlePromptToEnablePush() {
