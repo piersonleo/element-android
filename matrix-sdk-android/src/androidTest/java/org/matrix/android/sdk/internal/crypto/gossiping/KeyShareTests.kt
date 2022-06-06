@@ -436,6 +436,7 @@ class KeyShareTests : InstrumentedTest {
                 .markedLocallyAsManuallyVerified(aliceNewSession.myUserId, aliceNewSession.sessionParams.deviceId!!)
 
         // /!\ Stop initial alice session syncing so that it can't reply
+        aliceSession.cryptoService().enableKeyGossiping(false)
         aliceSession.stopSync()
 
         // Let's now try to request
@@ -444,6 +445,7 @@ class KeyShareTests : InstrumentedTest {
         // Should get a reply from bob and not from alice
         commonTestHelper.waitWithLatch { latch ->
             commonTestHelper.retryPeriodicallyWithLatch(latch) {
+              //  Log.d("#TEST", "outgoing key requests :${aliceNewSession.cryptoService().getOutgoingRoomKeyRequests().joinToString { it.sessionId ?: "?" }}")
                 val outgoing = aliceNewSession.cryptoService().getOutgoingRoomKeyRequests().firstOrNull { it.sessionId == sentEventMegolmSession }
                 val bobReply = outgoing?.results?.firstOrNull { it.userId == bobSession.myUserId }
                 val result = bobReply?.result
@@ -457,6 +459,7 @@ class KeyShareTests : InstrumentedTest {
         assertEquals("The request should not be canceled", OutgoingRoomKeyRequestState.SENT, outgoingReq.state)
 
         // let's wake up alice
+        aliceSession.cryptoService().enableKeyGossiping(true)
         aliceSession.startSync(true)
 
         // We should now get a reply from first session
