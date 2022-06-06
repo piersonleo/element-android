@@ -40,6 +40,7 @@ import org.matrix.android.sdk.api.session.identity.ThreePid
 import org.matrix.android.sdk.api.session.user.model.User
 import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.api.util.toMatrixItem
+import timber.log.Timber
 import javax.inject.Inject
 
 class UserListController @Inject constructor(private val session: Session,
@@ -230,6 +231,7 @@ class UserListController @Inject constructor(private val session: Session,
         }
     }
 
+    //vChat: add long click listener
     private fun buildKnownUsers(currentState: UserListViewState, selectedUsers: List<String>) {
         val host = this
         currentState.knownUsers()
@@ -253,6 +255,11 @@ class UserListController @Inject constructor(private val session: Session,
                             avatarRenderer(host.avatarRenderer)
                             clickListener {
                                 host.callback?.onItemClick(item)
+                            }
+                            longClickListener {
+                                Timber.i("onLongClick")
+                                host.callback?.onItemLongClick(item)
+                                true
                             }
                         }
                     }
@@ -284,6 +291,11 @@ class UserListController @Inject constructor(private val session: Session,
                     clickListener {
                         host.callback?.onItemClick(user)
                     }
+                    longClickListener {
+                        Timber.i("onLongClick")
+                        host.callback?.onItemLongClick(user)
+                        true
+                    }
                 }
             }
         }
@@ -311,11 +323,13 @@ class UserListController @Inject constructor(private val session: Session,
         }
     }
 
+    //vChat: add long click callback
     interface Callback {
         fun onInviteFriendClick()
         fun onContactBookClick()
         fun onUseQRCode()
         fun onItemClick(user: User)
+        fun onItemLongClick(user: User)
         fun onMatrixIdClick(matrixId: String)
         fun onThreePidClick(threePid: ThreePid)
         fun onSetupDiscovery()
