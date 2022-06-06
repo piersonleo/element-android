@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mesh_title">MESH</string>
+
+    <!--Bottom navigation buttons-->
+    <string name="bottom_action_wallet">Mesh Wallet</string>
+
+    <string name="wallet_title">Mesh Wallet</string>
+    <string name="action_receive">Receive</string>
+
+    <string name="wallet_account_placeholder">0.00 MESH</string>
+    <string name="wallet_value_placeholder">0.00 IDR</string>
+    <string name="new_chat_title">New Chat</string>
+    <string name="vchat_help_long_click_on_room_for_more_options">Long click on a chat to see more options</string>
+    <string name="vchat_room_participants_header_direct_chats">Chat</string>
+    <string name="vchat_fab_menu_create_chat">"New Chat"</string>
+    <string name="vchat_bottom_action_people_x">Chat</string>
+
+    <string name="vchat_delete_event_dialog_title">Remove Message</string>
+    <string name="vchat_delete_event_dialog_content">Are you sure you wish to remove this message?</string>
+
+
+</resources>
