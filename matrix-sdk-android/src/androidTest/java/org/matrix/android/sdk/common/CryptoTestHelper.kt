@@ -484,7 +484,7 @@ class CryptoTestHelper(private val testHelper: CommonTestHelper) {
         sentEventIds.forEachIndexed { index, sentEventId ->
             testHelper.waitWithLatch { latch ->
                 testHelper.retryPeriodicallyWithLatch(latch) {
-                    val event = session.getRoom(e2eRoomID)!!.getTimelineEvent(sentEventId)!!.root
+                    val event = session.getRoom(e2eRoomID)!!.timelineService().getTimelineEvent(sentEventId)!!.root
                     testHelper.runBlockingTest {
                         try {
                             session.cryptoService().decryptEvent(event, "").let { result ->
@@ -509,7 +509,7 @@ class CryptoTestHelper(private val testHelper: CommonTestHelper) {
 
     fun ensureCannotDecrypt(sentEventIds: List<String>, session: Session, e2eRoomID: String, expectedError: MXCryptoError.ErrorType? = null) {
         sentEventIds.forEach { sentEventId ->
-            val event = session.getRoom(e2eRoomID)!!.getTimelineEvent(sentEventId)!!.root
+            val event = session.getRoom(e2eRoomID)!!.timelineService().getTimelineEvent(sentEventId)!!.root
             testHelper.runBlockingTest {
                 try {
                     session.cryptoService().decryptEvent(event, "")

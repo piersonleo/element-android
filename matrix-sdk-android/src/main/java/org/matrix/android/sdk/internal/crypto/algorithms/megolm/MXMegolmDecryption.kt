@@ -234,7 +234,8 @@ internal class MXMegolmDecryption(
         }
 
         Timber.tag(loggerTag.value).i("onRoomKeyEvent addInboundGroupSession ${roomKeyContent.sessionId}")
-        val addSessionResult = olmDevice.addInboundGroupSession(roomKeyContent.sessionId,
+        val addSessionResult = olmDevice.addInboundGroupSession(
+                roomKeyContent.sessionId,
                 roomKeyContent.sessionKey,
                 roomKeyContent.roomId,
                 senderKey,
