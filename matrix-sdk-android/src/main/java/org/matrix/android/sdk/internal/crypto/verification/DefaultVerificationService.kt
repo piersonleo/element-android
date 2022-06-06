@@ -771,8 +771,15 @@ internal class DefaultVerificationService @Inject constructor(
             return
         }
 
+        val roomId = event.roomId
+        if (roomId == null) {
+            Timber.e("## SAS Verification missing roomId for event")
+            // TODO cancel?
+            return
+        }
+
         handleReadyReceived(event.senderId, readyReq) {
-            verificationTransportRoomMessageFactory.createTransport(event.roomId!!, it)
+            verificationTransportRoomMessageFactory.createTransport(roomId, it)
         }
     }
 
@@ -1182,6 +1189,7 @@ internal class DefaultVerificationService @Inject constructor(
         }
                 .distinct()
 
+        requestsForUser.add(verificationRequest)
         transport.sendVerificationRequest(methodValues, validLocalId, otherUserId, roomId, null) { syncedId, info ->
             // We need to update with the syncedID
             updatePendingRequest(
@@ -1193,7 +1201,6 @@ internal class DefaultVerificationService @Inject constructor(
             )
         }
 
-        requestsForUser.add(verificationRequest)
         dispatchRequestAdded(verificationRequest)
 
         return verificationRequest
