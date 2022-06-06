@@ -22,7 +22,7 @@ import im.vector.app.core.utils.DebouncedClickListener
 import im.vector.app.core.utils.DebouncedLongClickListener
 
 /**
- * View.OnClickListener lambda
+ * View.OnClickListener lambda.
  */
 typealias ClickListener = (View) -> Unit
 typealias LongClickListener = (View) -> Boolean
@@ -56,7 +56,7 @@ fun TextView.onLongClickIgnoringLinks(listener: View.OnLongClickListener?) {
             }
 
             /**
-             * Infer that a Clickable span has been click by the presence of a selection
+             * Infer that a Clickable span has been click by the presence of a selection.
              */
             private fun hasLongPressedLink() = selectionStart != -1 || selectionEnd != -1
         })
@@ -64,6 +64,6 @@ fun TextView.onLongClickIgnoringLinks(listener: View.OnLongClickListener?) {
 }
 
 /**
- * Simple Text listener lambda
+ * Simple Text listener lambda.
  */
 typealias TextListener = (String) -> Unit

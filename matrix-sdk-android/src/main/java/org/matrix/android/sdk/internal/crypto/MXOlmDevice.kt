@@ -147,9 +147,9 @@ internal class MXOlmDevice @Inject constructor(
     }
 
     /**
-     * Returns an unpublished fallback key
+     * Returns an unpublished fallback key.
      * A call to markKeysAsPublished will mark it as published and this
-     * call will return null (until a call to generateFallbackKey is made)
+     * call will return null (until a call to generateFallbackKey is made).
      */
     fun getFallbackKey(): MutableMap<String, MutableMap<String, String>>? {
         try {
@@ -196,7 +196,7 @@ internal class MXOlmDevice @Inject constructor(
     }
 
     /**
-     * Release the instance
+     * Release the instance.
      */
     fun release() {
         olmUtility?.releaseUtility()
@@ -239,7 +239,7 @@ internal class MXOlmDevice @Inject constructor(
     }
 
     /**
-     * Generate some new one-time keys
+     * Generate some new one-time keys.
      *
      * @param numKeys number of keys to generate
      */
@@ -854,7 +854,7 @@ internal class MXOlmDevice @Inject constructor(
     }
 
     /**
-     * Search an OlmSession
+     * Search an OlmSession.
      *
      * @param theirDeviceIdentityKey the device key
      * @param sessionId              the session Id
