@@ -2499,8 +2499,7 @@ class TimelineFragment @Inject constructor(
                     displayName = timelineViewModel.getRoomSummary()?.displayName,
                     avatarUrl = timelineViewModel.getRoomSummary()?.avatarUrl,
                     roomEncryptionTrustLevel = timelineViewModel.getRoomSummary()?.roomEncryptionTrustLevel,
-                    rootThreadEventId = rootThreadEventId,
-                    showKeyboard = showKeyboard
+                    rootThreadEventId = rootThreadEventId
             )
             navigator.openThread(it, roomThreadDetailArgs)
         }
