@@ -64,7 +64,7 @@
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:importantForAccessibility="no"
-        android:text="@string/fab_menu_create_chat" />
+        android:text="@string/vchat_fab_menu_create_chat" />
 
     <!-- Menu -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
