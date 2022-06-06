@@ -323,8 +323,8 @@ class E2eeSanityTests : InstrumentedTest {
             }
 
             val importedResult = testHelper.doSync<ImportRoomKeysResult> {
-
-                kbs.restoreKeyBackupWithPassword(keyVersionResult!!,
+                kbs.restoreKeyBackupWithPassword(
+                        keyVersionResult!!,
                         keyBackupPassword,
                         null,
                         null,
@@ -728,7 +728,8 @@ class E2eeSanityTests : InstrumentedTest {
         assertEquals(
                 "USK Private parts should be the same",
                 aliceSession.cryptoService().crossSigningService().getCrossSigningPrivateKeys()!!.user,
-                aliceNewSession.cryptoService().crossSigningService().getCrossSigningPrivateKeys()!!.user)
+                aliceNewSession.cryptoService().crossSigningService().getCrossSigningPrivateKeys()!!.user
+        )
 
         assertEquals(
                 "SSK Private parts should be the same",

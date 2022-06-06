@@ -114,7 +114,7 @@ class WithHeldTests : InstrumentedTest {
                         ?.firstOrNull { it.fromDevice == bobSession.sessionParams.deviceId }
                         ?.result
                         ?.let {
-                           it as? RequestResult.Failure
+                            it as? RequestResult.Failure
                         }
                         ?.code == WithHeldCode.UNVERIFIED
             }
