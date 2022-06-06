@@ -5,13 +5,20 @@
         android:id="@+id/bottom_action_people"
         android:enabled="true"
         android:icon="@drawable/ic_home_bottom_chat"
-        android:title="@string/bottom_action_people_x" />
+        android:title="@string/vchat_bottom_action_people_x" />
 
     <item
         android:id="@+id/bottom_action_rooms"
         android:enabled="true"
         android:icon="@drawable/ic_home_bottom_group"
-        android:title="@string/bottom_action_rooms" />
+        android:title="@string/bottom_action_rooms"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/bottom_action_wallet"
+        android:enabled="true"
+        android:icon="@drawable/ic_home_bottom_wallet"
+        android:title="@string/bottom_action_wallet" />
 
     <item
         android:id="@+id/bottom_action_notification"
