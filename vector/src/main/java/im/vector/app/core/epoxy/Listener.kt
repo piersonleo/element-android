@@ -19,17 +19,27 @@ package im.vector.app.core.epoxy
 import android.view.View
 import android.widget.TextView
 import im.vector.app.core.utils.DebouncedClickListener
+import im.vector.app.core.utils.DebouncedLongClickListener
 
 /**
  * View.OnClickListener lambda.
  */
 typealias ClickListener = (View) -> Unit
+typealias LongClickListener = (View) -> Boolean
 
 fun View.onClick(listener: ClickListener?) {
     if (listener == null) {
         setOnClickListener(null)
     } else {
         setOnClickListener(DebouncedClickListener(listener))
+    }
+}
+
+fun View.onLongClick(listener: LongClickListener?){
+    if (listener == null) {
+        setOnLongClickListener(null)
+    } else {
+        setOnLongClickListener(DebouncedLongClickListener(listener))
     }
 }
 
