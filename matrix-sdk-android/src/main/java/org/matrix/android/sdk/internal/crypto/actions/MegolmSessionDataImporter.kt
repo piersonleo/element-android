@@ -36,7 +36,10 @@ private val loggerTag = LoggerTag("MegolmSessionDataImporter", LoggerTag.CRYPTO)
 internal class MegolmSessionDataImporter @Inject constructor(private val olmDevice: MXOlmDevice,
                                                              private val roomDecryptorProvider: RoomDecryptorProvider,
                                                              private val outgoingKeyRequestManager: OutgoingKeyRequestManager,
-                                                             private val cryptoStore: IMXCryptoStore) {
+                                                             private val cryptoStore: IMXCryptoStore,
+                                                             private val clock: Clock,
+) {
+
     /**
      * Import a list of megolm session keys.
      * Must be call on the crypto coroutine thread

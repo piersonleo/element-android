@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -36,6 +35,7 @@ import org.matrix.android.sdk.internal.session.SessionScope
 import org.matrix.android.sdk.internal.util.JsonCanonicalizer
 import org.matrix.android.sdk.internal.util.convertFromUTF8
 import org.matrix.android.sdk.internal.util.convertToUTF8
+import org.matrix.android.sdk.internal.util.time.Clock
 import org.matrix.olm.OlmAccount
 import org.matrix.olm.OlmException
 import org.matrix.olm.OlmMessage
@@ -55,7 +55,8 @@ internal class MXOlmDevice @Inject constructor(
          */
         private val store: IMXCryptoStore,
         private val olmSessionStore: OlmSessionStore,
-        private val inboundGroupSessionStore: InboundGroupSessionStore
+        private val inboundGroupSessionStore: InboundGroupSessionStore,
+        private val clock: Clock,
 ) {
 
     val mutex = Mutex()
@@ -278,7 +279,7 @@ internal class MXOlmDevice @Inject constructor(
             // Pretend we've received a message at this point, otherwise
             // if we try to send a message to the device, it won't use
             // this session
-            olmSessionWrapper.onMessageReceived()
+            olmSessionWrapper.onMessageReceived(clock.epochMillis())
 
             olmSessionStore.storeSession(olmSessionWrapper, theirIdentityKey)
 
@@ -341,7 +342,7 @@ internal class MXOlmDevice @Inject constructor(
 
                 val olmSessionWrapper = OlmSessionWrapper(olmSession, 0)
                 // This counts as a received message: set last received message time to now
-                olmSessionWrapper.onMessageReceived()
+                olmSessionWrapper.onMessageReceived(clock.epochMillis())
 
                 olmSessionStore.storeSession(olmSessionWrapper, theirDeviceIdentityKey)
             } catch (e: Exception) {
@@ -447,7 +448,7 @@ internal class MXOlmDevice @Inject constructor(
             payloadString =
                     olmSessionWrapper.mutex.withLock {
                         olmSessionWrapper.olmSession.decryptMessage(olmMessage).also {
-                            olmSessionWrapper.onMessageReceived()
+                            olmSessionWrapper.onMessageReceived(clock.epochMillis())
                         }
                     }
             olmSessionStore.storeSession(olmSessionWrapper, theirDeviceIdentityKey)
@@ -513,6 +514,7 @@ internal class MXOlmDevice @Inject constructor(
             return MXOutboundSessionInfo(
                     sessionId = sessionId,
                     sharedWithHelper = SharedWithHelper(roomId, sessionId, store),
+                    clock,
                     restoredOutboundGroupSession.creationTime
             )
         }

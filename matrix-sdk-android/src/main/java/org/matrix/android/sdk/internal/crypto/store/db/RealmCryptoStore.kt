@@ -95,6 +95,7 @@ import org.matrix.android.sdk.internal.di.MoshiProvider
 import org.matrix.android.sdk.internal.di.UserId
 import org.matrix.android.sdk.internal.extensions.clearWith
 import org.matrix.android.sdk.internal.session.SessionScope
+import org.matrix.android.sdk.internal.util.time.Clock
 import org.matrix.olm.OlmAccount
 import org.matrix.olm.OlmException
 import org.matrix.olm.OlmOutboundGroupSession

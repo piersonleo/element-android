@@ -2485,7 +2485,7 @@ class TimelineFragment @Inject constructor(
      * Navigate to Threads timeline for the specified rootThreadEventId
      * using the ThreadsActivity.
      */
-    private fun navigateToThreadTimeline(rootThreadEventId: String, startsThread: Boolean = false) {
+    private fun navigateToThreadTimeline(rootThreadEventId: String, startsThread: Boolean = false, showKeyboard: Boolean = false) {
         analyticsTracker.capture(Interaction.Name.MobileRoomThreadSummaryItem.toAnalyticsInteraction())
         context?.let {
             val roomThreadDetailArgs = ThreadTimelineArgs(
@@ -2494,7 +2494,8 @@ class TimelineFragment @Inject constructor(
                     displayName = timelineViewModel.getRoomSummary()?.displayName,
                     avatarUrl = timelineViewModel.getRoomSummary()?.avatarUrl,
                     roomEncryptionTrustLevel = timelineViewModel.getRoomSummary()?.roomEncryptionTrustLevel,
-                    rootThreadEventId = rootThreadEventId
+                    rootThreadEventId = rootThreadEventId,
+                    showKeyboard = showKeyboard
             )
             navigator.openThread(it, roomThreadDetailArgs)
         }
