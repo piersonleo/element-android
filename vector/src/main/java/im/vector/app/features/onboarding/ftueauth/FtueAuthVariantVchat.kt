@@ -54,11 +54,9 @@ import im.vector.app.features.onboarding.OnboardingViewState
 import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthLegacyStyleTermsFragment
 import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthTermsFragment
 import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthTermsLegacyStyleFragmentArgument
-import org.matrix.android.sdk.api.auth.registration.FlowResult
 import org.matrix.android.sdk.api.auth.registration.Stage
 import org.matrix.android.sdk.api.auth.toLocalizedLoginTerms
 import org.matrix.android.sdk.api.extensions.tryOrNull
-import timber.log.Timber
 
 private const val FRAGMENT_REGISTRATION_STAGE_TAG = "FRAGMENT_REGISTRATION_STAGE_TAG"
 private const val FRAGMENT_LOGIN_TAG = "FRAGMENT_LOGIN_TAG"
@@ -132,24 +130,7 @@ class FtueAuthVariantVchat(
     private fun handleOnboardingViewEvents(viewEvents: OnboardingViewEvents) {
         when (viewEvents) {
             is OnboardingViewEvents.RegistrationFlowResult                     -> {
-                if (registrationShouldFallback(viewEvents)) {
-                    // Display a popup to propose use web fallback
-                    onRegistrationStageNotSupported()
-                } else {
-                    if (viewEvents.isRegistrationStarted) {
-                        // Go on with registration flow
-                        handleRegistrationNavigation(viewEvents.flowResult)
-                    } else {
-                        if (vectorFeatures.isOnboardingCombinedRegisterEnabled()) {
-                            openCombinedRegister()
-                        } else {
-                            // First ask for login and password
-                            // I add a tag to indicate that this fragment is a registration stage.
-                            // This way it will be automatically popped in when starting the next registration stage
-                            openAuthLoginFragmentWithTag(FRAGMENT_REGISTRATION_STAGE_TAG)
-                        }
-                    }
-                }
+                onRegistrationFlow(viewEvents)
             }
             is OnboardingViewEvents.OutdatedHomeserver                         -> {
                 MaterialAlertDialogBuilder(activity)
@@ -177,37 +158,40 @@ class FtueAuthVariantVchat(
             is OnboardingViewEvents.OnServerSelectionDone                      -> onServerSelectionDone(viewEvents)
             is OnboardingViewEvents.OnSignModeSelected                         -> onSignModeSelected(viewEvents)
             is OnboardingViewEvents.OnLoginFlowRetrieved                       ->
-                activity.addFragmentToBackstack(views.loginFragmentContainer,
+                activity.addFragmentToBackstack(
+                        views.loginFragmentContainer,
                         FtueAuthSignUpSignInSelectionFragment::class.java,
-                        option = commonOption)
+                        option = commonOption
+                )
             is OnboardingViewEvents.OnWebLoginError                            -> onWebLoginError(viewEvents)
             is OnboardingViewEvents.OnForgetPasswordClicked                    ->
-                activity.addFragmentToBackstack(views.loginFragmentContainer,
+                activity.addFragmentToBackstack(
+                        views.loginFragmentContainer,
                         FtueAuthResetPasswordFragment::class.java,
-                        option = commonOption)
+                        option = commonOption
+                )
             is OnboardingViewEvents.OnResetPasswordSendThreePidDone            -> {
                 supportFragmentManager.popBackStack(FRAGMENT_LOGIN_TAG, POP_BACK_STACK_EXCLUSIVE)
-                activity.addFragmentToBackstack(views.loginFragmentContainer,
+                activity.addFragmentToBackstack(
+                        views.loginFragmentContainer,
                         FtueAuthResetPasswordMailConfirmationFragment::class.java,
-                        option = commonOption)
+                        option = commonOption
+                )
             }
             is OnboardingViewEvents.OnResetPasswordMailConfirmationSuccess     -> {
                 supportFragmentManager.popBackStack(FRAGMENT_LOGIN_TAG, POP_BACK_STACK_EXCLUSIVE)
-                activity.addFragmentToBackstack(views.loginFragmentContainer,
+                activity.addFragmentToBackstack(
+                        views.loginFragmentContainer,
                         FtueAuthResetPasswordSuccessFragment::class.java,
-                        option = commonOption)
+                        option = commonOption
+                )
             }
             is OnboardingViewEvents.OnResetPasswordMailConfirmationSuccessDone -> {
                 // Go back to the login fragment
                 supportFragmentManager.popBackStack(FRAGMENT_LOGIN_TAG, POP_BACK_STACK_EXCLUSIVE)
             }
             is OnboardingViewEvents.OnSendEmailSuccess                         -> {
-                // Pop the enter email Fragment
-                supportFragmentManager.popBackStack(FRAGMENT_REGISTRATION_STAGE_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                addRegistrationStageFragmentToBackstack(
-                        FtueAuthWaitForEmailFragment::class.java,
-                        FtueAuthWaitForEmailFragmentArgument(viewEvents.email),
-                )
+                openWaitForEmailVerification(viewEvents.email)
             }
             is OnboardingViewEvents.OnSendMsisdnSuccess                        -> {
                 // Pop the enter Msisdn Fragment
@@ -222,11 +206,13 @@ class FtueAuthVariantVchat(
                 // This is handled by the Fragments
                 Unit
             OnboardingViewEvents.OpenUseCaseSelection                          -> {
-                activity.addFragmentToBackstack(views.loginFragmentContainer,
+                activity.addFragmentToBackstack(
+                        views.loginFragmentContainer,
                         FtueAuthUseCaseFragment::class.java,
-                        option = commonOption)
+                        option = commonOption
+                )
             }
-            OnboardingViewEvents.OpenCombinedRegister                          -> openCombinedRegister()
+            OnboardingViewEvents.OpenCombinedRegister                          -> openStartCombinedRegister()
             is OnboardingViewEvents.OnAccountCreated                           -> onAccountCreated()
             OnboardingViewEvents.OnAccountSignedIn                             -> onAccountSignedIn()
             OnboardingViewEvents.OnChooseDisplayName                           -> onChooseDisplayName()
@@ -242,10 +228,41 @@ class FtueAuthVariantVchat(
                 )
             }
             OnboardingViewEvents.OnHomeserverEdited                            -> activity.popBackstack()
+            OnboardingViewEvents.OpenCombinedLogin                             -> onStartCombinedLogin()
+            is OnboardingViewEvents.DeeplinkAuthenticationFailure              -> onDeeplinkedHomeserverUnavailable(viewEvents)
         }
     }
 
-    private fun openCombinedRegister() {
+    private fun onDeeplinkedHomeserverUnavailable(viewEvents: OnboardingViewEvents.DeeplinkAuthenticationFailure) {
+        showHomeserverUnavailableDialog(onboardingViewModel.getInitialHomeServerUrl().orEmpty()) {
+            onboardingViewModel.handle(OnboardingAction.ResetDeeplinkConfig)
+            onboardingViewModel.handle(viewEvents.retryAction)
+        }
+    }
+
+    private fun showHomeserverUnavailableDialog(url: String, action: () -> Unit) {
+        MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.dialog_title_error)
+                .setMessage(activity.getString(R.string.login_error_homeserver_from_url_not_found, url))
+                .setPositiveButton(R.string.login_error_homeserver_from_url_not_found_enter_manual) { _, _ -> action() }
+                .setNegativeButton(R.string.action_cancel, null)
+                .show()
+    }
+
+    private fun onStartCombinedLogin() {
+        addRegistrationStageFragmentToBackstack(FtueAuthCombinedLoginFragment::class.java)
+    }
+
+    private fun onRegistrationFlow(viewEvents: OnboardingViewEvents.RegistrationFlowResult) {
+        when {
+            registrationShouldFallback(viewEvents)               -> displayFallbackWebDialog()
+            viewEvents.isRegistrationStarted                     -> handleRegistrationNavigation(viewEvents.flowResult.missingStages)
+            vectorFeatures.isOnboardingCombinedRegisterEnabled() -> openStartCombinedRegister()
+            else                                                 -> openAuthLoginFragmentWithTag(FRAGMENT_REGISTRATION_STAGE_TAG)
+        }
+    }
+
+    private fun openStartCombinedRegister() {
         addRegistrationStageFragmentToBackstack(FtueAuthCombinedRegisterFragment::class.java)
     }
 
@@ -255,14 +272,16 @@ class FtueAuthVariantVchat(
     private fun OnboardingViewEvents.RegistrationFlowResult.containsUnsupportedRegistrationFlow() =
             flowResult.missingStages.any { !it.isSupported() }
 
-    private fun onRegistrationStageNotSupported() {
+    private fun displayFallbackWebDialog() {
         MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.app_name)
                 .setMessage(activity.getString(R.string.login_registration_not_supported))
                 .setPositiveButton(R.string.yes) { _, _ ->
-                    activity.addFragmentToBackstack(views.loginFragmentContainer,
+                    activity.addFragmentToBackstack(
+                            views.loginFragmentContainer,
                             FtueAuthWebFragment::class.java,
-                            option = commonOption)
+                            option = commonOption
+                    )
                 }
                 .setNegativeButton(R.string.no, null)
                 .show()
@@ -280,20 +299,22 @@ class FtueAuthVariantVchat(
                 .show()
     }
 
-    private fun onServerSelectionDone(OnboardingViewEvents: OnboardingViewEvents.OnServerSelectionDone) {
-        when (OnboardingViewEvents.serverType) {
+    private fun onServerSelectionDone(onboardingViewEvents: OnboardingViewEvents.OnServerSelectionDone) {
+        when (onboardingViewEvents.serverType) {
             ServerType.MatrixOrg -> Unit // In this case, we wait for the login flow
             ServerType.EMS,
-            ServerType.Other     -> activity.addFragmentToBackstack(views.loginFragmentContainer,
+            ServerType.Other     -> activity.addFragmentToBackstack(
+                    views.loginFragmentContainer,
                     FtueAuthServerUrlFormFragment::class.java,
-                    option = commonOption)
+                    option = commonOption
+            )
             ServerType.Unknown   -> Unit /* Should not happen */
         }
     }
 
-    private fun onSignModeSelected(OnboardingViewEvents: OnboardingViewEvents.OnSignModeSelected) = withState(onboardingViewModel) { state ->
+    private fun onSignModeSelected(onboardingViewEvents: OnboardingViewEvents.OnSignModeSelected) = withState(onboardingViewModel) { state ->
         // state.signMode could not be ready yet. So use value from the ViewEvent
-        when (OnboardingViewEvents.signMode) {
+        when (onboardingViewEvents.signMode) {
             SignMode.Unknown            -> error("Sign mode has to be set before calling this method")
             SignMode.SignUp             -> Unit // This case is processed in handleOnboardingViewEvents
             SignMode.SignIn             -> handleSignInSelected(state)
@@ -305,26 +326,25 @@ class FtueAuthVariantVchat(
         if (isForceLoginFallbackEnabled) {
             onLoginModeNotSupported(state.selectedHomeserver.supportedLoginTypes)
         } else {
-            Timber.i("login mode: ${state.selectedHomeserver.preferredLoginMode}")
             disambiguateLoginMode(state)
         }
     }
 
     private fun disambiguateLoginMode(state: OnboardingViewState) = when (state.selectedHomeserver.preferredLoginMode) {
         LoginMode.Unknown,
-        is LoginMode.Sso      -> {
-            error("Developer error")
-        }
+        is LoginMode.Sso      -> error("Developer error")
         is LoginMode.SsoAndPassword,
         LoginMode.Password    -> openAuthLoginFragmentWithTag(FRAGMENT_LOGIN_TAG)
         LoginMode.Unsupported -> onLoginModeNotSupported(state.selectedHomeserver.supportedLoginTypes)
     }
 
     private fun openAuthLoginFragmentWithTag(tag: String) {
-        activity.addFragmentToBackstack(views.loginFragmentContainer,
+        activity.addFragmentToBackstack(
+                views.loginFragmentContainer,
                 FtueAuthLoginFragment::class.java,
                 tag = tag,
-                option = commonOption)
+                option = commonOption
+        )
     }
 
     private fun onLoginModeNotSupported(supportedTypes: List<String>) {
@@ -345,13 +365,15 @@ class FtueAuthVariantVchat(
     }
 
     private fun openAuthWebFragment() {
-        activity.addFragmentToBackstack(views.loginFragmentContainer,
+        activity.addFragmentToBackstack(
+                views.loginFragmentContainer,
                 FtueAuthWebFragment::class.java,
-                option = commonOption)
+                option = commonOption
+        )
     }
 
     /**
-     * Handle the SSO redirection here
+     * Handle the SSO redirection here.
      */
     override fun onNewIntent(intent: Intent?) {
         intent?.data
@@ -359,15 +381,15 @@ class FtueAuthVariantVchat(
                 ?.let { onboardingViewModel.handle(OnboardingAction.LoginWithToken(it)) }
     }
 
-    private fun handleRegistrationNavigation(flowResult: FlowResult) {
+    private fun handleRegistrationNavigation(remainingStages: List<Stage>) {
         // Complete all mandatory stages first
-        val mandatoryStage = flowResult.missingStages.firstOrNull { it.mandatory }
+        val mandatoryStage = remainingStages.firstOrNull { it.mandatory }
 
         if (mandatoryStage != null) {
             doStage(mandatoryStage)
         } else {
             // Consider optional stages
-            val optionalStage = flowResult.missingStages.firstOrNull { !it.mandatory && it !is Stage.Dummy }
+            val optionalStage = remainingStages.firstOrNull { !it.mandatory && it !is Stage.Dummy }
             if (optionalStage == null) {
                 // Should not happen...
             } else {
@@ -382,16 +404,39 @@ class FtueAuthVariantVchat(
 
         when (stage) {
             is Stage.ReCaptcha -> onCaptcha(stage)
-            is Stage.Email     -> addRegistrationStageFragmentToBackstack(
-                    FtueAuthGenericTextInputFormFragment::class.java,
-                    FtueAuthGenericTextInputFormFragmentArgument(TextInputFormFragmentMode.SetEmail, stage.mandatory),
-            )
+            is Stage.Email     -> onEmail(stage)
             is Stage.Msisdn    -> addRegistrationStageFragmentToBackstack(
                     FtueAuthGenericTextInputFormFragment::class.java,
                     FtueAuthGenericTextInputFormFragmentArgument(TextInputFormFragmentMode.SetMsisdn, stage.mandatory),
             )
             is Stage.Terms     -> onTerms(stage)
             else               -> Unit // Should not happen
+        }
+    }
+
+    private fun onEmail(stage: Stage) {
+        when {
+            vectorFeatures.isOnboardingCombinedRegisterEnabled() -> addRegistrationStageFragmentToBackstack(
+                    FtueAuthEmailEntryFragment::class.java
+            )
+            else                                                 -> addRegistrationStageFragmentToBackstack(
+                    FtueAuthGenericTextInputFormFragment::class.java,
+                    FtueAuthGenericTextInputFormFragmentArgument(TextInputFormFragmentMode.SetEmail, stage.mandatory),
+            )
+        }
+    }
+
+    private fun openWaitForEmailVerification(email: String) {
+        supportFragmentManager.popBackStack(FRAGMENT_REGISTRATION_STAGE_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        when {
+            vectorFeatures.isOnboardingCombinedRegisterEnabled() -> addRegistrationStageFragmentToBackstack(
+                    FtueAuthWaitForEmailFragment::class.java,
+                    FtueAuthWaitForEmailFragmentArgument(email),
+            )
+            else                                                 -> addRegistrationStageFragmentToBackstack(
+                    FtueAuthLegacyWaitForEmailFragment::class.java,
+                    FtueAuthWaitForEmailFragmentArgument(email),
+            )
         }
     }
 
@@ -441,14 +486,16 @@ class FtueAuthVariantVchat(
     }
 
     private fun onChooseDisplayName() {
-        activity.addFragmentToBackstack(views.loginFragmentContainer,
+        activity.addFragmentToBackstack(
+                views.loginFragmentContainer,
                 FtueAuthChooseDisplayNameFragment::class.java,
                 option = commonOption
         )
     }
 
     private fun onChooseProfilePicture() {
-        activity.addFragmentToBackstack(views.loginFragmentContainer,
+        activity.addFragmentToBackstack(
+                views.loginFragmentContainer,
                 FtueAuthChooseProfilePictureFragment::class.java,
                 option = commonOption
         )

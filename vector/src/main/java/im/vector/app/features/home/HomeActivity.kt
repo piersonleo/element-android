@@ -421,20 +421,22 @@ class HomeActivity :
         }
     }
 
+    //vChat: disable verification on login
+    @Suppress("UNUSED_PARAMETER")
     private fun handleOnNewSession(event: HomeActivityViewEvents.OnNewSession) {
         // We need to ask
-        promptSecurityEvent(
-                event.userItem,
-                R.string.crosssigning_verify_this_session,
-                R.string.confirm_your_identity
-        ) {
-            if (event.waitForIncomingRequest) {
-                it.navigator.waitSessionVerification(it)
-            } else {
-                it.navigator.requestSelfSessionVerification(it)
-            }
-        }
-        popupAlertManager.cancelAlert("upgradeSecurity")
+//        promptSecurityEvent(
+//                event.userItem,
+//                R.string.crosssigning_verify_this_session,
+//                R.string.confirm_your_identity
+//        ) {
+//            if (event.waitForIncomingRequest) {
+//                it.navigator.waitSessionVerification(it)
+//            } else {
+//                it.navigator.requestSelfSessionVerification(it)
+//            }
+//        }
+//        popupAlertManager.cancelAlert("upgradeSecurity")
     }
 
     private fun handlePromptToEnablePush() {
