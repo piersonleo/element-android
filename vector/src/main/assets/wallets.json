@@ -1,0 +1,43 @@
+[
+    {
+      "displayName": "My Bank",
+      "id": "1",
+      "tokenName": "IDR",
+      "currency": "Rupiah",
+      "value": "140.999.400,52",
+      "avatarUrl": "wallet_avatars/1_idr.png"
+    },
+    {
+      "displayName": "Family Mesh",
+      "id": "2",
+      "tokenName": "MESH",
+      "currency": "mg",
+      "value": "450.312.332,44",
+      "avatarUrl": "wallet_avatars/2_mesh.png"
+    },
+    {
+      "displayName": "Personal Mesh",
+      "id": "3",
+      "tokenName": "MESH",
+      "currency": "mg",
+      "value": "212.423,32",
+      "avatarUrl": "wallet_avatars/3_mesh.png"
+    },
+    {
+      "displayName": "Bitcoin",
+      "id": "4",
+      "tokenName": "BTC",
+      "currency": "BTC",
+      "value": "0,33333",
+      "avatarUrl": "wallet_avatars/4_btc.png"
+    },
+    {
+      "displayName": "Diamond Hand",
+      "id": "5",
+      "tokenName": "ETH",
+      "currency": "ETH",
+      "value": "2.3",
+      "avatarUrl": "wallet_avatars/5_eth.svg"
+    }
+]
+
