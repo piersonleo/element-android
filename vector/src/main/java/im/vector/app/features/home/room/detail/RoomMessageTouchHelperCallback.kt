@@ -71,7 +71,7 @@ class RoomMessageTouchHelperCallback(
     }
 
     private val triggerDistance = convertToPx(100)
-    private val minShowDistance = convertToPx(20)
+    private val minShowDistance = convertToPx(70)
     private val triggerDelta = convertToPx(20)
 
     override fun onSwiped(viewHolder: EpoxyViewHolder, direction: Int) {
@@ -83,7 +83,7 @@ class RoomMessageTouchHelperCallback(
 
     override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: EpoxyViewHolder): Int {
         if (handler.canSwipeModel(viewHolder.model)) {
-            return ItemTouchHelper.Callback.makeMovementFlags(0, ItemTouchHelper.START) // Should we use Left?
+            return ItemTouchHelper.Callback.makeMovementFlags(0, ItemTouchHelper.END) // Should we use Left?
         } else {
             return 0
         }
@@ -202,20 +202,24 @@ class RoomMessageTouchHelperCallback(
         }
 
         val x: Int = itemView.width - if (translationX > triggerDistance + triggerDelta) {
-            (convertToPx(130) / 2).toInt()
+            //(convertToPx(130)/2).toInt()
+            (convertToPx(130)*2.6).toInt()
         } else {
-            (translationX / 2).toInt()
+            //(translationX/2).toInt()
+            (translationX*2.6).toInt()
         }
 
         val y = (itemView.top + itemView.measuredHeight / 2).toFloat()
         val hw = imageDrawable.intrinsicWidth / 2f
         val hh = imageDrawable.intrinsicHeight / 2f
+        Timber.v("width: ${itemView.width} x: $x y: $y hw: $hw hh: $hh scale: $scale")
         imageDrawable.setBounds(
                 (x - hw * scale).toInt(),
                 (y - hh * scale).toInt(),
                 (x + hw * scale).toInt(),
                 (y + hh * scale).toInt()
         )
+        Timber.v("bounds: ${imageDrawable.bounds}")
         imageDrawable.draw(canvas)
         imageDrawable.alpha = 255
     }
