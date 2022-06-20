@@ -41,7 +41,7 @@ class RoomListRobot {
         onView(ViewMatchers.withId(R.id.roomListView))
                 .perform(
                         RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
-                                ViewMatchers.hasDescendant(withText(R.string.room_displayname_empty_room)),
+                                ViewMatchers.hasDescendant(withText(R.string.vchat_room_displayname_empty_room)),
                                 ViewActions.longClick()
                         )
                 )

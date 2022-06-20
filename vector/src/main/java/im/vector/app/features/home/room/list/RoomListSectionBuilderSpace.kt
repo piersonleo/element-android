@@ -265,7 +265,7 @@ class RoomListSectionBuilderSpace(
         addSection(
                 sections,
                 activeSpaceAwareQueries,
-                R.string.bottom_action_people_x,
+                R.string.vchat_bottom_action_people_x,
                 false,
                 RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL
         ) {

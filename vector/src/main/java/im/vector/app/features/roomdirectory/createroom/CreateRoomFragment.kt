@@ -120,7 +120,7 @@ class CreateRoomFragment @Inject constructor(
     private fun setupWaitingView() {
         views.waitingView.waitingStatusText.isVisible = true
         views.waitingView.waitingStatusText.setText(
-                if (args.isSpace) R.string.create_space_in_progress else R.string.create_room_in_progress
+                if (args.isSpace) R.string.create_space_in_progress else R.string.vchat_create_room_in_progress
         )
     }
 

@@ -58,7 +58,7 @@ class EncryptionItemFactory @Inject constructor(
             title = stringProvider.getString(R.string.encryption_enabled)
             description = stringProvider.getString(
                     if (session.getRoomSummary(event.root.roomId ?: "")?.isDirect.orFalse()) {
-                        R.string.direct_room_encryption_enabled_tile_description
+                        R.string.vchat_direct_room_encryption_enabled_tile_description
                     } else {
                         R.string.encryption_enabled_tile_description
                     }
