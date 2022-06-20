@@ -104,7 +104,7 @@ abstract class MergedRoomCreationItemVchat : BasedMergedItem<MergedRoomCreationI
             if (attributes.isEncryptionAlgorithmSecure) {
                 holder.e2eTitleTextView.text = holder.expandView.resources.getString(R.string.encryption_enabled)
                 holder.e2eTitleDescriptionView.text = if (data?.isDirectRoom == true) {
-                    holder.expandView.resources.getString(R.string.direct_room_encryption_enabled_tile_description)
+                    holder.expandView.resources.getString(R.string.vchat_direct_room_encryption_enabled_tile_description)
                 } else {
                     holder.expandView.resources.getString(R.string.encryption_enabled_tile_description)
                 }
@@ -135,7 +135,7 @@ abstract class MergedRoomCreationItemVchat : BasedMergedItem<MergedRoomCreationI
 
         if (isDirect) {
             holder.roomDescriptionText.text = holder.view.resources.getString(
-                    R.string.this_is_the_beginning_of_dm,
+                    R.string.vchat_this_is_the_beginning_of_dm,
                     distinctMergeData.lastOrNull()?.memberName ?: ""
             )
         } else if (roomDisplayName.isNullOrBlank() || roomSummary.name.isBlank()) {
