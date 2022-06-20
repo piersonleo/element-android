@@ -156,7 +156,7 @@ class HomeDetailFragment @Inject constructor(
                     val olderUnverified = unknownDevices.filter { !it.isNew }
                     val newest = unknownDevices.firstOrNull { it.isNew }?.deviceInfo
                     if (newest != null) {
-                        promptForNewUnknownDevices(uid, state, newest)
+                        //promptForNewUnknownDevices(uid, state, newest)
                     } else if (olderUnverified.isNotEmpty()) {
                         // In this case we prompt to go to settings to review logins
                         promptToReviewChanges(uid, state, olderUnverified.map { it.deviceInfo })
