@@ -64,7 +64,7 @@ class SettingsRobot {
     }
 
     fun helpAndAbout(block: SettingsHelpRobot.() -> Unit) {
-        clickOnAndGoBack(R.string.preference_root_help_about) { block(SettingsHelpRobot()) }
+        clickOnAndGoBack(R.string.vchat_preference_root_help_about) { block(SettingsHelpRobot()) }
     }
 
     fun legals(block: SettingsLegalsRobot.() -> Unit) {
