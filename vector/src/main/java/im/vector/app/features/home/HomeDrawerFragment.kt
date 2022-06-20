@@ -56,6 +56,7 @@ class HomeDrawerFragment @Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        views.homeDrawerAppVersionView.text = getString(R.string.app_version, BuildConfig.VERSION_NAME)
         sharedActionViewModel = activityViewModelProvider.get(HomeSharedActionViewModel::class.java)
 
         if (savedInstanceState == null) {
