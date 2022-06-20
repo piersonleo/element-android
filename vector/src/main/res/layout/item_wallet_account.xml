@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/knownUserAvatar"
+            android:id="@+id/walletAccountAvatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:importantForAccessibility="no"
@@ -28,7 +28,7 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/knownUserName"
+        android:id="@+id/walletAccountName"
         style="@style/Widget.Vector.TextView.Subtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
         android:maxLines="1"
         android:textColor="?vctr_content_primary"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/knownUserID"
+        app:layout_constraintBottom_toTopOf="@id/walletAccountCurrency"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@id/knownUserAvatarContainer"
@@ -46,7 +46,7 @@
         tools:text="@sample/wallets.json/data/displayName" />
 
     <TextView
-        android:id="@+id/knownUserID"
+        android:id="@+id/walletAccountCurrency"
         style="@style/Widget.Vector.TextView.Body"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -56,8 +56,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/knownUserName"
-        app:layout_constraintTop_toBottomOf="@id/knownUserName"
+        app:layout_constraintStart_toStartOf="@id/walletAccountName"
+        app:layout_constraintTop_toBottomOf="@id/walletAccountName"
         tools:text="@sample/wallets.json/data/id" />
+
+    <View
+        android:id="@+id/roomDividerView"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="?vctr_list_separator_system"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/walletAccountCurrency" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
