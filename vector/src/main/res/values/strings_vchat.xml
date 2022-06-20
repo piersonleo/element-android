@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="app_version">App Version: %s</string>
     <string name="mesh_title">MESH</string>
 
     <!--Bottom navigation buttons-->
@@ -7,17 +9,58 @@
 
     <string name="wallet_title">Mesh Wallet</string>
     <string name="action_receive">Receive</string>
+    <string name="vchat_action_leave">Delete</string>
 
     <string name="wallet_account_placeholder">0.00 MESH</string>
-    <string name="wallet_value_placeholder">0.00 IDR</string>
+    <string name="wallet_value">%s %s</string>
     <string name="new_chat_title">New Chat</string>
     <string name="vchat_help_long_click_on_room_for_more_options">Long click on a chat to see more options</string>
+
+    <!--  Chat participants -->
+    <string name="vchat_room_participants_leave_prompt_title">Delete this chat?</string>
+    <string name="vchat_room_participants_leave_prompt_msg">Are you sure you want to delete this chat?</string>
+    <string name="vchat_room_participants_leave_private_warning">This room is not public. You will not be able to rejoin without an invite.</string>
     <string name="vchat_room_participants_header_direct_chats">Chat</string>
+
     <string name="vchat_fab_menu_create_chat">"New Chat"</string>
     <string name="vchat_bottom_action_people_x">Chat</string>
 
-    <string name="vchat_delete_event_dialog_title">Remove Message</string>
-    <string name="vchat_delete_event_dialog_content">Are you sure you wish to remove this message?</string>
+    <string name="vchat_delete_event_dialog_title">Delete Message</string>
+    <string name="vchat_delete_event_dialog_content">Are you sure you wish to delete this message?</string>
 
+    <string name="vchat_preference_root_help_about">About</string>
+    <string name="vchat_settings_emails_and_phone_numbers_summary">Manage emails and phone numbers linked to your account</string>
+    <string name="vchat_settings_enable_this_device">Enable notifications for this device</string>
+    <string name="vchat_home_filter_placeholder_home">Search chat</string>
+    <string name="vchat_room_filtering_filter_hint">Search…</string>
+    <string name="vchat_room_filtering_footer_create_new_room">Create a new group</string>
+    <string name="vchat_room_filtering_footer_create_new_direct_message">Create a new chat</string>
+    <string name="vchat_user_directory_search_hint_2">Search by name or ID</string>
+
+    <string name="vchat_creating_direct_room">"Creating chat…"</string>
+    <string name="vchat_room_list_quick_actions_leave">"Delete chat"</string>
+    <string name="vchat_room_profile_section_more_leave">Delete Chat</string>
+    <string name="vchat_direct_room_profile_section_more_leave">Delete</string>
+    <string name="vchat_room_profile_leaving_room">"Deleting chat…"</string>
+
+    <string name="vchat_room_settings_name_hint">Chat Name</string>
+    <string name="vchat_room_settings_room_read_history_rules_pref_title">Chat History Readability</string>
+    <string name="vchat_room_settings_room_access_title">Chat access</string>
+
+    <string name="vchat_decide_who_can_find_and_join">Decide who can find and join this chat.</string>
+
+    <string name="vchat_room_displayname_empty_room">Empty chat</string>
+    <string name="vchat_room_displayname_empty_room_was">Empty chat</string>
+
+    <string name="vchat_create_room_in_progress">Creating chat…</string>
+
+    <string name="vchat_room_profile_encrypted_subtitle">Messages in this chat are end-to-end encrypted.</string>
+    <string name="vchat_direct_room_profile_encrypted_subtitle">Messages here are end-to-end encrypted.</string>
+    <string name="vchat_direct_room_encryption_enabled_tile_description">Messages in this chat are end-to-end encrypted.</string>
+
+    <string name="vchat_room_list_people_empty_body">Your chat conversations will be displayed here. Tap the + at the bottom right to start some.</string>
+    <string name="vchat_this_is_the_beginning_of_dm">This is the beginning of your chat history with %s.</string>
+
+    <string name="vchat_error_no_network">Unable to connect to server. Please check your Internet connection and try again.</string>
 
 </resources>

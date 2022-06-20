@@ -224,7 +224,7 @@ class RoomListSectionBuilderGroup(
         addSection(
                 sections,
                 activeSpaceAwareQueries,
-                R.string.bottom_action_people_x,
+                R.string.vchat_bottom_action_people_x,
                 false
         ) {
             it.memberships = listOf(Membership.JOIN)
