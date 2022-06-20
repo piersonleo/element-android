@@ -345,6 +345,7 @@
         <activity android:name=".features.location.LocationSharingActivity" />
         <activity android:name=".features.location.live.map.LocationLiveMapViewActivity" />
 
+        <activity android:name=".features.wallet.WalletDetailActivity"/>
         <!-- Services -->
 
         <service
