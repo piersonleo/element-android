@@ -7,7 +7,7 @@
 
 
     <EditText
-        android:id="@+id/userListSearch"
+        android:id="@+id/accountListSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/layout_horizontal_margin"
@@ -26,16 +26,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
-        android:id="@+id/userListFilterDivider"
+        android:id="@+id/accountListFilterDivider"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="?vctr_list_separator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/userListSearch" />
+        app:layout_constraintTop_toBottomOf="@id/accountListSearch" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/userListRecyclerView"
+        android:id="@+id/accountListRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fastScrollEnabled="true"
@@ -45,14 +45,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/userListFilterDivider"
+        app:layout_constraintTop_toBottomOf="@id/accountListFilterDivider"
         tools:listitem="@layout/item_wallet_account" />
-
-    <im.vector.app.features.home.room.list.widget.NotifsFabMenuView
-        android:id="@+id/createChatFabMenu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutDescription="@xml/motion_scene_notifs_fab_menu"
-        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
