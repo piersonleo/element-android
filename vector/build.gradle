@@ -32,7 +32,8 @@ ext.versionMinor = 4
 // When creating a hotfix, you should decrease the value, since the current value
 // is the value for the next regular release.
 ext.versionPatch = 18
-ext.vchatVersion = 2
+
+ext.vchatVersion = 3
 
 static def getGitTimestamp() {
     def cmd = 'git show -s --format=%ct'
@@ -261,7 +262,7 @@ android {
                 optimizeCode true
                 proguardFiles 'proguard-rules.pro'
             }
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -276,7 +277,7 @@ android {
 
             dimension "store"
             isDefault = true
-            versionName "${versionMajor}.${versionMinor}.${versionPatch}${getGplayVersionSuffix()}"
+            versionName "1.4.18.vc3"
 
             resValue "bool", "isGplay", "true"
             buildConfigField "boolean", "ALLOW_FCM_USE", "true"
@@ -287,7 +288,7 @@ android {
         fdroid {
             dimension "store"
 
-            versionName "${versionMajor}.${versionMinor}.${versionPatch}${getFdroidVersionSuffix()}"
+            versionName "1.4.18.vc3"
 
             resValue "bool", "isGplay", "false"
             buildConfigField "boolean", "ALLOW_FCM_USE", "false"
