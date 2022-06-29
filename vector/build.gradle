@@ -33,7 +33,7 @@ ext.versionMinor = 4
 // is the value for the next regular release.
 ext.versionPatch = 18
 
-ext.vchatVersion = 3
+ext.vchatVersion = 4
 
 static def getGitTimestamp() {
     def cmd = 'git show -s --format=%ct'
@@ -277,7 +277,7 @@ android {
 
             dimension "store"
             isDefault = true
-            versionName "1.4.18.vc3"
+            versionName "1.4.18.vc4"
 
             resValue "bool", "isGplay", "true"
             buildConfigField "boolean", "ALLOW_FCM_USE", "true"
@@ -288,7 +288,7 @@ android {
         fdroid {
             dimension "store"
 
-            versionName "1.4.18.vc3"
+            versionName "1.4.18.vc4"
 
             resValue "bool", "isGplay", "false"
             buildConfigField "boolean", "ALLOW_FCM_USE", "false"
