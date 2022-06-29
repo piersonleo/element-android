@@ -103,7 +103,7 @@ class RoomUploadsFilesFragment @Inject constructor(
                         loadMore()
                     } else {
                         views.genericStateViewListStateView.state = StateView.State.Empty(
-                                title = getString(R.string.uploads_files_no_result),
+                                title = getString(R.string.vchat_uploads_files_no_result),
                                 image = ContextCompat.getDrawable(requireContext(), R.drawable.ic_file)
                         )
                     }
