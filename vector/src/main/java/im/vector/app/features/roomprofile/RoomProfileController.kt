@@ -216,7 +216,7 @@ class RoomProfileController @Inject constructor(
         }
         buildProfileAction(
                 id = "uploads",
-                title = stringProvider.getString(R.string.room_profile_section_more_uploads),
+                title = stringProvider.getString(R.string.vchat_room_profile_section_more_uploads),
                 icon = R.drawable.ic_room_profile_uploads,
                 action = { callback?.onUploadsClicked() }
         )
