@@ -63,4 +63,45 @@
 
     <string name="vchat_error_no_network">Unable to connect to server. Please check your Internet connection and try again.</string>
 
+    <string name="vchat_notice_room_visibility_invited">all chat members, from the point they are invited.</string>
+    <string name="vchat_notice_room_visibility_joined">all chat members, from the point they joined.</string>
+    <string name="vchat_notice_room_visibility_shared">all chat members.</string>
+
+    <string name="vchat_settings_notification_mentions_and_keywords">Mentions</string>
+
+    <string name="vchat_uploads_media_no_result">There are no media in this chat</string>
+    <string name="vchat_uploads_files_no_result">There are no files in this chat</string>
+
+    <string name="vchat_room_profile_section_more_uploads">Media and Files</string>
+
+    <string name="vchat_rooms">Chat</string>
+    <string name="vchat_room_list_rooms_empty_title">Chat</string>
+
+    <!-- Rooms fragment -->
+    <string name="vchat_rooms_header">Chat</string>
+
+    <string name="vchat_bottom_action_rooms">Chat</string>
+    <string name="vchat_room_settings_save_success">Chat settings changed successfully</string>
+
+    <string name="vchat_notice_room_created">%1$s created the chat</string>
+    <string name="vchat_notice_room_created_by_you">You created the chat</string>
+
+    <string name="vchat_notice_room_avatar_changed">%1$s changed the chat display picture</string>
+    <string name="vchat_notice_room_avatar_changed_by_you">You changed the chat display picture</string>
+    <string name="vchat_notice_room_name_changed">%1$s changed the chat name to: %2$s</string>
+    <string name="vchat_notice_room_name_changed_by_you">You changed the chat name to: %1$s</string>
+    <string name="vchat_notice_room_update">%s upgraded this chat.</string>
+    <string name="vchat_notice_room_update_by_you">You upgraded this chat.</string>
+
+    <string name="vchat_notice_room_name_removed">%1$s removed the chat name</string>
+    <string name="vchat_notice_room_name_removed_by_you">You removed the chat name</string>
+    <string name="vchat_notice_room_topic_removed">%1$s removed the chat topic</string>
+    <string name="vchat_notice_room_topic_removed_by_you">You removed the chat topic</string>
+    <string name="vchat_notice_room_avatar_removed">%1$s removed the chat avatar</string>
+    <string name="vchat_notice_room_avatar_removed_by_you">You removed the chat avatar</string>
+    <string name="vchat_notice_room_third_party_invite">%1$s sent an invitation to %2$s to join the chat</string>
+    <string name="vchat_notice_room_third_party_invite_by_you">You sent an invitation to %1$s to join the chat</string>
+    <string name="vchat_notice_room_third_party_revoked_invite">%1$s revoked the invitation for %2$s to join the chat</string>
+    <string name="vchat_notice_room_third_party_revoked_invite_by_you">You revoked the invitation for %1$s to join the chat</string>
+
 </resources>
