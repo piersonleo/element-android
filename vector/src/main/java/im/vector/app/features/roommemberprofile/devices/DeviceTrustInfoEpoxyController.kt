@@ -17,6 +17,7 @@
 package im.vector.app.features.roommemberprofile.devices
 
 import com.airbnb.epoxy.TypedEpoxyController
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.resources.StringProvider
@@ -78,7 +79,7 @@ class DeviceTrustInfoEpoxyController @Inject constructor(private val stringProvi
                                 host.stringProvider.getString(
                                         R.string.verification_profile_device_new_signing,
                                         data.userItem?.displayName ?: "",
-                                        data.userItem?.id ?: ""
+                                        Utils.removeUrlSuffix(data.userItem?.id) ?: ""
                                 ).toEpoxyCharSequence()
                         )
                     }
