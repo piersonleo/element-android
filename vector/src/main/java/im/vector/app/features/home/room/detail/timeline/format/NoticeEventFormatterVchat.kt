@@ -659,9 +659,9 @@ class NoticeEventFormatterVchat @Inject constructor(
                                       eventContent: RoomMemberContent?,
                                       prevEventContent: RoomMemberContent?,
                                       isDm: Boolean): String? {
-        val senderDisplayName = Utils.removeUrlSuffix(senderName) ?: Utils.removeUrlSuffix(event.senderId) ?: ""
-        val targetDisplayName = Utils.removeUrlSuffix(eventContent?.displayName) ?: Utils.removeUrlSuffix(prevEventContent?.displayName) ?: event.stateKey ?: ""
-        Timber.i("Event: $event\n prevEvent: $prevEventContent")
+        val senderDisplayName = Utils.removeUrlSuffix(senderName ?: event.senderId ?: "")
+        val targetDisplayName = Utils.removeUrlSuffix(eventContent?.displayName ?: prevEventContent?.displayName ?: event.stateKey ?: "")
+        Timber.i("target: $targetDisplayName, sender: $senderDisplayName, membership: ${eventContent?.membership}. stateKey: ${event.stateKey}")
         return when (eventContent?.membership) {
             Membership.INVITE -> {
                 when {
