@@ -94,7 +94,7 @@ class OnboardingViewModel @AssistedInject constructor(
     companion object : MavericksViewModelFactory<OnboardingViewModel, OnboardingViewState> by hiltMavericksViewModelFactory()
 
     init {
-        getKnownCustomHomeServersUrls()
+        //getKnownCustomHomeServersUrls()
         observeDataStore()
     }
 
@@ -621,6 +621,7 @@ class OnboardingViewModel @AssistedInject constructor(
         }
     }
 
+
     private fun startAuthenticationFlow(
             trigger: OnboardingAction.HomeServerChange,
             homeServerConnectionConfig: HomeServerConnectionConfig,
@@ -631,10 +632,11 @@ class OnboardingViewModel @AssistedInject constructor(
         currentJob = viewModelScope.launch {
             setState { copy(isLoading = true) }
             runCatching { startAuthenticationFlowUseCase.execute(homeServerConnectionConfig) }.fold(
-                    onSuccess = { onAuthenticationStartedSuccess(trigger, homeServerConnectionConfig, it, serverTypeOverride) },
-                    onFailure = { onAuthenticationStartError(it, trigger) }
+                    onSuccess = { onAuthenticationStartedSuccess(trigger, homeServerConnectionConfig, it, serverTypeOverride)
+                        setState { copy(isLoading = true) }},
+                    onFailure = { onAuthenticationStartError(it, trigger)
+                        setState { copy(isLoading = false) }}
             )
-            setState { copy(isLoading = false) }
         }
     }
 
@@ -698,7 +700,8 @@ class OnboardingViewModel @AssistedInject constructor(
                 }
                 OnboardingFlow.SignInSignUp,
                 null                  -> {
-                    _viewEvents.post(OnboardingViewEvents.OnLoginFlowRetrieved)
+                    updateSignMode(SignMode.SignIn)
+                    //_viewEvents.post(OnboardingViewEvents.OnLoginFlowRetrieved)
                 }
             }
         } else {
