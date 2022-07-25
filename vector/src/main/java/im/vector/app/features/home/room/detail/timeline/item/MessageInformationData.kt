@@ -17,6 +17,7 @@
 package im.vector.app.features.home.room.detail.timeline.item
 
 import android.os.Parcelable
+import com.vcard.vchat.utils.Utils
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import kotlinx.parcelize.Parcelize
 import org.matrix.android.sdk.api.session.crypto.verification.VerificationState
@@ -47,7 +48,7 @@ data class MessageInformationData(
 ) : Parcelable {
 
     val matrixItem: MatrixItem
-        get() = MatrixItem.UserItem(senderId, memberName?.toString(), avatarUrl)
+        get() = MatrixItem.UserItem(Utils.removeUrlSuffix(senderId)!!, Utils.removeUrlSuffix(memberName?.toString()), avatarUrl)
 }
 
 @Parcelize
