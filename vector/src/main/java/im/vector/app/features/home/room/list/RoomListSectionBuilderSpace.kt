@@ -138,7 +138,7 @@ class RoomListSectionBuilderSpace(
         addSection(
                 sections = sections,
                 activeSpaceUpdaters = activeSpaceAwareQueries,
-                nameRes = R.string.bottom_action_rooms,
+                nameRes = R.string.vchat_bottom_action_rooms,
                 notifyOfLocalEcho = false,
                 spaceFilterStrategy = if (onlyOrphansInHome) {
                     RoomListViewModel.SpaceFilterStrategy.ORPHANS_IF_SPACE_NULL
@@ -305,7 +305,7 @@ class RoomListSectionBuilderSpace(
         addSection(
                 sections = sections,
                 activeSpaceUpdaters = activeSpaceAwareQueries,
-                nameRes = R.string.bottom_action_rooms,
+                nameRes = R.string.vchat_bottom_action_rooms,
                 notifyOfLocalEcho = false,
                 spaceFilterStrategy = if (onlyOrphansInHome) {
                     RoomListViewModel.SpaceFilterStrategy.ORPHANS_IF_SPACE_NULL
@@ -325,8 +325,8 @@ class RoomListSectionBuilderSpace(
                     it.memberships = Membership.activeMemberships()
                 },
                 { queryParams ->
-                    val name = stringProvider.getString(R.string.bottom_action_rooms)
-                    val updatableFilterLivePageResult = session.roomService().getFilteredPagedRoomSummariesLive(queryParams, getFlattenParents = true)
+                    val name = stringProvider.getString(R.string.vchat_bottom_action_rooms)
+                    val updatableFilterLivePageResult = session.roomService().getFilteredPagedRoomSummariesLive(queryParams)
                     onUpdatable(updatableFilterLivePageResult)
 
                     val itemCountFlow = updatableFilterLivePageResult.livePagedList.asFlow()

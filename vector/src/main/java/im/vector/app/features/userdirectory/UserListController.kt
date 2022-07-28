@@ -74,16 +74,17 @@ class UserListController @Inject constructor(private val session: Session,
                     }
                 }
             }
-            if (currentState.showContactBookAction) {
-                actionItem {
-                    id(R.drawable.ic_baseline_perm_contact_calendar_24)
-                    title(host.stringProvider.getString(R.string.contacts_book_title))
-                    actionIconRes(R.drawable.ic_baseline_perm_contact_calendar_24)
-                    clickAction {
-                        host.callback?.onContactBookClick()
-                    }
-                }
-            }
+            //vChat: don't need for now
+//            if (currentState.showContactBookAction) {
+//                actionItem {
+//                    id(R.drawable.ic_baseline_perm_contact_calendar_24)
+//                    title(host.stringProvider.getString(R.string.contacts_book_title))
+//                    actionIconRes(R.drawable.ic_baseline_perm_contact_calendar_24)
+//                    clickAction {
+//                        host.callback?.onContactBookClick()
+//                    }
+//                }
+//            }
             if (currentState.showInviteActions()) {
                 actionItem {
                     id(R.drawable.ic_qr_code_add)
