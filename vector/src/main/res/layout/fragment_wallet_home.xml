@@ -48,4 +48,47 @@
         app:layout_constraintTop_toBottomOf="@id/accountListFilterDivider"
         tools:listitem="@layout/item_wallet_account" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="add fab"
+        android:src="@drawable/ic_fab_add"
+        app:maxImageSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCreateWalletAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="Create account"
+        android:src="@drawable/ic_add_card"
+        android:backgroundTint="@color/palette_gray_300"
+        app:fabSize="mini"
+        app:maxImageSize="24dp"
+        app:layout_constraintBottom_toTopOf="@id/fabAdd"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabImportAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="Import account"
+        android:src="@drawable/ic_file_upload"
+        android:backgroundTint="@color/palette_gray_300"
+        app:fabSize="mini"
+        app:maxImageSize="24dp"
+        app:layout_constraintBottom_toTopOf="@id/fabCreateWalletAccount"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

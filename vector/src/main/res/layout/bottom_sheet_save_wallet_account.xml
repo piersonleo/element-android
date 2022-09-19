@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?colorSurface"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        style="@style/Widget.Vector.TextView.HeadlineMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Account"
+        android:textAlignment="center"
+        android:textStyle="bold" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="32dp"
+        android:layout_gravity="center"
+        android:backgroundTint="@color/palette_white"
+        app:cardCornerRadius="8dp">
+
+        <im.vector.app.core.ui.views.QrCodeImageView
+            android:id="@+id/accountQRImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/a11y_qr_code_for_verification"
+            tools:src="@drawable/ic_qr_code_add" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:id="@+id/llShareAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:minHeight="50dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/layout_horizontal_margin"
+        android:paddingTop="8dp"
+        android:paddingEnd="@dimen/layout_horizontal_margin"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_material_share"
+            app:tint="?colorSecondary"
+            tools:ignore="MissingPrefix" />
+
+        <TextView
+            style="@style/Widget.Vector.TextView.Subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="Share File"
+            android:textColor="?vctr_content_primary" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llSaveAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:minHeight="50dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/layout_horizontal_margin"
+        android:paddingTop="8dp"
+        android:paddingEnd="@dimen/layout_horizontal_margin"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_material_save"
+            app:tint="?colorSecondary"
+            tools:ignore="MissingPrefix" />
+
+        <TextView
+            style="@style/Widget.Vector.TextView.Subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="Save File"
+            android:textColor="?vctr_content_primary" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llSaveQr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:minHeight="50dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/layout_horizontal_margin"
+        android:paddingTop="8dp"
+        android:paddingEnd="@dimen/layout_horizontal_margin"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_qr_code"
+            app:tint="?colorSecondary"
+            tools:ignore="MissingPrefix" />
+
+        <TextView
+            style="@style/Widget.Vector.TextView.Subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="Save QR Code"
+            android:textColor="?vctr_content_primary" />
+
+    </LinearLayout>
+
+</LinearLayout>

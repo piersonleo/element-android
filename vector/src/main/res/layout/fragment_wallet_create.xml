@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/walletCreateToolbar"
+        style="@style/Widget.Vector.Toolbar.Settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/transferImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:navigationIcon="@drawable/ic_back_24dp" />
+
+    <ImageView
+        android:id="@+id/transferImageView"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
+        android:layout_marginTop="68dp"
+        android:adjustViewBounds="false"
+        android:contentDescription="@null"
+        android:gravity="center"
+        android:src="@drawable/ic_add_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/walletCreateToolbar" />
+
+    <Space
+        android:id="@+id/entrySpacing"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintTop_toBottomOf="@id/transferImageView" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/accountNameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="@dimen/layout_vertical_margin"
+        app:layout_constraintTop_toBottomOf="@id/entrySpacing"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:errorEnabled="false">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/accountNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Account name" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passphraseLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="@dimen/layout_vertical_margin"
+        app:layout_constraintTop_toBottomOf="@id/accountNameLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passphraseInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Passphrase" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/retypePassphraseLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/passphraseLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/retypePassphraseInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Retype passphrase" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btnCreateAccount"
+        style="@style/Widget.Vector.Button.Login"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Create account"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textAllCaps="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/userListE2EbyDefaultDisabled"
+        style="@style/Widget.Vector.TextView.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:drawablePadding="8dp"
+        android:text="@string/vchat_create_mesh_account_info"
+        android:textColor="?vctr_content_secondary"
+        app:layout_constraintTop_toBottomOf="@id/retypePassphraseLayout"
+        tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
