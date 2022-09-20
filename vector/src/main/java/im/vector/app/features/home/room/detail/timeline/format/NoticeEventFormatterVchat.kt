@@ -208,9 +208,9 @@ class NoticeEventFormatterVchat @Inject constructor(
                 ?.takeIf { it.creator.isNullOrBlank().not() }
                 ?.let {
                     if (event.isSentByCurrentUser()) {
-                        sp.getString(if (isDm) R.string.notice_direct_room_created_by_you else R.string.notice_room_created_by_you)
+                        sp.getString(if (isDm) R.string.notice_direct_room_created_by_you else R.string.vchat_notice_room_created_by_you)
                     } else {
-                        sp.getString(if (isDm) R.string.notice_direct_room_created else R.string.notice_room_created, it.creator)
+                        sp.getString(if (isDm) R.string.notice_direct_room_created else R.string.vchat_notice_room_created, it.creator)
                     }
                 }
     }
@@ -219,24 +219,24 @@ class NoticeEventFormatterVchat @Inject constructor(
         val content = event.content.toModel<RoomNameContent>() ?: return null
         return if (content.name.isNullOrBlank()) {
             if (event.isSentByCurrentUser()) {
-                sp.getString(R.string.notice_room_name_removed_by_you)
+                sp.getString(R.string.vchat_notice_room_name_removed_by_you)
             } else {
-                sp.getString(R.string.notice_room_name_removed, senderName)
+                sp.getString(R.string.vchat_notice_room_name_removed, senderName)
             }
         } else {
             if (event.isSentByCurrentUser()) {
-                sp.getString(R.string.notice_room_name_changed_by_you, content.name)
+                sp.getString(R.string.vchat_notice_room_name_changed_by_you, content.name)
             } else {
-                sp.getString(R.string.notice_room_name_changed, senderName, content.name)
+                sp.getString(R.string.vchat_notice_room_name_changed, senderName, content.name)
             }
         }
     }
 
     private fun formatRoomTombstoneEvent(event: Event, senderName: String?, isDm: Boolean): CharSequence? {
         return if (event.isSentByCurrentUser()) {
-            sp.getString(if (isDm) R.string.notice_direct_room_update_by_you else R.string.notice_room_update_by_you)
+            sp.getString(if (isDm) R.string.notice_direct_room_update_by_you else R.string.vchat_notice_room_update_by_you)
         } else {
-            sp.getString(if (isDm) R.string.notice_direct_room_update else R.string.notice_room_update, senderName)
+            sp.getString(if (isDm) R.string.notice_direct_room_update else R.string.vchat_notice_room_update, senderName)
         }
     }
 
@@ -244,9 +244,9 @@ class NoticeEventFormatterVchat @Inject constructor(
         val content = event.content.toModel<RoomTopicContent>() ?: return null
         return if (content.topic.isNullOrEmpty()) {
             if (event.isSentByCurrentUser()) {
-                sp.getString(R.string.notice_room_topic_removed_by_you)
+                sp.getString(R.string.vchat_notice_room_topic_removed_by_you)
             } else {
-                sp.getString(R.string.notice_room_topic_removed, senderName)
+                sp.getString(R.string.vchat_notice_room_topic_removed, senderName)
             }
         } else {
             if (event.isSentByCurrentUser()) {
@@ -261,15 +261,15 @@ class NoticeEventFormatterVchat @Inject constructor(
         val content = event.content.toModel<RoomAvatarContent>() ?: return null
         return if (content.avatarUrl.isNullOrEmpty()) {
             if (event.isSentByCurrentUser()) {
-                sp.getString(R.string.notice_room_avatar_removed_by_you)
+                sp.getString(R.string.vchat_notice_room_avatar_removed_by_you)
             } else {
-                sp.getString(R.string.notice_room_avatar_removed, senderName)
+                sp.getString(R.string.vchat_notice_room_avatar_removed, senderName)
             }
         } else {
             if (event.isSentByCurrentUser()) {
-                sp.getString(R.string.notice_room_avatar_changed_by_you)
+                sp.getString(R.string.vchat_notice_room_avatar_changed_by_you)
             } else {
-                sp.getString(R.string.notice_room_avatar_changed, senderName)
+                sp.getString(R.string.vchat_notice_room_avatar_changed, senderName)
             }
         }
     }
@@ -299,21 +299,21 @@ class NoticeEventFormatterVchat @Inject constructor(
                             if (isDm) {
                                 R.string.notice_direct_room_third_party_revoked_invite_by_you
                             } else {
-                                R.string.notice_room_third_party_revoked_invite_by_you
+                                R.string.vchat_notice_room_third_party_revoked_invite_by_you
                             },
                             prevContent.displayName)
                 } else {
-                    sp.getString(if (isDm) R.string.notice_direct_room_third_party_revoked_invite else R.string.notice_room_third_party_revoked_invite,
+                    sp.getString(if (isDm) R.string.notice_direct_room_third_party_revoked_invite else R.string.vchat_notice_room_third_party_revoked_invite,
                             senderName, prevContent.displayName)
                 }
             }
             content != null     -> {
                 // Invitation case
                 if (event.isSentByCurrentUser()) {
-                    sp.getString(if (isDm) R.string.notice_direct_room_third_party_invite_by_you else R.string.notice_room_third_party_invite_by_you,
+                    sp.getString(if (isDm) R.string.notice_direct_room_third_party_invite_by_you else R.string.vchat_notice_room_third_party_invite_by_you,
                             content.displayName)
                 } else {
-                    sp.getString(if (isDm) R.string.notice_direct_room_third_party_invite else R.string.notice_room_third_party_invite,
+                    sp.getString(if (isDm) R.string.notice_direct_room_third_party_invite else R.string.vchat_notice_room_third_party_invite,
                             senderName, content.displayName)
                 }
             }

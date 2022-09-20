@@ -130,7 +130,7 @@ class RoomSettingsFragment @Inject constructor(
     }
 
     private fun showSuccess() {
-        activity?.toast(R.string.room_settings_save_success)
+        activity?.toast(R.string.vchat_room_settings_save_success)
     }
 
     override fun onDestroyView() {
