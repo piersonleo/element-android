@@ -13,7 +13,7 @@
             android:defaultValue="true"
             android:dependency="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"
             android:key="SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY"
-            android:title="@string/settings_enable_this_device" />
+            android:title="@string/vchat_settings_enable_this_device" />
 
         <!--<im.vector.app.core.preference.VectorSwitchPreference-->
         <!--android:dependency="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"-->
@@ -21,6 +21,7 @@
         <!--android:title="@string/settings_turn_screen_on" />-->
 
         <im.vector.app.core.preference.VectorPreference
+            app:isPreferenceVisible="false"
             android:dependency="SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY"
             android:key="SETTINGS_NOTIFICATION_DEFAULT_PREFERENCE_KEY"
             android:persistent="false"
@@ -35,6 +36,7 @@
             app:fragment="im.vector.app.features.settings.notifications.VectorSettingsKeywordAndMentionsNotificationPreferenceFragment" />
 
         <im.vector.app.core.preference.VectorPreference
+            app:isPreferenceVisible="false"
             android:dependency="SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY"
             android:key="SETTINGS_NOTIFICATION_OTHER_PREFERENCE_KEY"
             android:persistent="false"
@@ -44,11 +46,13 @@
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
     <im.vector.app.core.preference.VectorPreferenceCategory
+        app:isPreferenceVisible="false"
         android:key="SETTINGS_EMAIL_NOTIFICATION_CATEGORY_PREFERENCE_KEY"
         android:title="@string/settings_notification_emails_category" />
 
     <im.vector.app.core.preference.VectorPreferenceCategory
         android:persistent="false"
+        app:isPreferenceVisible="false"
         android:title="@string/settings_notification_configuration">
 
         <!-- For API < 26 -->
@@ -108,7 +112,8 @@
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
-    <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_troubleshoot_title">
+    <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_troubleshoot_title"
+        app:isPreferenceVisible="false">
 
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_NOTIFICATION_TROUBLESHOOT_PREFERENCE_KEY"
