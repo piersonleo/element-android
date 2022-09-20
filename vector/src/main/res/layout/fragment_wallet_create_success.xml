@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/keys_backup_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    tools:context=".features.crypto.keysbackup.setup.KeysBackupSetupStep3Fragment">
+
+    <LinearLayout
+        android:id="@+id/keys_backup_setup_step3_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/walletCreateSuccessToolbar"
+            style="@style/Widget.Vector.Toolbar.Settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:visibility="visible"
+            app:navigationIcon="@drawable/ic_back_24dp" />
+
+        <ImageView
+            android:id="@+id/keys_backup_setup_step3_image"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="60dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_wallet_receipt_success"
+            tools:ignore="MissingPrefix" />
+
+        <TextView
+            android:id="@+id/keys_backup_setup_step3_line1_text"
+            style="@style/Widget.Vector.TextView.Subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_horizontal_margin"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="@dimen/layout_horizontal_margin"
+            android:text="Your account has been created!"
+            android:textAlignment="center"
+            android:textColor="?vctr_content_primary" />
+
+        <TextView
+            android:id="@+id/btnCreateAccountSuccessDesc"
+            style="@style/Widget.Vector.TextView.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/layout_horizontal_margin"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="@dimen/layout_horizontal_margin"
+            android:textAlignment="center"
+            android:textColor="?vctr_content_secondary"
+            android:text="@string/vchat_save_account_description"
+            tools:text="@string/keys_backup_setup_step3_text_line2" />
+
+        <Button
+            android:id="@+id/btnWalletAccountSave"
+            style="@style/Widget.Vector.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxWidth="@dimen/button_max_width"
+            android:text="Save account" />
+
+        <Button
+            android:id="@+id/btnCreateAccountSuccessDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/layout_vertical_margin"
+            android:layout_marginBottom="@dimen/layout_vertical_margin"
+            android:minWidth="200dp"
+            android:text="@string/done" />
+
+    </LinearLayout>
+
+</ScrollView>

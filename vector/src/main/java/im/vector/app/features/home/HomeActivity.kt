@@ -520,18 +520,19 @@ class HomeActivity :
     override fun onResume() {
         super.onResume()
 
-        if (vectorUncaughtExceptionHandler.didAppCrash()) {
-            vectorUncaughtExceptionHandler.clearAppCrashStatus()
-
-            MaterialAlertDialogBuilder(this)
-                    .setMessage(R.string.send_bug_report_app_crashed)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { _, _ -> bugReporter.openBugReportScreen(this) }
-                    .setNegativeButton(R.string.no) { _, _ -> bugReporter.deleteCrashFile() }
-                    .show()
-        } else {
-            showDisclaimerDialog(this)
-        }
+        //vChat: dialog message in case app crash. Comment it for now
+//        if (vectorUncaughtExceptionHandler.didAppCrash()) {
+//            vectorUncaughtExceptionHandler.clearAppCrashStatus()
+//
+//            MaterialAlertDialogBuilder(this)
+//                    .setMessage(R.string.send_bug_report_app_crashed)
+//                    .setCancelable(false)
+//                    .setPositiveButton(R.string.yes) { _, _ -> bugReporter.openBugReportScreen(this) }
+//                    .setNegativeButton(R.string.no) { _, _ -> bugReporter.deleteCrashFile() }
+//                    .show()
+//        } else {
+//            showDisclaimerDialog(this)
+//        }
 
         // Force remote backup state update to update the banner if needed
         serverBackupStatusViewModel.refreshRemoteStateIfNeeded()
