@@ -70,8 +70,8 @@ class RoomListSectionBuilderGroup(
                             it.memberships = Membership.activeMemberships()
                         },
                         { qpm ->
-                            val name = stringProvider.getString(R.string.bottom_action_rooms)
-                            val updatableFilterLivePageResult = session.roomService().getFilteredPagedRoomSummariesLive(qpm, getFlattenParents = true)
+                            val name = stringProvider.getString(R.string.vchat_bottom_action_rooms)
+                            val updatableFilterLivePageResult = session.roomService().getFilteredPagedRoomSummariesLive(qpm)
                             onUpdatable(updatableFilterLivePageResult)
 
                             val itemCountFlow = updatableFilterLivePageResult.livePagedList.asFlow()
@@ -104,7 +104,7 @@ class RoomListSectionBuilderGroup(
                 addSection(
                         sections,
                         activeGroupAwareQueries,
-                        R.string.bottom_action_rooms,
+                        R.string.vchat_bottom_action_rooms,
                         false
                 ) {
                     it.memberships = listOf(Membership.JOIN)
@@ -159,7 +159,7 @@ class RoomListSectionBuilderGroup(
         addSection(
                 sections,
                 activeSpaceAwareQueries,
-                R.string.bottom_action_rooms,
+                R.string.vchat_bottom_action_rooms,
                 false
         ) {
             it.memberships = listOf(Membership.JOIN)

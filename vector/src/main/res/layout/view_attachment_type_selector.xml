@@ -51,6 +51,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/attachment_type_sticker"
                 android:src="@drawable/ic_attachment_sticker"
+                android:visibility="gone"
                 app:tint="?colorPrimary" />
 
             <ImageButton

@@ -498,7 +498,7 @@ class RoomListFragment @Inject constructor(
                     )
                 RoomListDisplayMode.ROOMS ->
                     StateView.State.Empty(
-                            title = getString(R.string.room_list_rooms_empty_title),
+                            title = getString(R.string.vchat_room_list_rooms_empty_title),
                             image = ContextCompat.getDrawable(requireContext(), R.drawable.empty_state_room),
                             isBigImage = true,
                             message = getString(R.string.room_list_rooms_empty_body)

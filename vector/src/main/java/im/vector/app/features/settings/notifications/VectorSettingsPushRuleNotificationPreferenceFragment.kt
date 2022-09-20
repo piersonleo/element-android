@@ -21,8 +21,10 @@ import androidx.preference.Preference
 import im.vector.app.core.preference.VectorCheckboxPreference
 import im.vector.app.features.settings.VectorSettingsBaseFragment
 import kotlinx.coroutines.launch
+import org.matrix.android.sdk.api.session.pushrules.RuleIds
 import org.matrix.android.sdk.api.session.pushrules.RuleKind
 import org.matrix.android.sdk.api.session.pushrules.rest.PushRuleAndKind
+import timber.log.Timber
 
 abstract class VectorSettingsPushRuleNotificationPreferenceFragment :
         VectorSettingsBaseFragment() {
@@ -34,7 +36,9 @@ abstract class VectorSettingsPushRuleNotificationPreferenceFragment :
             val preference = findPreference<VectorCheckboxPreference>(preferenceKey)!!
             preference.isIconSpaceReserved = false
             val ruleAndKind: PushRuleAndKind? = session.pushRuleService().getPushRules().findDefaultRule(prefKeyToPushRuleId[preferenceKey])
-            if (ruleAndKind == null) {
+            // vChat: Hide @room mention
+            // ruleAndKind.pushRule.ruleId == RuleIds.RULE_ID_ROOM_NOTIF
+            if (ruleAndKind == null || ruleAndKind.pushRule.ruleId == RuleIds.RULE_ID_ROOM_NOTIF) {
                 // The rule is not defined, hide the preference
                 preference.isVisible = false
             } else {
