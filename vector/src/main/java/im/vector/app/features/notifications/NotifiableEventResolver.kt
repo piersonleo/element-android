@@ -23,7 +23,8 @@ import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.time.Clock
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.room.detail.timeline.format.DisplayableEventFormatter
-import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
+//import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
+import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatterVchat
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentUrlResolver
@@ -59,9 +60,9 @@ import javax.inject.Inject
  */
 class NotifiableEventResolver @Inject constructor(
         private val stringProvider: StringProvider,
-        private val noticeEventFormatter: NoticeEventFormatter,
+        private val noticeEventFormatter: NoticeEventFormatterVchat,
         private val displayableEventFormatter: DisplayableEventFormatter,
-        private val clock: Clock,
+        private val clock: Clock
 ) {
 
     // private val eventDisplay = RiotEventDisplay(context)

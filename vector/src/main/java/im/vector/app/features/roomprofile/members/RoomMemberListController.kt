@@ -17,6 +17,7 @@
 package im.vector.app.features.roomprofile.members
 
 import com.airbnb.epoxy.TypedEpoxyController
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.epoxy.dividerItem
 import im.vector.app.core.epoxy.profiles.buildProfileSection
@@ -127,7 +128,7 @@ class RoomMemberListController @Inject constructor(
 
         profileMatrixItemWithPowerLevelWithPresence {
             id(roomMember.userId)
-            matrixItem(roomMember.toMatrixItem())
+            matrixItem(MatrixItem.UserItem(Utils.removeUrlSuffix(roomMember.userId)!!, Utils.removeUrlSuffix(roomMember.displayName), roomMember.avatarUrl))
             avatarRenderer(host.avatarRenderer)
             userEncryptionTrustLevel(data.trustLevelMap.invoke()?.get(roomMember.userId))
             clickListener {
