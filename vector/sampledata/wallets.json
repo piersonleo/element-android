@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "displayName": "My Bank",
+      "id": "IDR"
+    },
+    {
+      "displayName": "Family Mesh",
+      "id": "MESH"
+    },
+    {
+      "displayName": "Personal Mesh",
+      "id": "MESH"
+    },
+    {
+      "displayName": "Bitcoin",
+      "id": "BTC"
+    },
+    {
+      "displayName": "Diamond Hand",
+      "id": "ETH"
+    }
+  ]
+}
