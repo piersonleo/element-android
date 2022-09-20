@@ -56,6 +56,7 @@ import im.vector.app.features.discovery.DiscoverySettingsFragment
 import im.vector.app.features.discovery.change.SetIdentityServerFragment
 import im.vector.app.features.home.HomeDetailFragment
 import im.vector.app.features.home.HomeDrawerFragment
+import im.vector.app.features.home.HomeWalletFragment
 import im.vector.app.features.home.LoadingFragment
 import im.vector.app.features.home.room.breadcrumbs.BreadcrumbsFragment
 import im.vector.app.features.home.room.detail.TimelineFragment
@@ -206,6 +207,11 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(RoomListFragment::class)
     fun bindRoomListFragment(fragment: RoomListFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(HomeWalletFragment::class)
+    fun bindHomeWalletFragment(fragment: HomeWalletFragment): Fragment
 
     @Binds
     @IntoMap
