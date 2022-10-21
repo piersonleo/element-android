@@ -19,7 +19,6 @@ class MeshSharedPref(private val context: Context) {
         val sharedPref = context.getSharedPreferences(context.getString(R.string.mesh_shared_pref_key), Context.MODE_PRIVATE) ?: return
         val launchPp = GlobalData.launchPp
         val encryptValue = Aes256.encryptGcm(value.toByteArray(), launchPp)
-        Timber.d("launchPp storePp: $launchPp value: $value\nvalue hex: ${NumberUtil.bytesToHexStr(encryptValue)}")
 
         with (sharedPref.edit()) {
             putString(key, NumberUtil.bytesToHexStr(encryptValue))
@@ -34,7 +33,6 @@ class MeshSharedPref(private val context: Context) {
         var pp = sharedPref.getString(key, defaultValue)
         if (pp != ""){
             val launchPp = GlobalData.launchPp
-            Timber.d("launchPp getPp: $launchPp pp: $pp")
             val decryptValue = Aes256.decryptGcm(NumberUtil.hexStrToBytes(pp), launchPp)
             pp = decryptValue.decodeHex()
         }
