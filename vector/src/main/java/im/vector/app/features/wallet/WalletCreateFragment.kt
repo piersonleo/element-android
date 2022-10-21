@@ -9,10 +9,15 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.GsonBuilder
 import com.vcard.vchat.mesh.Account
+import com.vcard.vchat.mesh.data.EncryptedKeyData
+import com.vcard.vchat.mesh.data.EncryptedKeyDataSerializer
+import com.vcard.vchat.utils.MeshSharedPref
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentWalletCreateBinding
+import timber.log.Timber
 import javax.inject.Inject
 
 class WalletCreateFragment@Inject constructor(
@@ -50,28 +55,41 @@ class WalletCreateFragment@Inject constructor(
             val passphrase = views.passphraseInput.text.toString().trim()
             val retypePassphrase = views.retypePassphraseInput.text.toString().trim()
 
-            if (accountName.isEmpty()){
-                Toast.makeText(requireContext(), "name can't be empty", Toast.LENGTH_SHORT).show()
-            }
-            else if (passphrase.isEmpty() || retypePassphrase.isEmpty()){
-                Toast.makeText(requireContext(), "passphrase can't be empty", Toast.LENGTH_SHORT).show()
-            }else if (passphrase != retypePassphrase){
-                Toast.makeText(requireContext(), "passphrase is not the same", Toast.LENGTH_SHORT).show()
-            }else{
+            when {
+                accountName.isEmpty() -> {
+                    views.accountNameInput.error = "name can't be empty"
+                }
+                passphrase.isEmpty() -> {
+                    views.passphraseLayout.error = "passphrase can't be empty"
+                }
+                retypePassphrase.isEmpty() -> {
+                    views.retypePassphraseLayout.error = "please retype your passphrase"
+                }
+                passphrase != retypePassphrase -> {
+                    views.passphraseInput.error = "passphrase doesn't match"
+                    views.retypePassphraseInput.error = "passphrase doesn't match"
+                }
+                else -> {
+                    val loadingDialog = prepareDialogLoader(requireContext())
+                    loadingDialog.show()
 
-                val loadingDialog = prepareDialogLoader(requireContext())
-                loadingDialog.show()
+                    Thread {
+                        val encryptedJson = Account.generateAccount(passphrase, accountName)
+                        val gson = GsonBuilder().registerTypeAdapter(EncryptedKeyData::class.java, EncryptedKeyDataSerializer()).setPrettyPrinting().create()
+                        val data = gson.fromJson(encryptedJson, EncryptedKeyData::class.java)
 
-                Thread {
-                    val encryptedJson = Account.generateAccount(passphrase, accountName)
+                        Timber.d("fullAddress: ${data.fullAddress}")
+                        val msp = MeshSharedPref(requireContext())
+                        msp.storePp(data.fullAddress, passphrase)
 
-                    activity?.runOnUiThread(Runnable {
-                        loadingDialog.dismiss()
-                        val intent = WalletCreateSuccessActivity.newIntent(this.requireContext(), encryptedJson, accountName)
-                        startActivity(intent)
-                        callback.onAccountCreated()
-                    })
-                }.start()
+                        activity?.runOnUiThread(Runnable {
+                            loadingDialog.dismiss()
+                            val intent = WalletCreateSuccessActivity.newIntent(this.requireContext(), encryptedJson, accountName)
+                            startActivity(intent)
+                            callback.onAccountCreated()
+                        })
+                    }.start()
+                }
             }
         }
     }

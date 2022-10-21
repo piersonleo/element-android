@@ -5,13 +5,13 @@ import io.realm.annotations.PrimaryKey
 
 class MeshAccountData {
 
-    @SerializedName("address", alternate = ["AccountAddress"])
+    @SerializedName("address", alternate = ["AccountAddress", "a"])
     val address: String = ""
 
-    @SerializedName("name")
+    @SerializedName("name", alternate = ["n"])
     val name: String = ""
 
-    @SerializedName("encryptedKey", alternate = ["encryptedkey"])
+    @SerializedName("encryptedKey", alternate = ["encryptedkey", "e"])
     var encryptedKey: String = ""
 
     @SerializedName("privateKey", alternate = ["privatekey"])

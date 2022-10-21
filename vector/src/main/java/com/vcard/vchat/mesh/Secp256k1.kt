@@ -19,25 +19,31 @@ object Secp256k1 {
         )
 
 
+
         val hashMessage = HashUtils.meshHash(payloadBytes)
 
         val signature = SECP256K1.signHashed(hashMessage, keyPair)
 
-        val outputStream = ByteArrayOutputStream()
+        return signature.bytes().toArray()
 
-        val r = signature.r()
-        val s = signature.s()
-        val v = signature.v()
+        //the code below has been found to cause inconsistent signature length. We'll use tuweni's signature to byteArray instead as it produce the desired result
+//        val outputStream = ByteArrayOutputStream()
+//
+//        val r = signature.r()
+//        val s = signature.s()
+//        val v = signature.v()
 
-        val rBytes = NumberUtil.bigIntToBytes(r)
-        val sBytes = NumberUtil.bigIntToBytes(s)
-        val vBytes = byteArrayOf(v)
-
-        outputStream.write(rBytes)
-        outputStream.write(sBytes)
-        outputStream.write(vBytes)
-
-        return outputStream.toByteArray()
+//        val rBytes = r.toByteArray()
+//        val sBytes = s.toByteArray()
+//        val vBytes = byteArrayOf(v)
+//
+//        Timber.d("signPayload sig: ${signature.bytes().toArray().contentToString()}\nlength: ${signature.bytes().size()}")
+//        Timber.d("signedPayload, rBytes: ${rBytes.contentToString()}\nrLength: ${rBytes.size}\n sBytes: ${sBytes.contentToString()}\nsLength: ${sBytes.size}")
+//        outputStream.write(rBytes)
+//        outputStream.write(sBytes)
+//        outputStream.write(vBytes)
+//
+//        return outputStream.toByteArray()
     }
 
     fun signCandidateList(privateKey: BigInteger, transactionDataBytes: ByteArray, candidateListBytes: ByteArray): ByteArray{

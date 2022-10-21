@@ -25,6 +25,7 @@ import com.airbnb.mvrx.args
 import com.airbnb.mvrx.withState
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.vcard.vchat.mesh.QrCode
 import com.vcard.vchat.utils.Utils
 import com.vcard.vchat.utils.ViewUtil
 import im.vector.app.R
@@ -70,11 +71,11 @@ class WalletCodeFragment @Inject constructor(
         views.walletAddressTitle.text = fragmentArgs.accountName
         views.walletAddressSubtitle.text = fragmentArgs.address
 
-        val qrData = "MESH${fragmentArgs.address}"
+        // val qrData = "MESH${fragmentArgs.address}"
+        val qrData = QrCode.generateQrCodeContent(fragmentArgs.address, fragmentArgs.accountName)
         //views.accountQRImage.setData(fragmentArgs.address)
         val icon = BitmapFactory.decodeResource(resources, R.drawable.img_logo_vbiz_rounded_corner_2)
         views.accountQRImage.setData2(qrData, icon)
-
     }
 
     private fun setupButton(){
@@ -133,15 +134,15 @@ class WalletCodeFragment @Inject constructor(
     @Suppress("DEPRECATION")
     private fun saveBitmap(bitmap: Bitmap, filename: String) {
         try {
-            val fileName = "$filename.jpg"
+            val fileName = "$filename.png"
             val values = ContentValues()
             values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/")
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/vChat")
                 values.put(MediaStore.MediaColumns.IS_PENDING, 1)
             } else {
-                val directory: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+                val directory: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM + File.separator + "vChat")
                 val file = File(directory, fileName)
                 values.put(MediaStore.MediaColumns.DATA, file.absolutePath)
             }

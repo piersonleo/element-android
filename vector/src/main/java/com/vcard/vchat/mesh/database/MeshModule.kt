@@ -8,7 +8,8 @@ import io.realm.annotations.RealmModule
 @RealmModule(
         classes = [
             AccountEntity::class,
-            NodeEntity::class
+            NodeEntity::class,
+            AccountMutxoEntity::class
         ]
 )
 internal class MeshModule

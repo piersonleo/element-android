@@ -174,7 +174,7 @@ class Utils {
             val canvasHeight = canvas.height
             canvas.drawBitmap(qrCode, Matrix(), null)
 
-            val resizedLogo = Bitmap.createScaledBitmap(logo, canvasWidth / 4, canvasHeight / 4, true)
+            val resizedLogo = Bitmap.createScaledBitmap(logo, canvasWidth / 6, canvasHeight / 6, true)
             val centerX = (canvasWidth - resizedLogo.width)/2
             val centerY = (canvasHeight - resizedLogo.height)/2
             canvas.drawBitmap(resizedLogo, centerX.toFloat(), centerY.toFloat(), null)

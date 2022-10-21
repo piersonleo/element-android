@@ -10,6 +10,7 @@ import im.vector.app.core.platform.VectorBaseActivity
 import kotlinx.parcelize.Parcelize
 import im.vector.app.databinding.ActivitySimpleBinding
 import timber.log.Timber
+import java.math.BigInteger
 
 @AndroidEntryPoint
 class WalletReceiptActivity: VectorBaseActivity<ActivitySimpleBinding>(), WalletReceiptFragment.ReceiptCallback {
@@ -18,14 +19,14 @@ class WalletReceiptActivity: VectorBaseActivity<ActivitySimpleBinding>(), Wallet
     data class Args(
             val date: String,
             val recipientAddress: String,
-            val amount: Long,
-            val fee: Long,
+            val amount: BigInteger,
+            val fee: BigInteger,
             val selectedUnit: String,
             val reference: String
     ) : Parcelable
 
     companion object {
-        fun newIntent(context: Context, date: String, recipientAddress: String, amount: Long, fee: Long, selectedUnit: String, reference: String): Intent {
+        fun newIntent(context: Context, date: String, recipientAddress: String, amount: BigInteger, fee: BigInteger, selectedUnit: String, reference: String): Intent {
             return Intent(context, WalletReceiptActivity::class.java).apply {
                 putExtra(Mavericks.KEY_ARG, Args(date, recipientAddress, amount, fee, selectedUnit, reference))
             }
