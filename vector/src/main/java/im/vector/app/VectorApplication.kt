@@ -40,6 +40,7 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import com.vcard.vchat.mesh.database.MeshModule
+import com.vcard.vchat.utils.MeshSharedPref
 import dagger.hilt.android.HiltAndroidApp
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.extensions.configureAndStart
@@ -222,6 +223,12 @@ class VectorApplication :
                 .build()
 
         Realm.setDefaultConfiguration(realmConfig)
+
+        //vChat: setup mesh launch pp
+
+        val msp = MeshSharedPref(this)
+        msp.clearSp()
+        //msp.storeLaunchPp()
     }
 
     private val startSyncOnFirstStart = object : DefaultLifecycleObserver {

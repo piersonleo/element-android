@@ -3,6 +3,8 @@
 
     <string name="app_version">App Version: %s</string>
     <string name="mesh_title">MESH</string>
+    <string name="mesh_shared_pref_key">com.vcard.vchat.mesh.PREFERENCE_FILE_KEY</string>
+    <string name="mesh_account_title">Mesh Account</string>
 
     <!--Bottom navigation buttons-->
     <string name="bottom_action_wallet">Mesh Wallet</string>
@@ -140,8 +142,28 @@
     <string name="vchat_send_create_account_progress">Creating account…</string>
 
     <string name="vchat_create_mesh_account_info">Disclaimer: vCard Chat does not store your passphrase. Please remember or note down your passphrase so you do not lose access to your account.</string>
-    <string name="vchat_create_mesh_account_export_saved">The account file has been saved to your device.</string>
-    <string name="vchat_create_mesh_account_export_saved_qr_code">The account QR Code has been saved to your device.</string>
+    <string name="vchat_create_mesh_account_export_saved">Your account file has been saved to your device.</string>
+    <string name="vchat_create_mesh_account_export_saved_qr_code">Your account QR code has been saved to your device.</string>
+
+    <string name="vchat_create_mesh_wallet_export_saved">Your wallet file has been saved to your device.</string>
+    <string name="vchat_create_mesh_wallet_export_saved_qr_code">Your wallet QR code has been saved to your device.</string>
 
     <string name="vchat_save_account_description">Your new account has been created. In order to not lose your account upon logout, please save your account so you can import it back anytime.</string>
+
+    <string name="vchat_save_account_qr_title">Account: %s</string>
+
+    <string name="vchat_home_wallet_menu_save_accounts">Save Wallet</string>
+    <string name="vchat_wallet_account_save_account">Save account</string>
+
+    <string name="vchat_enter_passphrase">Enter passphrase</string>
+    <string name="vchat_change_account_passphrase">Change passphrase</string>
+    <string name="vchat_change_account_name">Change name</string>
+
+    <string name="vchat_current_passphrase">Enter current passphrase</string>
+    <string name="vchat_new_passphrase">Enter new passphrase</string>
+    <string name="vchat_retype_new_passphrase">Retype new passphrase</string>
+
+    <string name="vchat_error_name_empty">Name cannot be empty</string>
+    <string name="vchat_error_invalid_pass">Invalid passphrase</string>
+
 </resources>

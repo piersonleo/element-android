@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/change_name"
+        android:enabled="true"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/vchat_change_account_name" />
+
+    <item
+        android:id="@+id/change_passphrase"
+        android:enabled="true"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/vchat_change_account_passphrase" />
+
+    <item
+        android:id="@+id/save_account"
+        android:enabled="true"
+        android:icon="@drawable/ic_material_save"
+        android:title="@string/vchat_wallet_account_save_account" />
+
+</menu>

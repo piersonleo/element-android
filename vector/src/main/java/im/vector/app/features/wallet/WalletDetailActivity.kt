@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.Mavericks
 import com.vcard.vchat.mesh.Aes256
 import dagger.hilt.android.AndroidEntryPoint
+import im.vector.app.R
 import im.vector.app.core.extensions.addFragment
 import im.vector.app.core.extensions.replaceFragment
 import im.vector.app.core.platform.VectorBaseActivity
@@ -38,6 +39,8 @@ class WalletDetailActivity:  VectorBaseActivity<ActivitySimpleBinding>(){
         }
 
     }
+
+    override fun getMenuRes()= R.menu.vchat_wallet_account_menu
 
     private fun showFragment(fragmentClass: KClass<out Fragment>, params: Parcelable? = null) {
         if (supportFragmentManager.findFragmentByTag(fragmentClass.simpleName) == null) {

@@ -2,37 +2,51 @@ package im.vector.app.features.wallet
 
 import android.app.Dialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
+import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.util.Base64
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.airbnb.mvrx.args
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.vcard.vchat.mesh.Address
 import com.vcard.vchat.mesh.Aes256
 import com.vcard.vchat.mesh.Constants
 import com.vcard.vchat.mesh.CurrencyEnum
 import com.vcard.vchat.mesh.MeshCommand
 import com.vcard.vchat.mesh.NumberUtil
 import com.vcard.vchat.mesh.TxnFee
-import com.vcard.vchat.mesh.data.MeshAccountData
+import com.vcard.vchat.mesh.data.MutxoListData
 import com.vcard.vchat.mesh.database.AccountEntity
 import com.vcard.vchat.mesh.database.RealmExec
+import com.vcard.vchat.utils.DecimalDigitsInputFilter
+import com.vcard.vchat.utils.MeshSharedPref
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.DialogBaseEditTextBinding
+import im.vector.app.databinding.DialogBaseInputPassphraseBinding
 import im.vector.app.databinding.FragmentWalletTransferBinding
-import im.vector.app.features.userdirectory.UserListController
 import timber.log.Timber
+import java.lang.Exception
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.nio.charset.StandardCharsets
+import java.util.Locale
 import javax.inject.Inject
 
 class WalletTransferFragment@Inject constructor(
@@ -41,6 +55,8 @@ class WalletTransferFragment@Inject constructor(
     private val fragmentArgs: WalletTransferActivity.Args by args()
 
     private lateinit var callback: TransferCallback
+
+    private lateinit var senderAccount: AccountEntity
 
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletTransferBinding {
@@ -52,6 +68,7 @@ class WalletTransferFragment@Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
+        setupListeners()
         setupClick()
     }
 
@@ -67,114 +84,223 @@ class WalletTransferFragment@Inject constructor(
 
         views.transferAddressText.setText(fragmentArgs.recipientAddress)
 
-        val items = listOf(Constants.gramUnit, Constants.milligramUnit)
+        val items = listOf(Constants.kilogramUnit, Constants.gramUnit, Constants.milligramUnit, Constants.microgramUnit,  Constants.nanogramUnit)
         val adapter = ArrayAdapter(requireContext(), R.layout.item_transfer_unit_list, items)
         views.unitTextView.setAdapter(adapter)
-        views.unitTextView.setText(items[0], false)
+
+        //defaults to milligram
+        views.unitTextView.setText(items[2], false)
+
+        senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
+
+        displayCurrentBalance()
+        limitDecimalInput()
+    }
+
+    private fun setupListeners(){
+
+        //update balance view
+        views.unitTextView.onItemClickListener = AdapterView.OnItemClickListener { _, _, _, _ ->
+            displayCurrentBalance()
+            setInputType()
+            formatInputAmount()
+            limitDecimalInput()
+        }
+
+
+
+        views.transferAmountInput.addTextChangedListener(object : TextWatcher{
+
+            var isDecimalInputted = false
+            var preChangedText = ""
+            var changedText = ""
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                preChangedText = p0.toString()
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                changedText = p0.toString()
+                isDecimalInputted = !preChangedText.contains(".") && changedText.contains(".")
+                Timber.d("onTextChanged p1: $p1, p2: $p2, p3: $p3")
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                val inputText = p0.toString()
+
+                if (inputText.isNotEmpty() && !isDecimalInputted && inputText[inputText.lastIndex].toString() != ".")  {
+
+                    val amountInput = inputText.replace(",", "").toDouble()
+                    if (amountInput >= 1000) {
+                        views.transferAmountInput.removeTextChangedListener(this)
+
+                        val formatInput = StringUtil.formatBalanceForDisplay(amountInput)
+
+                        val endsWithZero = inputText.endsWith("0")
+                        if (endsWithZero && inputText.contains(".")) {
+                            val concatWithZero = formatInput.plus("0")
+                            views.transferAmountInput.setText(concatWithZero)
+                            views.transferAmountInput.setSelection(concatWithZero.length)
+                        }else{
+                            views.transferAmountInput.setText(formatInput)
+                            views.transferAmountInput.setSelection(formatInput.length)
+                        }
+
+                        views.transferAmountInput.addTextChangedListener(this)
+                    }else if (inputText.contains(",") && amountInput < 1000){
+                        views.transferAmountInput.removeTextChangedListener(this)
+
+                        views.transferAmountInput.setText(inputText.replace(",", ""))
+                        views.transferAmountInput.setSelection(inputText.length-1)
+
+                        views.transferAmountInput.addTextChangedListener(this)
+
+                    }
+                }
+            }
+        })
     }
 
     private fun setupClick(){
         views.btnTransfer.debouncedClicks {
 
             if (views.transferAmountInput.text.toString() == ""){
-                Toast.makeText(requireContext(), "Please enter an amount", Toast.LENGTH_SHORT).show()
+                views.transferAmountInput.error = "Please enter an amount"
                 return@debouncedClicks
             }
 
-            val senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
+            //val senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
 
             val selectedUnit = views.unitTextView.text.toString()
-            val convertRate = if (selectedUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
-            val amount = views.transferAmountInput.text.toString().toLong() * convertRate
-            val fee = TxnFee.calculateTotalFee(CurrencyEnum.MeshGold, amount).toLong()
+            val conversionRate = getRateByUnit(selectedUnit)
 
-            Timber.d("amount: $amount, fee: $fee, convertRate: $convertRate")
+            val amountInput = views.transferAmountInput.text.toString()
 
-            if (amount + fee > senderAccount.balance){
+            val bigDecimalInput = BigDecimal(amountInput.replace(",", ""))
+            val calcAmount = bigDecimalInput * conversionRate
+            val amount = calcAmount.toBigInteger()
+            val fee = TxnFee.calculateTotalFeeBigInt(CurrencyEnum.MeshGold, amount)
+
+            //use divide to prevent rounding up
+            val convertedFee = BigDecimal(fee).divide(BigDecimal(Constants.milligramRate))
+
+            val feeForDisplay = "$convertedFee ${Constants.milligramUnit}"
+            val reference = views.transferReferenceInput.text.toString()
+
+            Timber.d("bigDecimal:  $bigDecimalInput calcAmount: $calcAmount, amount: $amount, fee: $fee, convertedFee: $convertedFee, convertRate: $conversionRate")
+
+            if (amount + fee > BigInteger(senderAccount.balance.toString())){
                 Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
             }else{
-                if (fragmentArgs.type == "test") {
+                if (fragmentArgs.type == Constants.test) {
+                    MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Transfer summary")
+                            .setMessage("Recipient: ${fragmentArgs.recipientAddress}\n" +
+                                    "Amount: $amountInput $selectedUnit\n" +
+                                    "Fee: $feeForDisplay\n" +
+                                    "Reference: $reference\n")
+                            .setPositiveButton("Confirm transfer") { _, _ ->
+                                val loadingDialog = prepareDialogLoader(requireContext())
+                                loadingDialog.show()
 
-                    val reference = views.transferReferenceInput.text.toString()
+                                Thread {
 
-                    val loadingDialog = prepareDialogLoader(requireContext())
-                    loadingDialog.show()
+//                        if (getAccountBalance(fragmentArgs.senderPrivateKey) == "ok") {
 
-                    Thread {
+                                    val updatedAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
 
-                        if (getAccountBalance(fragmentArgs.senderPrivateKey) == "ok") {
-
-                            val updatedAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
-
-                            if (amount + fee > updatedAccount.balance){
-                                activity?.runOnUiThread(Runnable {
-                                    loadingDialog.dismiss()
-                                    Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
-                                })
-                            }else {
-                                val sendTransaction = MeshCommand.sendTransaction(
-                                        fragmentArgs.senderAddress,
-                                        fragmentArgs.senderPrivateKey,
-                                        fragmentArgs.recipientAddress,
-                                        amount,
-                                        reference,
-                                        updatedAccount.nonce.toLong()
-                                )
-
-                                when (sendTransaction.c) {
-                                    "unavailable" -> {
+                                    if (amount + fee > BigInteger(updatedAccount.balance.toString())){
                                         activity?.runOnUiThread(Runnable {
                                             loadingDialog.dismiss()
-                                            Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_unavailable), Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
                                         })
-                                    }
-                                    "ok"          -> {
-                                        activity?.runOnUiThread(Runnable {
-                                            Timber.d("transaction data: $sendTransaction")
-                                            loadingDialog.dismiss()
-                                            val date = Utils.getTime("UTC")
-                                            val intent = WalletReceiptActivity.newIntent(
-                                                    this.requireContext(),
-                                                    date,
-                                                    fragmentArgs.recipientAddress,
-                                                    amount,
-                                                    fee,
-                                                    selectedUnit,
-                                                    reference
-                                            )
-                                            startActivity(intent)
-                                            callback.onTransactionSuccess()
-                                        })
-                                    }
-                                    "busy"        -> {
-                                        activity?.runOnUiThread(Runnable {
-                                            loadingDialog.dismiss()
-                                            Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_busy), Toast.LENGTH_SHORT).show()
-                                        })
-                                    }
-                                    else          -> {
-                                        activity?.runOnUiThread(Runnable {
-                                            loadingDialog.dismiss()
-                                            Toast.makeText(
-                                                    requireContext(),
-                                                    getString(R.string.vchat_grpc_error_send_transaction_fail),
-                                                    Toast.LENGTH_SHORT
-                                            ).show()
+                                    }else {
 
-                                            val decodeParams = Base64.decode(sendTransaction.d, Base64.DEFAULT)
-                                            val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+                                        val date = Utils.getTime("UTC")
 
-                                            Timber.d("decodeParams: $decodeParamsUtf8")
-                                        })
+                                        val sendTransaction = MeshCommand.sendTransaction(
+                                                fragmentArgs.senderAddress,
+                                                fragmentArgs.senderPrivateKey,
+                                                fragmentArgs.recipientAddress,
+                                                amount,
+                                                reference,
+                                                date
+                                        )
+
+                                        when (sendTransaction.c) {
+                                            "unavailable" -> {
+                                                activity?.runOnUiThread(Runnable {
+                                                    loadingDialog.dismiss()
+                                                    Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_unavailable), Toast.LENGTH_SHORT).show()
+                                                })
+                                            }
+                                            "ok"          -> {
+                                                activity?.runOnUiThread(Runnable {
+                                                    Timber.d("transaction data: $sendTransaction")
+                                                    loadingDialog.dismiss()
+                                                    val intent = WalletReceiptActivity.newIntent(
+                                                            this.requireContext(),
+                                                            date,
+                                                            fragmentArgs.recipientAddress,
+                                                            amount,
+                                                            fee,
+                                                            selectedUnit,
+                                                            reference
+                                                    )
+                                                    startActivity(intent)
+                                                    callback.onTransactionSuccess()
+                                                })
+                                            }
+                                            "busy"        -> {
+                                                activity?.runOnUiThread(Runnable {
+                                                    loadingDialog.dismiss()
+                                                    Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_busy), Toast.LENGTH_SHORT).show()
+                                                })
+                                            }
+                                            else          -> {
+                                                activity?.runOnUiThread(Runnable {
+                                                    loadingDialog.dismiss()
+                                                    Toast.makeText(
+                                                            requireContext(),
+                                                            getString(R.string.vchat_grpc_error_send_transaction_fail),
+                                                            Toast.LENGTH_SHORT
+                                                    ).show()
+
+                                                    val decodeParams = Base64.decode(sendTransaction.d, Base64.DEFAULT)
+                                                    val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+
+                                                    Timber.d("decodeParams: $decodeParamsUtf8")
+                                                })
+                                            }
+                                        }
                                     }
+//                        }else{
+//                            loadingDialog.dismiss()
+//                        }
+                                }.start()                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                }else{
+                    MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Transfer summary")
+                            .setMessage("Recipient: ${fragmentArgs.recipientAddress}\n" +
+                                        "Amount: $amountInput $selectedUnit\n" +
+                                        "Fee: $feeForDisplay\n" +
+                                        "Reference: $reference\n")
+                            .setPositiveButton("Confirm transfer") { _, _ ->
+                                val msp = MeshSharedPref(requireContext())
+                                val pp = msp.getPp(fragmentArgs.senderAddress)
+                                if (pp == "") {
+                                    inputPassphrase(fragmentArgs.encryptedKey, amount, fee, selectedUnit)
+                                }else{
+                                    val keyBytes = NumberUtil.hexStrToBytes(fragmentArgs.encryptedKey)
+                                    val dk = Aes256.decryptGcm(keyBytes, pp)
+                                    sendMutxo(dk,  amount, fee, selectedUnit)
                                 }
                             }
-                        }else{
-                            loadingDialog.dismiss()
-                        }
-                    }.start()
-                }else{
-                    inputPassphrase(fragmentArgs.encryptedKey, amount, fee, selectedUnit)
+                            .setNegativeButton("Cancel", null)
+                            .show()
                 }
             }
         }
@@ -192,110 +318,123 @@ class WalletTransferFragment@Inject constructor(
         return dialog
     }
 
-    private fun inputPassphrase(encryptedKey: String, amount: Long, fee: Long, selectedUnit: String) {
+    private fun inputPassphrase(encryptedKey: String, amount: BigInteger, fee: BigInteger, selectedUnit: String) {
         val inflater = requireActivity().layoutInflater
-        val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
-        val dialogViews = DialogBaseEditTextBinding.bind(layout)
-        dialogViews.editText.hint = "Input passphrase"
+        val layout = inflater.inflate(R.layout.dialog_base_input_passphrase, null)
+        val dialogViews = DialogBaseInputPassphraseBinding.bind(layout)
 
-        MaterialAlertDialogBuilder(requireActivity())
-                .setTitle("Input passphrase")
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(getString(R.string.vchat_enter_passphrase))
                 .setView(layout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    val reference = views.transferReferenceInput.text.toString()
-
-                    val passphrase = dialogViews.editText.text.toString()
-
-                    val keyBytes = NumberUtil.hexStrToBytes(encryptedKey)
-                    val decryptedKey = Aes256.decryptGcm(keyBytes, passphrase)
-
-                    if (decryptedKey == "invalid passphrase"){
-                        Toast.makeText(requireContext(), "Invalid passphrase", Toast.LENGTH_SHORT).show()
-                    }else {
-                        val loadingDialog = prepareDialogLoader(requireContext())
-                        loadingDialog.show()
-
-                        Thread {
-
-                            if (getAccountBalance(decryptedKey) == "ok") {
-
-                                val senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
-
-                                if (amount + fee > senderAccount.balance){
-                                    activity?.runOnUiThread(Runnable {
-                                        loadingDialog.dismiss()
-                                        Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
-                                    })
-                                }else {
-
-                                    val sendTransaction = MeshCommand.sendTransaction(
-                                            fragmentArgs.senderAddress,
-                                            decryptedKey,
-                                            fragmentArgs.recipientAddress,
-                                            amount,
-                                            reference,
-                                            senderAccount.nonce.toLong()
-                                    )
-
-                                    when (sendTransaction.c) {
-                                        "unavailable" -> {
-                                            activity?.runOnUiThread(Runnable {
-                                                loadingDialog.dismiss()
-                                                Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_unavailable), Toast.LENGTH_SHORT).show()
-                                            })
-                                        }
-                                        "ok"          -> {
-                                            activity?.runOnUiThread(Runnable {
-                                                Timber.d("transaction data: $sendTransaction")
-                                                loadingDialog.dismiss()
-                                                val date = Utils.getTime("UTC")
-                                                val intent = WalletReceiptActivity.newIntent(
-                                                        this.requireContext(),
-                                                        date,
-                                                        fragmentArgs.recipientAddress,
-                                                        amount,
-                                                        fee,
-                                                        selectedUnit,
-                                                        reference
-                                                )
-                                                startActivity(intent)
-                                                callback.onTransactionSuccess()
-                                            })
-                                        }
-                                        "busy"        -> {
-                                            activity?.runOnUiThread(Runnable {
-                                                loadingDialog.dismiss()
-                                                Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_busy), Toast.LENGTH_SHORT).show()
-                                            })
-                                        }
-                                        else          -> {
-                                            activity?.runOnUiThread(Runnable {
-                                                loadingDialog.dismiss()
-                                                Toast.makeText(
-                                                        requireContext(),
-                                                        getString(R.string.vchat_grpc_error_send_transaction_fail),
-                                                        Toast.LENGTH_SHORT
-                                                ).show()
-
-                                                val decodeParams = Base64.decode(sendTransaction.d, Base64.DEFAULT)
-                                                val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
-
-                                                Timber.d("decodeParams: $decodeParamsUtf8")
-                                            })
-                                        }
-                                    }
-                                }
-                            }else{
-                                loadingDialog.dismiss()
-                            }
-                        }.start()
-                    }
-                }
+                .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.action_cancel, null)
-                .show()
+                .create()
+
+        dialog.setOnShowListener {
+            val confirmButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+            confirmButton.debouncedClicks {
+                val pp = dialogViews.editText.text.toString()
+
+                val keyBytes = NumberUtil.hexStrToBytes(encryptedKey)
+                val dk = Aes256.decryptGcm(keyBytes, pp)
+
+                if (dk == "invalid passphrase") {
+                    dialogViews.baseTil.error = getString(R.string.vchat_error_invalid_pass)
+                } else {
+                    val msp = MeshSharedPref(requireContext())
+                    msp.storePp(fragmentArgs.senderAddress, pp)
+                    sendMutxo(dk, amount, fee, selectedUnit)
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        dialog.show()
     }
 
+    private fun sendMutxo(dk: String, amount: BigInteger, fee: BigInteger, selectedUnit: String){
+        val loadingDialog = prepareDialogLoader(requireContext())
+        loadingDialog.show()
+
+        Thread {
+
+//           if (getAccountBalance(dk) == "ok") {
+
+                val senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
+
+                if (amount + fee > BigInteger(senderAccount.balance.toString())){
+                    activity?.runOnUiThread(Runnable {
+                        loadingDialog.dismiss()
+                        Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
+                    })
+                }else {
+
+                    val date = Utils.getTime("UTC")
+                    val reference = views.transferReferenceInput.text.toString()
+
+                    val sendTransaction = MeshCommand.sendTransaction(
+                            fragmentArgs.senderAddress,
+                            dk,
+                            fragmentArgs.recipientAddress,
+                            BigInteger(amount.toString()),
+                            reference,
+                            date
+                    )
+
+                    when (sendTransaction.c) {
+                        "unavailable" -> {
+                            activity?.runOnUiThread(Runnable {
+                                loadingDialog.dismiss()
+                                Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_unavailable), Toast.LENGTH_SHORT).show()
+                            })
+                        }
+                        "ok"          -> {
+                            activity?.runOnUiThread(Runnable {
+                                Timber.d("transaction data: $sendTransaction")
+                                loadingDialog.dismiss()
+                                val intent = WalletReceiptActivity.newIntent(
+                                        this.requireContext(),
+                                        date,
+                                        fragmentArgs.recipientAddress,
+                                        amount,
+                                        fee,
+                                        selectedUnit,
+                                        reference
+                                )
+                                startActivity(intent)
+                                callback.onTransactionSuccess()
+                            })
+                        }
+                        "busy"        -> {
+                            activity?.runOnUiThread(Runnable {
+                                loadingDialog.dismiss()
+                                Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_busy), Toast.LENGTH_SHORT).show()
+                            })
+                        }
+                        else          -> {
+                            activity?.runOnUiThread(Runnable {
+                                loadingDialog.dismiss()
+                                Toast.makeText(
+                                        requireContext(),
+                                        getString(R.string.vchat_grpc_error_send_transaction_fail),
+                                        Toast.LENGTH_SHORT
+                                ).show()
+
+                                val decodeParams = Base64.decode(sendTransaction.d, Base64.DEFAULT)
+                                val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+
+                                Timber.d("decodeParams: $decodeParamsUtf8")
+                            })
+                        }
+                    }
+                }
+//           }else{
+//                loadingDialog.dismiss()
+//           }
+        }.start()
+    }
     private fun getAccountBalance(key: String): String{
 
         val refreshAccount = MeshCommand.getAccount(fragmentArgs.senderAddress, key)
@@ -315,19 +454,20 @@ class WalletTransferFragment@Inject constructor(
                     val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
                     val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
 
-                    Timber.d("decodeParams: $decodeParamsUtf8")
+                    Timber.d("decodeParams: $decodeParamsUtf8\n")
+                    val gson = GsonBuilder().disableHtmlEscaping().create()
+                    val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
-                    val accountData = Gson().fromJson(decodeParamsUtf8, MeshAccountData::class.java)
-                    Timber.d("accountData: ${accountData.nonce}")
+                    val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
+
+                    Timber.d("accountData: ${gson.toJson(accountData)}")
                     val accountEntity = AccountEntity()
-                    accountEntity.address = accountData.address
-                    accountEntity.balance = accountData.balance
-                    accountEntity.currency = accountData.currency
-                    accountEntity.nonce = accountData.nonce
-                    accountEntity.moduleHash = accountData.moduleHash?.toByteArray()
-                    accountEntity.rootHash = accountData.rootHash.toByteArray()
+                    accountEntity.address = address
+                    accountEntity.balance = accountData.total
+                    accountEntity.currency = CurrencyEnum.MeshGold.name
 
                     RealmExec().addUpdateAccountBalance(accountEntity)
+                    RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
                 })
 
                 return "ok"
@@ -350,6 +490,108 @@ class WalletTransferFragment@Inject constructor(
                 })
 
                 return "error"
+            }
+        }
+    }
+
+    private fun displayCurrentBalance(){
+        val selectedUnit = views.unitTextView.text.toString()
+        val conversionRate = getRateByUnit(selectedUnit)
+        val convertedBalance = BigDecimal(senderAccount.balance).divide(conversionRate)
+        val formattedBalance = StringUtil.formatBalanceForDisplayBigDecimal(convertedBalance)
+        val currentBalance = "$formattedBalance $selectedUnit"
+
+        views.transferAmountLayout.helperText = "Current balance: $currentBalance"
+    }
+
+    private fun getRateByUnit(unit: String): BigDecimal{
+        return when(unit){
+            Constants.kilogramUnit -> BigDecimal(Constants.kilogramRate.toString())
+            Constants.gramUnit -> BigDecimal(Constants.gramRate.toString())
+            Constants.milligramUnit -> BigDecimal(Constants.milligramRate.toString())
+            Constants.microgramUnit -> BigDecimal(Constants.microgramRate.toString())
+            Constants.nanogramUnit -> BigDecimal(Constants.nanogramRate.toString())
+            else -> throw Exception("Not a valid unit")
+        }
+    }
+
+    private fun setInputType(){
+        val selectedUnit = views.unitTextView.text.toString()
+        if (selectedUnit == Constants.nanogramUnit) {
+            views.transferAmountInput.inputType = InputType.TYPE_CLASS_NUMBER
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
+                views.transferAmountInput.keyListener = DigitsKeyListener.getInstance(Locale.ENGLISH, false, false)
+            }else{
+                @Suppress("DEPRECATION")
+                views.transferAmountInput.keyListener = DigitsKeyListener.getInstance(false, false)
+            }
+        } else{
+            views.transferAmountInput.inputType = InputType.TYPE_NUMBER_FLAG_DECIMAL
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
+                views.transferAmountInput.keyListener = DigitsKeyListener.getInstance(Locale.ENGLISH, false, true)
+            }else{
+                @Suppress("DEPRECATION")
+                views.transferAmountInput.keyListener = DigitsKeyListener.getInstance(false, true)
+            }
+
+        }
+    }
+
+    private fun formatInputAmount(){
+        val selectedUnit = views.unitTextView.text.toString()
+        val currentInputAmount = views.transferAmountInput.text.toString()
+
+        when(selectedUnit){
+            Constants.gramUnit ->{
+                //9 decimal places
+                removeExceedingDecimals(currentInputAmount, Constants.gramRate)
+            }
+            Constants.milligramUnit -> {
+                //6 decimal places
+                removeExceedingDecimals(currentInputAmount, Constants.milligramRate)
+            }
+            Constants.microgramUnit -> {
+                //3 decimal places
+                removeExceedingDecimals(currentInputAmount, Constants.microgramRate)
+            }
+            Constants.nanogramUnit -> {
+                //no decimals
+                val substring = currentInputAmount.substringBefore(".")
+                views.transferAmountInput.setText(substring)
+            }
+        }
+    }
+
+    private fun removeExceedingDecimals(input: String, rate: Int){
+        val decimalSubstring = input.substringAfter(".")
+
+        Timber.d("decimalSubLength: ${decimalSubstring.length} , rateLength: ${rate.toString().length}")
+        if (decimalSubstring.length > rate.toString().length-1){
+            val endIndex = (input.indexOf(".")+rate.toString().length)
+            views.transferAmountInput.setText(input.substring(0, endIndex))
+        }
+    }
+
+    private fun limitDecimalInput(){
+
+        when(views.unitTextView.text.toString()){
+            Constants.kilogramUnit ->{
+                //12 decimal places
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.kilogramRate.toString().length-1))
+            }
+
+            Constants.gramUnit ->{
+                //9 decimal places
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.gramRate.toString().length-1))
+
+        }
+            Constants.milligramUnit -> {
+                //6 decimal places
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.milligramRate.toString().length-1))
+            }
+            Constants.microgramUnit -> {
+                //3 decimal places
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.microgramRate.toString().length-1))
             }
         }
     }

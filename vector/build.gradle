@@ -262,9 +262,9 @@ android {
             buildConfigField "boolean", "ENABLE_STRICT_MODE_LOGS", "false"
 
             postprocessing {
-                //vChat: needs to comment these so we can use rpc and realm json
-                //removeUnusedCode true
-                //removeUnusedResources true
+                removeUnusedCode true
+                removeUnusedResources true
+                //vChat: needs to comment this so we can use rpc and realm json
                 //optimizeCode true
                 // We do not activate obfuscation as it makes it hard then to read crash reports, and it's a bit useless on an open source project :)
                 obfuscate false
@@ -286,7 +286,7 @@ android {
 
             dimension "store"
             isDefault = true
-            versionName "1.4.20.vc5"
+            versionName "1.4.25.vc6"
 
             resValue "bool", "isGplay", "true"
             buildConfigField "boolean", "ALLOW_FCM_USE", "true"
@@ -297,7 +297,7 @@ android {
         fdroid {
             dimension "store"
 
-            versionName "1.4.20.vc5"
+            versionName "1.4.25.vc6"
 
             resValue "bool", "isGplay", "false"
             buildConfigField "boolean", "ALLOW_FCM_USE", "false"

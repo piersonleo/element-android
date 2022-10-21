@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:maxWidth="@dimen/button_max_width"
-            android:text="Save account" />
+            android:text="@string/vchat_wallet_account_save_account" />
 
         <Button
             android:id="@+id/btnCreateAccountSuccessDone"

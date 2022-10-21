@@ -71,8 +71,8 @@
         android:contentDescription="Create account"
         android:src="@drawable/ic_add_card"
         android:backgroundTint="@color/palette_gray_300"
-        app:fabSize="mini"
-        app:maxImageSize="24dp"
+        app:fabSize="normal"
+        app:maxImageSize="32dp"
         app:layout_constraintBottom_toTopOf="@id/fabAdd"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -86,9 +86,24 @@
         android:contentDescription="Import account"
         android:src="@drawable/ic_file_upload"
         android:backgroundTint="@color/palette_gray_300"
-        app:fabSize="mini"
-        app:maxImageSize="24dp"
+        app:fabSize="normal"
+        app:maxImageSize="32dp"
         app:layout_constraintBottom_toTopOf="@id/fabCreateWalletAccount"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabScanImportAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="Scan QR to import account"
+        android:src="@drawable/ic_qr_code_add"
+        android:backgroundTint="@color/palette_gray_300"
+        app:fabSize="normal"
+        app:maxImageSize="32dp"
+        app:layout_constraintBottom_toTopOf="@id/fabImportAccount"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,12 +12,13 @@ public class AccountEntity extends RealmObject {
     public String address = "";
     public String name = "";
     public String encryptedKey = "";
+    public String encryptedJson = "";
     public String privateKey = "";
 
     public String currency = "";
     public Integer nonce = 0;
 
-    public Long balance = 0L;
+    public String balance = "0";
     public byte[] rootHash = new byte[0];
     public byte[] moduleHash = new byte[0];
 

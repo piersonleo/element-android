@@ -14,13 +14,6 @@ import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.glide.GlideApp
 
-data class WalletItemModel(
-        val address: String,
-        val name: String,
-        val currency: String,
-        val privateKey: String
-)
-
 @EpoxyModelClass(layout = R.layout.item_wallet_account)
 abstract class HomeWalletItem(private val context: Context) : VectorEpoxyModel<HomeWalletItem.Holder>() {
 

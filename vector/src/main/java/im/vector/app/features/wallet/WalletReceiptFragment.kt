@@ -9,11 +9,14 @@ import android.widget.TextView
 import com.airbnb.mvrx.args
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.vcard.vchat.utils.Constants
+import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentWalletReceiptBinding
 import timber.log.Timber
+import java.lang.Exception
+import java.math.BigDecimal
 import javax.inject.Inject
 
 class WalletReceiptFragment @Inject constructor(
@@ -40,8 +43,10 @@ class WalletReceiptFragment @Inject constructor(
     }
 
     private fun setupViews(){
-        val convertedRate = if (fragmentArgs.selectedUnit == com.vcard.vchat.mesh.Constants.gramUnit) com.vcard.vchat.mesh.Constants.gramRate else com.vcard.vchat.mesh.Constants.milligramRate
-        val amount = "${fragmentArgs.amount/convertedRate} ${fragmentArgs.selectedUnit}"
+        val convertedRate = getRateByUnit(fragmentArgs.selectedUnit)
+        val convertedAmount =  BigDecimal(fragmentArgs.amount).divide(convertedRate)
+
+        val amount = "${StringUtil.formatBalanceForDisplayBigDecimal(convertedAmount)} ${fragmentArgs.selectedUnit}"
         views.tvAmountTitle.text = amount
 
 
@@ -79,6 +84,17 @@ class WalletReceiptFragment @Inject constructor(
 
         dialog.setContentView(view)
         dialog.show()
+    }
+
+    private fun getRateByUnit(unit: String): BigDecimal{
+        return when(unit){
+            com.vcard.vchat.mesh.Constants.kilogramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.kilogramRate.toString())
+            com.vcard.vchat.mesh.Constants.gramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.gramRate.toString())
+            com.vcard.vchat.mesh.Constants.milligramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.milligramRate.toString())
+            com.vcard.vchat.mesh.Constants.microgramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.microgramRate.toString())
+            com.vcard.vchat.mesh.Constants.nanogramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.nanogramRate.toString())
+            else -> throw Exception("Not a valid unit")
+        }
     }
 
     interface ReceiptCallback {

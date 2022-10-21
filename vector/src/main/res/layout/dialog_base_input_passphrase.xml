@@ -11,6 +11,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/baseTil"
+        style="@style/Widget.Vector.TextInputLayout.Password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/layout_vertical_margin"
@@ -20,7 +21,8 @@
             android:id="@+id/editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/dialog_edit_hint" />
+            android:hint="@string/vchat_enter_passphrase"
+            android:inputType="textPassword"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
