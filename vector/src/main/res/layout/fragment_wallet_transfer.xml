@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
      android:layout_width="match_parent"
+    android:background="@color/palette_gray_25"
      android:layout_height="match_parent">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -49,6 +50,7 @@
         app:layout_constraintTop_toBottomOf="@id/entrySpacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintStart_toEndOf="parent"
+        app:boxBackgroundColor="@color/palette_white"
         app:errorEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -69,6 +71,7 @@
         android:layout_marginTop="@dimen/layout_vertical_margin"
         app:layout_constraintTop_toBottomOf="@id/transferAddressLayout"
         app:layout_constraintStart_toStartOf="parent"
+        app:boxBackgroundColor="@color/palette_white"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -76,7 +79,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/vchat_wallet_transfer_input_amount"
-            android:inputType="number" />
+            android:inputType="numberDecimal"
+            android:digits="0123456789.,"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -89,6 +93,7 @@
         app:layout_constraintEnd_toEndOf="@id/transferAddressLayout"
         app:layout_constraintTop_toBottomOf="@id/transferAddressLayout"
         app:layout_constraintStart_toEndOf="@id/transferAmountLayout"
+        app:boxBackgroundColor="@color/palette_white"
         android:hint="Unit">
 
         <AutoCompleteTextView
@@ -108,6 +113,7 @@
         app:layout_constraintTop_toBottomOf="@id/transferAmountLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintStart_toEndOf="parent"
+        app:boxBackgroundColor="@color/palette_white"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText

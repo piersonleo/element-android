@@ -20,5 +20,6 @@ class Constants {
     companion object {
         const val URL_DEV = "https://vchat.d.vcard.com"
         const val URL_SUFFIX = ":vchat.d.vcard.com"
+        const val SHARED_PREFEERENCE_LAUNCH_PP = "MESHSPLPP"
     }
 }

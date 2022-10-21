@@ -4,6 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/menu_home_save_wallets"
+        android:icon="@drawable/ic_settings_x"
+        android:title="@string/vchat_home_wallet_menu_save_accounts"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_home_setting"
         android:icon="@drawable/ic_settings_x"
         android:title="@string/settings"

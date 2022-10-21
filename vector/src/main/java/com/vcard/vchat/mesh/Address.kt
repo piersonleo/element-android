@@ -1,8 +1,8 @@
 package com.vcard.vchat.mesh
 
+import com.vcard.vchat.mesh.data.MeshAddessTxd
 import com.vcard.vchat.mesh.data.MeshAddress
 import org.apache.tuweni.crypto.SECP256K1
-import timber.log.Timber
 import java.io.ByteArrayOutputStream
 
 enum class PrefixEnum(val prefix: String){
@@ -65,6 +65,27 @@ object Address {
                 address.decodeHex(),
                 checksum.decodeHex()
         )
+    }
+
+    fun getMeshAddressTxdFromString(fullAddress: String): MeshAddessTxd{
+
+
+        val prefix = fullAddress.substring(0, Constants.MaximumPrefixHexLength)
+
+        val address = fullAddress.substring(Constants.MaximumPrefixHexLength, Constants.MaximumPrefixHexLength+Constants.MaximumAddressHexLength)
+
+        val checksum = fullAddress.substring(Constants.MaximumFullAddressHexLength-Constants.MaximumAddressChecksumHexLength)
+
+
+        return MeshAddessTxd(
+                prefix,
+                toUnsignedIntArray(address.decodeHex()),
+                toUnsignedIntArray(checksum.decodeHex())
+        )
+    }
+
+    fun createFullAddress(prefix: String, address: ByteArray, checksum: ByteArray): String {
+        return "${prefix}${address.toHex()}${checksum.toHex()}"
     }
 
     fun isValidMeshAddressString(fullAddress: String): Boolean{
@@ -152,13 +173,28 @@ object Address {
         return crc
     }
 
-    fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
+    private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
-    fun String.decodeHex(): ByteArray {
+    private fun String.decodeHex(): ByteArray {
         check(length % 2 == 0) { "Must have an even length" }
 
         return chunked(2)
                 .map { it.toInt(16).toByte() }
                 .toByteArray()
+    }
+
+    private fun toUnsigned(b: Byte): Int {
+        return (if (b >= 0) b else 256 + b).toInt()
+    }
+
+    private fun toUnsignedIntArray(bytes: ByteArray): IntArray{
+        val unsignedIntArray = IntArray(bytes.size)
+
+        for ((index, byte) in bytes.withIndex()){
+            val unsignedInt = toUnsigned(byte)
+            unsignedIntArray[index] = unsignedInt
+        }
+
+        return unsignedIntArray
     }
 }

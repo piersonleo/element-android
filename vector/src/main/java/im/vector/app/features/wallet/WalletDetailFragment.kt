@@ -1,42 +1,79 @@
 package im.vector.app.features.wallet
 
 import android.app.Activity
+import android.content.ContentValues
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Base64
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
+import androidx.core.view.drawToBitmap
+import androidx.lifecycle.lifecycleScope
+import arrow.core.Try
 import com.airbnb.mvrx.args
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.vcard.vchat.mesh.Account
 import com.vcard.vchat.mesh.Address
 import com.vcard.vchat.mesh.Aes256
 import com.vcard.vchat.mesh.Constants
+import com.vcard.vchat.mesh.CurrencyEnum
+import com.vcard.vchat.mesh.HashUtils
 import com.vcard.vchat.mesh.MeshCommand
 import com.vcard.vchat.mesh.NumberUtil
-import com.vcard.vchat.mesh.data.MeshAccountData
+import com.vcard.vchat.mesh.QrCode
+import com.vcard.vchat.mesh.data.EncryptedKeyData
+import com.vcard.vchat.mesh.data.EncryptedKeyDataSerializer
+import com.vcard.vchat.mesh.data.MutxoListData
 import com.vcard.vchat.mesh.database.AccountEntity
 import com.vcard.vchat.mesh.database.RealmExec
+import com.vcard.vchat.utils.MeshSharedPref
 import com.vcard.vchat.utils.StringUtil
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.extensions.registerStartForActivityResult
+import im.vector.app.core.extensions.safeOpenOutputStream
 import im.vector.app.core.glide.GlideApp
+import im.vector.app.core.intent.getMimeTypeFromUri
 import im.vector.app.core.platform.VectorBaseFragment
+import im.vector.app.core.ui.views.QrCodeImageView
 import im.vector.app.core.utils.PERMISSIONS_FOR_TAKING_PHOTO
 import im.vector.app.core.utils.checkPermissions
 import im.vector.app.core.utils.onPermissionDeniedDialog
 import im.vector.app.core.utils.registerForPermissionsResult
+import im.vector.app.core.utils.shareMedia
 import im.vector.app.databinding.DialogBaseEditTextBinding
+import im.vector.app.databinding.DialogBaseInputPassphraseBinding
+import im.vector.app.databinding.DialogMeshChangePassphraseBinding
 import im.vector.app.databinding.FragmentWalletDetailBinding
 import im.vector.app.features.home.WalletDetailsArgs
 import im.vector.app.features.qrcode.QrCodeScannerActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.File
+import java.io.IOException
+import java.lang.IllegalArgumentException
+import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
-import java.util.Locale
 import javax.inject.Inject
 
 class WalletDetailFragment @Inject constructor(
@@ -44,8 +81,10 @@ class WalletDetailFragment @Inject constructor(
 
     private val fragmentArgs: WalletDetailsArgs by args()
 
-    private var accountBalance = 0.0
+    private var accountBalance = BigDecimal.ZERO
     private var displayUnit = Constants.gramUnit
+    private var ekfJson = ""
+    private var ek = ""
 
 
     private val openCameraActivityResultLauncher = registerForPermissionsResult { allGranted, deniedPermanently ->
@@ -66,8 +105,37 @@ class WalletDetailFragment @Inject constructor(
         super.onViewCreated(view, savedInstanceState)
 
         setupViews()
-        setupSubmitButton()
         setupAccount()
+        setScanButtonState()
+        setupSubmitButton()
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        val changePassphrase = menu.findItem(R.id.change_passphrase)
+        if (changePassphrase != null && fragmentArgs.type == Constants.test) {
+            changePassphrase.isVisible = false
+        }
+
+        val saveAccount = menu.findItem(R.id.save_account)
+        if (changePassphrase != null && fragmentArgs.type == Constants.test) {
+            saveAccount.isVisible = false
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.save_account -> {
+                showSaveBottomDialog()
+            }
+            R.id.change_name -> {
+                showChangeNameDialog(views.walletDetailHeaderTitle.text.toString())
+            }
+            R.id.change_passphrase ->{
+                showChangePpDialog()
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun setupViews(){
@@ -88,24 +156,22 @@ class WalletDetailFragment @Inject constructor(
     private fun setupAccount(){
         val accountData = RealmExec().getAccountByAddress(fragmentArgs.address)
         if (accountData != null) {
-
-            val conversionRate = if (displayUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
-
-            accountBalance = accountData.balance.toDouble()
+            accountBalance = BigDecimal(accountData.balance)
+            ek = accountData.encryptedKey
             Timber.d("accountBalance: ${accountData.balance}")
-            val convertedBalance = accountBalance/conversionRate
-            val formattedBalance = StringUtil.formatBalanceForDisplay(convertedBalance)
-            val currentBalance = "$formattedBalance $displayUnit"
-            views.walletDetailHeaderSubtitle.text = currentBalance
+            displayBalance(accountBalance)
         }else{
             views.btnRefreshAccount.performClick()
         }
     }
 
+    private fun setScanButtonState(){
+        views.btnScanQRCode.isEnabled = accountBalance.signum() != 0
+    }
 
 
     private fun setupSubmitButton() {
-        views.btnScanQRCode.setOnClickListener {
+        views.btnScanQRCode.debouncedClicks {
             if (checkPermissions(PERMISSIONS_FOR_TAKING_PHOTO, requireActivity(), openCameraActivityResultLauncher)) {
                 doOpenQRCodeScanner()
             }
@@ -126,7 +192,7 @@ class WalletDetailFragment @Inject constructor(
 
         views.btnRefreshAccount.debouncedClicks{
 
-            if (fragmentArgs.type == "test") {
+            if (fragmentArgs.type == Constants.test) {
                 views.walletDetailHeaderSubtitle.visibility = View.INVISIBLE
                 views.simpleActivityWaitingView.visibility = View.VISIBLE
 
@@ -152,28 +218,33 @@ class WalletDetailFragment @Inject constructor(
                                 val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
                                 val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
 
-                                Timber.d("decodeParams: $decodeParamsUtf8")
+                                Timber.d("decodeParams: $decodeParamsUtf8\n")
+                                val gson = GsonBuilder().disableHtmlEscaping().create()
+                                val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
-                                val accountData = Gson().fromJson(decodeParamsUtf8, MeshAccountData::class.java)
-                                Timber.d("accountData: ${accountData.nonce}")
+                                val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
+
+                                Timber.d("accountData: ${gson.toJson(accountData)}")
                                 val accountEntity = AccountEntity()
-                                accountEntity.address = accountData.address
-                                accountEntity.balance = accountData.balance
-                                accountEntity.currency = accountData.currency
-                                accountEntity.nonce = accountData.nonce
-                                accountEntity.moduleHash = accountData.moduleHash?.toByteArray()
-                                accountEntity.rootHash = accountData.rootHash.toByteArray()
-
+                                accountEntity.address = address
+                                accountEntity.balance = accountData.total
+                                accountEntity.currency = CurrencyEnum.MeshGold.name
+//                                accountEntity.nonce = accountData.nonce
+//                                accountEntity.moduleHash = accountData.moduleHash?.toByteArray()
+//                                accountEntity.rootHash = accountData.rootHash.toByteArray()
+//
                                 RealmExec().addUpdateAccountBalance(accountEntity)
+                                RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+//
+                                accountBalance = BigDecimal(accountData.total)
 
-                                val conversionRate = if (displayUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
+                                displayBalance(accountBalance)
 
-                                accountBalance = accountData.balance.toDouble()
+                                if (BigDecimal(accountData.total).signum() == 0){
+                                    Toast.makeText(requireContext(), "This account doesn't have any gold yet.", Toast.LENGTH_SHORT).show()
+                                }
 
-                                val convertedBalance = accountBalance/conversionRate
-                                val formattedBalance = StringUtil.formatBalanceForDisplay(convertedBalance)
-                                val currentBalance = "$formattedBalance $displayUnit"
-                                views.walletDetailHeaderSubtitle.text = currentBalance
+                                setScanButtonState()
                             })
                         }
                         "busy"        -> {
@@ -200,8 +271,19 @@ class WalletDetailFragment @Inject constructor(
                     }
                 }.start()
             }else{
-                //for encrypted account we need to input passphrase
-                inputPassphrase(fragmentArgs.encryptedKey)
+                val msp = MeshSharedPref(requireContext())
+                val pp = msp.getPp(fragmentArgs.address)
+                if (pp == "") {
+                    inputPassphrase(ek)
+                }else {
+                    try {
+                        getBalance(ek, pp)
+                    }catch (e: java.lang.Exception){
+                        if (e.message == "invalid passphrase"){
+                            Toast.makeText(requireContext(), "invalid passphrase", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         }
 
@@ -209,14 +291,7 @@ class WalletDetailFragment @Inject constructor(
 
             //switch display
             displayUnit = if (displayUnit == Constants.gramUnit)  Constants.milligramUnit else Constants.gramUnit
-
-            val conversionRate = if (displayUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
-
-
-            val convertedBalance = accountBalance/conversionRate
-            val formattedBalance = StringUtil.formatBalanceForDisplay(convertedBalance)
-            val currentBalance = "$formattedBalance $displayUnit"
-            views.walletDetailHeaderSubtitle.text = currentBalance
+            displayBalance(accountBalance)
 
         }
     }
@@ -231,15 +306,19 @@ class WalletDetailFragment @Inject constructor(
             val wasQrCode = QrCodeScannerActivity.getResultIsQrCode(activityResult.data)
 
             if (wasQrCode && !scannedQrCode.isNullOrBlank()) {
-                if (validateQRCode(scannedQrCode)){
-                    val qrPrefix = "MESH"
-                    val qrAddress = scannedQrCode.substringAfter(qrPrefix)
-                    val intent = WalletTransferActivity.newIntent(this.requireContext(), fragmentArgs.address, qrAddress, fragmentArgs.privateKey, fragmentArgs.encryptedKey, fragmentArgs.type)
-                    startActivity(intent)
-//                    val selectedNodes = RealmExec().getNodesForElection(fragmentArgs.address)
-//                    if (selectedNodes != null) {
-//                        Timber.d("selected ${selectedNodes.size} nodes")
-//                    }
+
+                try{
+                    val meshQr = QrCode.parseQrCodeContent(scannedQrCode)
+
+                    if (meshQr.address == fragmentArgs.address){
+                        Toast.makeText(requireContext(), getString(R.string.vchat_wallet_account_scan_qr_error_yourself), Toast.LENGTH_SHORT).show()
+                    }else{
+                        val intent = WalletTransferActivity.newIntent(this.requireContext(), fragmentArgs.address, meshQr.address, fragmentArgs.privateKey, ek, fragmentArgs.type)
+                        startActivity(intent)
+                    }
+
+                }catch (e: IllegalArgumentException){
+                    Toast.makeText(requireContext(), getString(R.string.vchat_wallet_account_scan_qr_error_invalid), Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Timber.w("It was not a QR code, or empty result")
@@ -260,103 +339,373 @@ class WalletDetailFragment @Inject constructor(
         return true
     }
 
-    private fun inputPassphrase(encryptedKey: String) {
+    private fun inputPassphrase(ek: String) {
+        val inflater = requireActivity().layoutInflater
+        val layout = inflater.inflate(R.layout.dialog_base_input_passphrase, null)
+        val dialogViews = DialogBaseInputPassphraseBinding.bind(layout)
+
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(getString(R.string.vchat_enter_passphrase))
+                .setView(layout)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.action_cancel, null)
+                .create()
+
+        dialog.setOnShowListener {
+            val confirmButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+            confirmButton.debouncedClicks {
+                try {
+                    val pp = dialogViews.editText.text.toString()
+                    getBalance(ek, pp)
+                    dialog.dismiss()
+                }catch (e: java.lang.Exception){
+                    if (e.message == "invalid passphrase"){
+                        dialogViews.baseTil.error = getString(R.string.vchat_error_invalid_pass)
+                    }
+                }
+
+            }
+        }
+        dialog.show()
+    }
+
+    private fun getBalance(ek: String, pp: String){
+        val kBytes = NumberUtil.hexStrToBytes(ek)
+        val dk = Aes256.decryptGcm(kBytes, pp)
+
+        if (dk == "invalid passphrase"){
+            throw Exception("invalid passphrase")
+        }else {
+            views.walletDetailHeaderSubtitle.visibility = View.INVISIBLE
+            views.simpleActivityWaitingView.visibility = View.VISIBLE
+            val msp = MeshSharedPref(requireContext())
+            msp.storePp(fragmentArgs.address, pp)
+
+            Thread {
+                Timber.d("address: ${fragmentArgs.address}")
+
+                val refreshAccount = MeshCommand.getAccount(fragmentArgs.address, dk)
+                Timber.d("account data: $refreshAccount")
+
+                when (refreshAccount.c) {
+                    "unavailable" -> {
+
+                        activity?.runOnUiThread(Runnable {
+                            views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
+                            views.simpleActivityWaitingView.visibility = View.INVISIBLE
+
+                            Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_unavailable), Toast.LENGTH_SHORT).show()
+                        })
+                    }
+                    "ok"          -> {
+                        activity?.runOnUiThread(Runnable {
+                            views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
+                            views.simpleActivityWaitingView.visibility = View.INVISIBLE
+
+                            val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
+                            val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+
+                            Timber.d("decodeParams: $decodeParamsUtf8\n")
+                            val gson = GsonBuilder().disableHtmlEscaping().create()
+                            val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
+
+                            val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
+
+                            Timber.d("accountData: ${gson.toJson(accountData)}")
+                            val accountEntity = AccountEntity()
+                            accountEntity.address = address
+                            accountEntity.balance = accountData.total
+                            accountEntity.currency = CurrencyEnum.MeshGold.name
+
+                            RealmExec().addUpdateAccountBalance(accountEntity)
+                            RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+
+                            accountBalance = BigDecimal(accountData.total)
+
+                            displayBalance(accountBalance)
+
+                            if (BigDecimal(accountData.total).signum() == 0){
+                                Toast.makeText(requireContext(), "This account doesn't have any gold yet.", Toast.LENGTH_SHORT).show()
+                            }
+
+                            setScanButtonState()
+                        })
+                    }
+                    "busy"        -> {
+                        activity?.runOnUiThread(Runnable {
+                            views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
+                            views.simpleActivityWaitingView.visibility = View.INVISIBLE
+
+                            Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_busy), Toast.LENGTH_SHORT).show()
+                        })
+                    }
+                    else          -> {
+                        activity?.runOnUiThread(Runnable {
+                            views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
+                            views.simpleActivityWaitingView.visibility = View.INVISIBLE
+
+                            val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
+                            val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+
+                            Timber.d("decodeParams: $decodeParamsUtf8")
+
+                            Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_update_account_fail), Toast.LENGTH_SHORT).show()
+                        })
+                    }
+                }
+            }.start()
+        }
+    }
+
+    private fun displayBalance(balance: BigDecimal){
+
+        val conversionRate = if (displayUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
+
+        val convertedBalance = balance.divide(BigDecimal(conversionRate))
+        val formattedBalance = StringUtil.formatBalanceForDisplayBigDecimal(convertedBalance)
+        val currentBalance = "$formattedBalance $displayUnit"
+        views.walletDetailHeaderSubtitle.text = currentBalance
+    }
+
+    private fun showSaveBottomDialog(){
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_save_wallet_account, null)
+
+        val shareAccountView = view.findViewById<LinearLayout>(R.id.llShareWallet)
+        val saveAccountView = view.findViewById<LinearLayout>(R.id.llSaveWallet)
+        val saveQrView = view.findViewById<LinearLayout>(R.id.llSaveQr)
+
+        val  accountQrView = view.findViewById<MaterialCardView>(R.id.cvAccountQr)
+        val accountQRImage = view.findViewById<QrCodeImageView>(R.id.accountQRImage)
+        val accountQrTitle = view.findViewById<TextView>(R.id.tvAccountTitle)
+
+        accountQrTitle.text = getString(R.string.mesh_account_title)
+
+        val icon = BitmapFactory.decodeResource(resources, R.drawable.vchat_circular_key)
+        //for qr code we use mesh identifier prefix
+        try {
+            ekfJson = Account.generateAccountEkJson(fragmentArgs.address, ek)
+        }catch (e: java.lang.Exception){
+            if (e.message == "invalid address"){
+                return Toast.makeText(requireContext(), "The address of this account is not valid", Toast.LENGTH_SHORT).show()
+            }
+        }
+        accountQRImage.setData2("${Constants.meshEncryptedAccountQrIdentifier}$ekfJson", icon)
+
+        shareAccountView.debouncedClicks {
+            val timestamp = Utils.getTime()
+            val filename = "mesh-account-${fragmentArgs.name}-${timestamp}"
+
+            //encrypted key file don't use identifier prefix
+            val file = Utils.createJsonFile(requireContext(), ekfJson, filename)
+            shareMedia(requireContext(), file, getMimeTypeFromUri(requireContext(), file.toUri()))
+
+            Utils.deleteJsonFile(requireContext(), filename)
+            dialog.dismiss()
+        }
+
+        saveAccountView.debouncedClicks {
+            val timestamp = Utils.getTime()
+            val filename = "mesh-account-${fragmentArgs.name}-${timestamp}"
+            Utils.saveJsonFile(
+                    activity = requireActivity(),
+                    activityResultLauncher = saveRecoveryActivityResultLauncher,
+                    defaultFileName = filename,
+                    chooserHint = "Save Account"
+            )
+            dialog.dismiss()
+        }
+
+        saveQrView.debouncedClicks {
+            val timestamp = Utils.getTime()
+            val filename = "mesh-account-${fragmentArgs.name}-${timestamp}"
+//            val qrBitmap = createQRCodeBitmap(fragmentArgs.jsonString)
+            saveBitmap(accountQrView.drawToBitmap(), filename)
+            dialog.dismiss()
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
+    }
+
+    private fun exportRecoveryKeyToFile(uri: Uri, data: String) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            Try {
+                withContext(Dispatchers.IO) {
+                    requireContext().safeOpenOutputStream(uri)
+                            ?.use { os ->
+                                os.write(data.toByteArray())
+                                os.flush()
+                            }
+                }
+                        ?: throw IOException("Unable to write the file")
+            }
+                    .fold(
+                            { throwable ->
+                                activity?.let {
+                                    MaterialAlertDialogBuilder(it)
+                                            .setTitle(R.string.dialog_title_error)
+                                            .setMessage(errorFormatter.toHumanReadable(throwable))
+                                }
+                            },
+                            {
+                                activity?.let {
+                                    MaterialAlertDialogBuilder(it)
+                                            .setTitle(R.string.dialog_title_success)
+                                            .setMessage(R.string.vchat_create_mesh_account_export_saved)
+                                }
+                            }
+                    )
+                    ?.setCancelable(false)
+                    ?.setPositiveButton(R.string.ok, null)
+                    ?.show()
+        }
+    }
+
+    private val saveRecoveryActivityResultLauncher = registerStartForActivityResult { activityResult ->
+        val uri = activityResult.data?.data ?: return@registerStartForActivityResult
+        if (activityResult.resultCode == Activity.RESULT_OK) {
+            //encrypted key file don't use identifier prefix
+            exportRecoveryKeyToFile(uri, ekfJson)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun saveBitmap(bitmap: Bitmap, filename: String) {
+        try {
+            val fileName = "$filename.png"
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/vChat")
+                values.put(MediaStore.MediaColumns.IS_PENDING, 1)
+            } else {
+                val directory: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM + File.separator + "vChat")
+                val file = File(directory, fileName)
+                values.put(MediaStore.MediaColumns.DATA, file.absolutePath)
+            }
+            val uri: Uri? = requireActivity().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            requireActivity().contentResolver.openOutputStream(uri!!).use { output ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                requireActivity().contentResolver.update(uri, values, null, null)
+            }
+
+            MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.vchat_create_mesh_account_export_saved_qr_code)
+                    .show()
+
+        } catch (e: Exception) {
+            Timber.d( e.toString()) // java.io.IOException: Operation not permitted
+        }
+    }
+
+    private fun showChangeNameDialog(currentName: String) {
         val inflater = requireActivity().layoutInflater
         val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
         val dialogViews = DialogBaseEditTextBinding.bind(layout)
-        dialogViews.editText.hint = "Input passphrase"
+        dialogViews.editText.setText(currentName)
 
-        MaterialAlertDialogBuilder(requireActivity())
-                .setTitle("Input passphrase")
+
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(getString(R.string.vchat_change_account_name))
                 .setView(layout)
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok) { _, _ ->
+                .setPositiveButton(R.string.vchat_change_account_name, null)
+                .setNegativeButton(R.string.action_cancel, null)
+                .create()
 
-                    val passphrase = dialogViews.editText.text.toString()
+        dialog.setOnShowListener {
+            val updateButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
 
-                    val keyBytes = NumberUtil.hexStrToBytes(encryptedKey)
-                    val decryptedKey = Aes256.decryptGcm(keyBytes, passphrase)
+            updateButton.debouncedClicks {
+                val newName = dialogViews.editText.text.toString()
+                if (newName.isEmpty()) {
+                    dialogViews.editText.error = getString(R.string.vchat_error_name_empty)
+                }else{
+                    changeName(dialogViews.editText.text.toString())
+                    dialog.dismiss()
+                }
+            }
+        }
 
-                    if (decryptedKey == "invalid passphrase"){
-                        Toast.makeText(requireContext(), "Invalid passphrase", Toast.LENGTH_SHORT).show()
-                    }else {
-                        views.walletDetailHeaderSubtitle.visibility = View.INVISIBLE
-                        views.simpleActivityWaitingView.visibility = View.VISIBLE
+        dialog.show()
+    }
 
-                        Thread {
-                            Timber.d("address: ${fragmentArgs.address}")
+    private fun changeName(newName: String){
+        val accountEntity = AccountEntity()
+        accountEntity.address = fragmentArgs.address
+        accountEntity.name = newName
 
-                            val refreshAccount = MeshCommand.getAccount(fragmentArgs.address, decryptedKey)
-                            Timber.d("account data: $refreshAccount")
+        Thread{
+            RealmExec().addUpdateAccountName(accountEntity)
+        }.start()
 
-                            when (refreshAccount.c) {
-                                "unavailable" -> {
+        views.walletDetailHeaderTitle.text = newName
+        views.walletDetailToolBar.title = newName
+    }
 
-                                    activity?.runOnUiThread(Runnable {
-                                        views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
-                                        views.simpleActivityWaitingView.visibility = View.INVISIBLE
+    private fun showChangePpDialog() {
+        val inflater = requireActivity().layoutInflater
+        val layout = inflater.inflate(R.layout.dialog_mesh_change_passphrase, null)
+        val dialogViews = DialogMeshChangePassphraseBinding.bind(layout)
 
-                                        Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_unavailable), Toast.LENGTH_SHORT).show()
-                                    })
-                                }
-                                "ok"          -> {
-                                    activity?.runOnUiThread(Runnable {
-                                        views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
-                                        views.simpleActivityWaitingView.visibility = View.INVISIBLE
 
-                                        val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
-                                        val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(getString(R.string.vchat_change_account_passphrase))
+                .setView(layout)
+                .setCancelable(false)
+                .setPositiveButton(R.string.vchat_change_account_passphrase, null)
+                .setNegativeButton(R.string.action_cancel, null)
+                .create()
 
-                                        Timber.d("decodeParams: $decodeParamsUtf8")
+        dialog.setOnShowListener {
+            val updateButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
 
-                                        val accountData = Gson().fromJson(decodeParamsUtf8, MeshAccountData::class.java)
-                                        Timber.d("accountData: ${accountData.nonce}")
-                                        val accountEntity = AccountEntity()
-                                        accountEntity.address = accountData.address
-                                        accountEntity.balance = accountData.balance
-                                        accountEntity.currency = accountData.currency
-                                        accountEntity.nonce = accountData.nonce
-                                        accountEntity.moduleHash = accountData.moduleHash?.toByteArray()
-                                        accountEntity.rootHash = accountData.rootHash.toByteArray()
+            updateButton.debouncedClicks {
+                when {
+                    dialogViews.etCurrentPp.text.toString() == "" -> {
+                        dialogViews.currentPpTil.error = "Current passphrase cannot be empty"
+                    }
+                    dialogViews.etNewPp.text.toString() == "" -> {
+                        dialogViews.newPpTil.error = "New passphrase cannot be empty"
+                    }
+                    dialogViews.etRetypeNewPp.text.toString() == "" -> {
+                        dialogViews.retypeNewPpTil.error = "Retype new passphrase cannot be empty"
+                    }
+                    dialogViews.etNewPp.text.toString() != dialogViews.etRetypeNewPp.text.toString() -> {
+                        dialogViews.newPpTil.error = "New passphrase and retype new passphrase is not the same"
+                        dialogViews.retypeNewPpTil.error = "New passphrase and retype new passphrase is not the same"
+                    }
+                    else -> {
+                        try {
+                            ek = Account.changeAccountPp(fragmentArgs.address, ek, dialogViews.etCurrentPp.text.toString(), dialogViews.etRetypeNewPp.text.toString())
+                            val msp = MeshSharedPref(requireContext())
+                            msp.storePp(fragmentArgs.address, dialogViews.etRetypeNewPp.text.toString())
 
-                                        RealmExec().addUpdateAccountBalance(accountEntity)
+                            Toast.makeText(requireContext(), "Passphrase successfully updated", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }catch (e: java.lang.Exception){
+                            if (e.message == "invalid passphrase"){
+                                Toast.makeText(requireContext(), "Current passphrase is invalid", Toast.LENGTH_SHORT).show()
+                            }else if (e.message == "invalid address"){
+                                Toast.makeText(requireContext(), "Account address is invalid", Toast.LENGTH_SHORT).show()
 
-                                        val conversionRate = if (displayUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
-
-                                        accountBalance = accountData.balance.toDouble()
-
-                                        val convertedBalance = accountBalance/conversionRate
-                                        val formattedBalance = StringUtil.formatBalanceForDisplay(convertedBalance)
-                                        val currentBalance = "$formattedBalance $displayUnit"
-                                        views.walletDetailHeaderSubtitle.text = currentBalance
-                                    })
-                                }
-                                "busy"        -> {
-                                    activity?.runOnUiThread(Runnable {
-                                        views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
-                                        views.simpleActivityWaitingView.visibility = View.INVISIBLE
-
-                                        Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_busy), Toast.LENGTH_SHORT).show()
-                                    })
-                                }
-                                else          -> {
-                                    activity?.runOnUiThread(Runnable {
-                                        views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
-                                        views.simpleActivityWaitingView.visibility = View.INVISIBLE
-
-                                        val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
-                                        val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
-
-                                        Timber.d("decodeParams: $decodeParamsUtf8")
-
-                                        Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_update_account_fail), Toast.LENGTH_SHORT).show()
-                                    })
-                                }
                             }
-                        }.start()
+                        }
                     }
                 }
-                .setNegativeButton(R.string.action_cancel, null)
-                .show()
+
+            }
+        }
+
+        dialog.show()
     }
 }

@@ -40,7 +40,7 @@ fun String.toBitMatrixMesh(size: Int): BitMatrix {
             BarcodeFormat.QR_CODE,
             size,
             size,
-            hashMapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.H)
+            hashMapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.Q)
     )
 }
 

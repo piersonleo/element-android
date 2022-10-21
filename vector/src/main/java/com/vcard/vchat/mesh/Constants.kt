@@ -12,6 +12,7 @@ object Constants {
     const val ServiceCommandGetAccount = "ga1"
     const val ServiceCommandTxn = "txn"
     const val ServiceCommandTxnReq = "txnreq"
+    const val ServiceCommandGetMutxoByAddress = "gma"
 
     const val ElectionSize = 16
 
@@ -23,9 +24,15 @@ object Constants {
 
     const val DefaultKeystoreCipher = "aes256-256"
 
+    //1 trillion
+    const val kilogramUnit = "kg"
+    const val kilogramRate = 1000000000000
+
+    //1 billion
     const val gramUnit = "g"
     const val gramRate = 1000000000
 
+    //1 million
     const val milligramUnit = "mg"
     const val milligramRate = 1000000
 
@@ -35,7 +42,10 @@ object Constants {
     const val nanogramUnit = "ng"
     const val nanogramRate = 1
 
+    //to use as prefix for qr code
+    const val meshWalletQrIdentifier = "MESHW|"
+    const val meshEncryptedAccountQrIdentifier = "KEYE|"
 
-
+    const val test = "test"
 
 }
