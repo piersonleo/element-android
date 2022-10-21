@@ -41,6 +41,7 @@ import com.vcard.vchat.mesh.NumberUtil
 import com.vcard.vchat.mesh.QrCode
 import com.vcard.vchat.mesh.data.EncryptedKeyData
 import com.vcard.vchat.mesh.data.EncryptedKeyDataSerializer
+import com.vcard.vchat.mesh.data.MUnspentTransactionObjectData
 import com.vcard.vchat.mesh.data.MutxoListData
 import com.vcard.vchat.mesh.database.AccountEntity
 import com.vcard.vchat.mesh.database.RealmExec
@@ -234,8 +235,16 @@ class WalletDetailFragment @Inject constructor(
 //                                accountEntity.rootHash = accountData.rootHash.toByteArray()
 //
                                 RealmExec().addUpdateAccountBalance(accountEntity)
-                                RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+                                //TODO: for int and long values they needed to be accessed first before they can be inserted to realm. Need to investigate
+//                              RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+                                //Temp function to insert the data manually
+                                RealmExec().addAccountMutxoFromMapManual(address, accountData.mutxoList)
+//                                val mapValues = accountData.mutxoList.values
+//                                val mapJson = gson.toJson(mapValues.toList())
+//                                val mutxoValues = gson.fromJson(mapJson, Array<MUnspentTransactionObjectData>::class.java)
 //
+//                                Toast.makeText(requireContext(), "amt: ${mutxoValues[0].amount}, st: ${mutxoValues[0].sourceType}", Toast.LENGTH_LONG).show()
+
                                 accountBalance = BigDecimal(accountData.total)
 
                                 displayBalance(accountBalance)
@@ -246,6 +255,8 @@ class WalletDetailFragment @Inject constructor(
 
                                 setScanButtonState()
                             })
+
+
                         }
                         "busy"        -> {
                             activity?.runOnUiThread(Runnable {
@@ -280,7 +291,7 @@ class WalletDetailFragment @Inject constructor(
                         getBalance(ek, pp)
                     }catch (e: java.lang.Exception){
                         if (e.message == "invalid passphrase"){
-                            Toast.makeText(requireContext(), "invalid passphrase", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.vchat_error_invalid_pass), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -324,19 +335,6 @@ class WalletDetailFragment @Inject constructor(
                 Timber.w("It was not a QR code, or empty result")
             }
         }
-    }
-
-    private fun validateQRCode(scannedQrCode: String): Boolean{
-        val qrPrefix = "MESH"
-        val qrAddress = scannedQrCode.substringAfter(qrPrefix)
-        if (!scannedQrCode.startsWith(qrPrefix) && !Address.isValidMeshAddressString(qrAddress)){
-            Toast.makeText(requireContext(), getString(R.string.vchat_wallet_account_scan_qr_error_invalid), Toast.LENGTH_SHORT).show()
-            return false
-        }else if(qrAddress == fragmentArgs.address){
-            Toast.makeText(requireContext(), getString(R.string.vchat_wallet_account_scan_qr_error_yourself), Toast.LENGTH_SHORT).show()
-            return false
-        }
-        return true
     }
 
     private fun inputPassphrase(ek: String) {

@@ -30,6 +30,8 @@ import com.google.gson.JsonSyntaxException
 import com.vcard.vchat.mesh.Account
 import com.vcard.vchat.mesh.Address
 import com.vcard.vchat.mesh.Constants
+import com.vcard.vchat.mesh.HashUtils
+import com.vcard.vchat.mesh.NumberUtil
 import com.vcard.vchat.mesh.data.BatchAccountData
 import com.vcard.vchat.mesh.data.EncryptedKeyData
 import com.vcard.vchat.mesh.database.AccountEntity
@@ -77,12 +79,11 @@ data class WalletDetailsArgs(
         val currency: String,
         val address: String,
         val privateKey: String,
-        val encryptedKey: String,
         val type: String
 ) : Parcelable
 
 class HomeWalletFragment @Inject constructor(
-        val homeWalletController: HomeWalletItemController
+        private val homeWalletController: HomeWalletItemController
 ): VectorBaseFragment<FragmentWalletHomeBinding>(), HomeWalletItemController.Callback {
 
     private lateinit var accounts: List<AccountEntity>
@@ -143,7 +144,6 @@ class HomeWalletFragment @Inject constructor(
                 currency = wallet.currency,
                 address = wallet.address,
                 privateKey = wallet.privateKey,
-                encryptedKey = wallet.encryptedKey,
                 type = wallet.type
         )
         val intent = WalletDetailActivity.newIntent(this.requireContext(), args)
@@ -152,7 +152,6 @@ class HomeWalletFragment @Inject constructor(
     }
 
     private fun setupTestAccounts() {
-        Timber.d("setupRecycler")
         val walletJson = Utils.getJsonDataFromAsset(this.requireContext(), "wallets.json")
         RealmExec().addAccountsFromJson(walletJson)
     }

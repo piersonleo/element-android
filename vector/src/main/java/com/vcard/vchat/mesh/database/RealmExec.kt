@@ -230,6 +230,41 @@ class RealmExec {
         }
     }
 
+    fun addAccountMutxoFromMapManual(address: String, map: Map<String, MUnspentTransactionObjectData>){
+        map.map {
+            it.value.fullAddress = Address.createFullAddress(it.value.ownerAddress.prefix, it.value.ownerAddress.address, it.value.ownerAddress.checksum)
+        }
+
+        val mapValues = map.values
+
+        Realm.getDefaultInstance().use { realm ->
+            realm.executeTransaction { r ->
+
+                //clear address mutxo before insert
+                val accountMutxo = r
+                        .where(AccountMutxoEntity::class.java)
+                        .equalTo("fullAddress", address)
+                        .findAll()
+
+                accountMutxo.deleteAllFromRealm()
+
+                for (mapValue in mapValues){
+                    var accountEntity = r.where(AccountMutxoEntity::class.java).equalTo("mutxoKey", mapValue.mutxoKey).findFirst()
+                    if (accountEntity == null) accountEntity = r.createObject(AccountMutxoEntity::class.java, mapValue.mutxoKey)
+
+                    if (accountEntity != null){
+                        accountEntity.fullAddress = mapValue.fullAddress
+                        accountEntity.currency = mapValue.currency
+                        accountEntity.amount = mapValue.amount
+                        accountEntity.reference = mapValue.reference
+                        accountEntity.source = mapValue.source
+                        accountEntity.sourceType = mapValue.sourceType
+                    }
+                }
+            }
+        }
+    }
+
     fun addNodesFromJson(nodes: String){
         try{
             Realm.getDefaultInstance().use { realm -> realm.executeTransaction { r ->
