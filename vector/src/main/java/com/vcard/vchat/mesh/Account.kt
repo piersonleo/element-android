@@ -1,5 +1,6 @@
 package com.vcard.vchat.mesh
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.vcard.vchat.mesh.data.BatchAccountData
 import com.vcard.vchat.mesh.data.EncryptedKeyData
@@ -7,11 +8,15 @@ import com.vcard.vchat.mesh.data.EncryptedKeyDataSerializer
 import com.vcard.vchat.mesh.database.AccountEntity
 import com.vcard.vchat.mesh.database.RealmExec
 import org.apache.tuweni.crypto.SECP256K1
-import timber.log.Timber
 
 object Account {
 
-    fun generateAccount(passphrase: String, accountName: String): String{
+    /**
+     * Generate a mesh account. Returns the json string of the account
+     * @param pp The passphrase of the new account
+     * @param accountName Name of the account
+     */
+    fun generateAccount(pp: String, accountName: String): String{
 
         val newKey = SECP256K1.KeyPair.random()
 
@@ -23,7 +28,7 @@ object Account {
 
         var ekJson = ""
         if (isValid){
-            val ek = Aes256.encryptGcm(newKey.secretKey().bytesArray(), passphrase)
+            val ek = Aes256.encryptGcm(newKey.secretKey().bytesArray(), pp)
             val ekString = NumberUtil.bytesToHexStr(ek)
 
             val ekData = EncryptedKeyData()
@@ -37,24 +42,23 @@ object Account {
 
             val gson = GsonBuilder().registerTypeAdapter(EncryptedKeyData::class.java, EncryptedKeyDataSerializer()).setPrettyPrinting().create()
             ekJson = gson.toJson(ekData)
-            val eJson = encryptJsonString(passphrase, ekJson)
+            val eJson = encryptPayloadString(ekJson, pp)
             val accountEntity = AccountEntity()
             accountEntity.name = accountName
             accountEntity.address = address
             accountEntity.encryptedKey = ekString
             accountEntity.encryptedJson = eJson
             RealmExec().addUpdateAccount(accountEntity)
-
-            //val testDecrypt = NumberUtil.hexStrToBytes("e128c5c9e70537dc69835df0c10a79182435fb11dc89e07ae94f186b86cf6c2005c9717c884ac12df38788cef54107dd2630c85444995c61e58d9b84")
-//            Timber.d("new key: ${NumberUtil.bytesToHexStr(newKey.secretKey().bytesArray())}")
-//            Timber.d("decrypt: ${Aes256.decryptGcm(encryptedKey, passphrase)}")
-//            Timber.d("encryptedKey: $encryptedKeyString")
-//            Timber.d("key json: $encryptedKeyJson")
         }
 
         return ekJson
     }
 
+    /**
+     * Generate account json from an existing account. Returns the json string of the account
+     * @param address The address of the account
+     * @param ek The encrypted key of the account
+    */
     fun generateAccountEkJson(address: String, ek: String): String{
         val isValid = Address.isValidMeshAddressString(address)
 
@@ -80,6 +84,13 @@ object Account {
         return ekJson
     }
 
+    /**
+     * Change account passphrase. New encrypted key is generated here. Returns the json string of the new key.
+     * @param address The address of the account
+     * @param ek The current encrypted key of the account
+     * @param pp The current passphrase of the account
+     * @param newPp The new passphrase of the account
+     */
     fun changeAccountPp(address:String, ek: String, pp: String, newPp: String): String{
 
         val isValid = Address.isValidMeshAddressString(address)
@@ -107,14 +118,84 @@ object Account {
         }
     }
 
-    fun addAccountFromEncryptedKeyData(name: String, encryptedKeyData: EncryptedKeyData){
+
+    /**
+     * Add account from json payload
+     * @param name The name of the account
+     * @param payload The account json string
+     */
+    fun addAccountFromJsonPayload(name: String, payload: String){
+        //verify payload contains mesh identifier
+        if (payload.startsWith(Constants.meshEncryptedAccountQrIdentifier)) {
+            val payloadJson = payload.substringAfter(Constants.meshEncryptedAccountQrIdentifier)
+            val isJson = CommonUtil.isValidJson(payload)
+
+            if (!isJson) {
+                throw Exception("invalid account payload")
+            }else {
+                val ekData = Gson().fromJson(payloadJson, EncryptedKeyData::class.java)
+                addAccountFromEncryptedKeyData(name, ekData)
+            }
+        }else{
+            throw Exception("invalid account payload")
+        }
+    }
+
+    /**
+     * Add account from EncryptedKeyData class
+     * @param name The name of the account
+     * @param ekData The encryptedKeyData
+     */
+
+    fun addAccountFromEncryptedKeyData(name: String, ekData: EncryptedKeyData){
         val accountEntity = AccountEntity()
         accountEntity.name = name
-        accountEntity.address = encryptedKeyData.fullAddress
-        accountEntity.encryptedKey = encryptedKeyData.encryptedKey.encryptedText
+        accountEntity.address = ekData.fullAddress
+        accountEntity.encryptedKey = ekData.encryptedKey.encryptedText
         RealmExec().addUpdateAccount(accountEntity)
     }
 
+    /**
+     * Batch add accounts from json payload
+     * @param payload The accounts json string
+     */
+    fun addBatchAccountsFromJsonPayload(payload: String) {
+        //verify payload contains mesh identifier
+        if (payload.startsWith(Constants.meshWalletQrIdentifier)) {
+            val payloadJson = payload.substringAfter(Constants.meshWalletQrIdentifier)
+            val isJsonArray = CommonUtil.isValidJsonArray(payload)
+
+            //confirm if payload is in json array
+            if (!isJsonArray) {
+                throw Exception("invalid batch account payload")
+            } else {
+                val gson = GsonBuilder().create()
+                val batchData = gson.fromJson(payloadJson, Array<BatchAccountData>::class.java)
+
+                //make sure payload is complete and address is a valid mesh address
+                when {
+                    batchData.any { it.address == null || it.encryptedKey == null || it.name == null  } -> {
+                        throw Exception("invalid batch account payload")
+                    }
+                    batchData.any {!Address.isValidMeshAddressString(it.address!!)} -> {
+                        throw Exception("invalid batch account payload")
+                    }
+                    else -> {
+                        Thread {
+                            RealmExec().addBatchAccountsFromArray(batchData)
+                        }.start()
+                    }
+                }
+            }
+        } else {
+            throw Exception("invalid batch account payload")
+        }
+    }
+
+    /**
+     * Add account from BatchAccountData class
+     * @param batchAccountData The batchAccountData
+     */
     fun addAccountFromBatchAccountData(batchAccountData: BatchAccountData){
         val accountEntity = AccountEntity()
         accountEntity.name = batchAccountData.name
@@ -123,7 +204,11 @@ object Account {
         RealmExec().addUpdateAccount(accountEntity)
     }
 
-    fun generateEncryptedKeyFromAccountEntity(accountEntity: AccountEntity): BatchAccountData{
+    /**
+     * Convert AccountEntity data into BatchAccountData class
+     * @param accountEntity The AccountEntity data
+     */
+    fun generateBatchAccountDataFromAccountEntity(accountEntity: AccountEntity): BatchAccountData{
         val isValid = Address.isValidMeshAddressString(accountEntity.address)
         val batchAccountData = BatchAccountData()
 
@@ -133,22 +218,21 @@ object Account {
             batchAccountData.name = accountEntity.name
             batchAccountData.address = accountEntity.address
             batchAccountData.encryptedKey = encryptedKey
+        }else{
+            throw Exception("Invalid account address")
         }
 
         return batchAccountData
     }
 
-    private fun encryptJsonString(passphrase: String, jsonString: String): String{
-        val encryptedJsonString = Aes256.encryptGcm(jsonString.toByteArray(), passphrase)
+    /**
+     * Encrypt payload string using Aes256
+     * @param payload The string payload to encrypt
+     * @param pp The passphrase used to encrypt
+     */
+    private fun encryptPayloadString(payload: String, pp: String): String{
+        val encryptedJsonString = Aes256.encryptGcm(payload.toByteArray(), pp)
 
         return NumberUtil.bytesToHexStr(encryptedJsonString)
     }
-
-//    fun generateEncryptedKeyFile(newAddress: MeshAddress, newPrivateKey: SECP256K1.SecretKey, passphrase: String){
-//
-//    }
-//
-//    private fun createEncryptedKeyFileData(address: MeshAddress, privateKey: SECP256K1.SecretKey, cipher: String, passphrase: ByteArray){
-//
-//    }
 }

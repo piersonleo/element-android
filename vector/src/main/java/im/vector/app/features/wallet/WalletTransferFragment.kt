@@ -80,7 +80,7 @@ class WalletTransferFragment@Inject constructor(
 
     private fun setupViews(){
         setupToolbar(views.walletTransferToolbar)
-                .setTitle("Transfer Gold")
+                .setTitle(getString(R.string.vchat_transfer_gold_title))
                 .allowBack(useCross = false)
 
         views.transferAddressText.setText(fragmentArgs.recipientAddress)
@@ -124,7 +124,6 @@ class WalletTransferFragment@Inject constructor(
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 changedText = p0.toString()
                 isDecimalInputted = !preChangedText.contains(".") && changedText.contains(".")
-                Timber.d("onTextChanged p1: $p1, p2: $p2, p3: $p3")
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -167,7 +166,7 @@ class WalletTransferFragment@Inject constructor(
         views.btnTransfer.debouncedClicks {
 
             if (views.transferAmountInput.text.toString() == ""){
-                views.transferAmountInput.error = "Please enter an amount"
+                views.transferAmountInput.error = getString(R.string.vchat_error_enter_amount)
                 return@debouncedClicks
             }
 
@@ -189,14 +188,14 @@ class WalletTransferFragment@Inject constructor(
             val feeForDisplay = "$convertedFee ${Constants.milligramUnit}"
             val reference = views.transferReferenceInput.text.toString()
 
-            Timber.d("bigDecimal:  $bigDecimalInput calcAmount: $calcAmount, amount: $amount, fee: $fee, convertedFee: $convertedFee, convertRate: $conversionRate")
+            //Timber.d("bigDecimal:  $bigDecimalInput calcAmount: $calcAmount, amount: $amount, fee: $fee, convertedFee: $convertedFee, convertRate: $conversionRate")
 
             if (amount + fee > BigInteger(senderAccount.balance.toString())){
-                Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.vchat_error_insufficient_balance), Toast.LENGTH_SHORT).show()
             }else{
                 if (fragmentArgs.type == Constants.test) {
                     MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Transfer summary")
+                            .setTitle(getString(R.string.vchat_wallet_transfer_summary))
                             .setMessage("Recipient: ${fragmentArgs.recipientAddress}\n" +
                                     "Amount: $amountInput $selectedUnit\n" +
                                     "Fee: $feeForDisplay\n" +
@@ -214,7 +213,7 @@ class WalletTransferFragment@Inject constructor(
                                     if (amount + fee > BigInteger(updatedAccount.balance.toString())){
                                         activity?.runOnUiThread(Runnable {
                                             loadingDialog.dismiss()
-                                            Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(requireContext(), getString(R.string.vchat_error_insufficient_balance), Toast.LENGTH_SHORT).show()
                                         })
                                     }else {
 
@@ -238,7 +237,6 @@ class WalletTransferFragment@Inject constructor(
                                             }
                                             "ok"          -> {
                                                 activity?.runOnUiThread(Runnable {
-                                                    Timber.d("transaction data: $sendTransaction")
                                                     loadingDialog.dismiss()
                                                     val intent = WalletReceiptActivity.newIntent(
                                                             this.requireContext(),
@@ -280,16 +278,16 @@ class WalletTransferFragment@Inject constructor(
 //                            loadingDialog.dismiss()
 //                        }
                                 }.start()                            }
-                            .setNegativeButton("Cancel", null)
+                            .setNegativeButton(getString(R.string.vchat_cancel), null)
                             .show()
                 }else{
                     MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("Transfer summary")
+                            .setTitle(getString(R.string.vchat_wallet_transfer_summary))
                             .setMessage("Recipient: ${fragmentArgs.recipientAddress}\n" +
                                         "Amount: $amountInput $selectedUnit\n" +
                                         "Fee: $feeForDisplay\n" +
                                         "Reference: $reference\n")
-                            .setPositiveButton("Confirm transfer") { _, _ ->
+                            .setPositiveButton(getString(R.string.vchat_transfer_dialog_confirm)) { _, _ ->
                                 val msp = MeshSharedPref(requireContext())
                                 val pp = msp.getPp(fragmentArgs.senderAddress)
                                 if (pp == "") {
@@ -300,7 +298,7 @@ class WalletTransferFragment@Inject constructor(
                                     sendMutxo(dk,  amount, fee, selectedUnit)
                                 }
                             }
-                            .setNegativeButton("Cancel", null)
+                            .setNegativeButton(getString(R.string.vchat_cancel), null)
                             .show()
                 }
             }
@@ -368,7 +366,7 @@ class WalletTransferFragment@Inject constructor(
                 if (amount + fee > BigInteger(senderAccount.balance.toString())){
                     activity?.runOnUiThread(Runnable {
                         loadingDialog.dismiss()
-                        Toast.makeText(requireContext(), "Insufficient balance", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.vchat_error_insufficient_balance), Toast.LENGTH_SHORT).show()
                     })
                 }else {
 
@@ -393,7 +391,6 @@ class WalletTransferFragment@Inject constructor(
                         }
                         "ok"          -> {
                             activity?.runOnUiThread(Runnable {
-                                Timber.d("transaction data: $sendTransaction")
                                 loadingDialog.dismiss()
                                 val intent = WalletReceiptActivity.newIntent(
                                         this.requireContext(),
@@ -461,7 +458,6 @@ class WalletTransferFragment@Inject constructor(
 
                     val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
 
-                    Timber.d("accountData: ${gson.toJson(accountData)}")
                     val accountEntity = AccountEntity()
                     accountEntity.address = address
                     accountEntity.balance = accountData.total
@@ -566,7 +562,6 @@ class WalletTransferFragment@Inject constructor(
     private fun removeExceedingDecimals(input: String, rate: Int){
         val decimalSubstring = input.substringAfter(".")
 
-        Timber.d("decimalSubLength: ${decimalSubstring.length} , rateLength: ${rate.toString().length}")
         if (decimalSubstring.length > rate.toString().length-1){
             val endIndex = (input.indexOf(".")+rate.toString().length)
             views.transferAmountInput.setText(input.substring(0, endIndex))

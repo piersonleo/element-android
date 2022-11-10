@@ -79,7 +79,7 @@ class WalletCreateSuccessFragment@Inject constructor(
 
     private fun setupViews(){
         setupToolbar(views.walletCreateSuccessToolbar)
-                .setTitle("Create New Account")
+                .setTitle(getString(R.string.create_account_title))
                 .allowBack(useCross = false)
     }
 
@@ -130,7 +130,7 @@ class WalletCreateSuccessFragment@Inject constructor(
                     activity = requireActivity(),
                     activityResultLauncher = saveRecoveryActivityResultLauncher,
                     defaultFileName = filename,
-                    chooserHint = "Save Account"
+                    chooserHint = getString(R.string.vchat_wallet_account_save_account)
             )
             dialog.dismiss()
         }

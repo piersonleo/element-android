@@ -1,25 +1,27 @@
 package com.vcard.vchat.mesh.database
 
-import android.util.Base64
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import com.vcard.vchat.mesh.Address
-import com.vcard.vchat.mesh.CommonUtil
 import com.vcard.vchat.mesh.Constants
-import com.vcard.vchat.mesh.NumberUtil
 import com.vcard.vchat.mesh.data.BatchAccountData
 import com.vcard.vchat.mesh.data.MUnspentTransactionObjectData
 import com.vcard.vchat.mesh.data.MeshAccountData
 import com.vcard.vchat.mesh.data.NodeData
 import io.realm.Realm
-import org.apache.commons.codec.binary.Hex
-import org.json.JSONArray
-import org.json.JSONObject
-import org.matrix.android.sdk.api.session.events.model.toContent
+import io.realm.RealmConfiguration
 import timber.log.Timber
 
 class RealmExec {
+
+    fun create(): RealmConfiguration {
+        return RealmConfiguration.Builder()
+                .name("vcard_mesh.realm")
+                .modules(MeshModule())
+                .schemaVersion(1)
+                .allowWritesOnUiThread(true)
+                .build()
+    }
 
     fun getAccountByAddress(address: String): AccountEntity?{
         var accountEntity: AccountEntity? = null
@@ -96,10 +98,6 @@ class RealmExec {
                     accountEntity.privateKey = account.privateKey
                     accountEntity.balance = account.balance
                     accountEntity.currency = account.currency
-                    accountEntity.moduleHash = account.moduleHash
-                    accountEntity.nonce = account.nonce
-                    accountEntity.moduleHash = account.moduleHash
-                    accountEntity.rootHash = account.rootHash
                 }
             }}
         } catch (e: Exception) {
@@ -117,10 +115,6 @@ class RealmExec {
                 if (accountEntity != null) {
                     accountEntity.balance = account.balance
                     accountEntity.currency = account.currency
-                    accountEntity.moduleHash = account.moduleHash
-                    //accountEntity.nonce = account.nonce
-                    //accountEntity.moduleHash = account.moduleHash
-                    //accountEntity.rootHash = account.rootHash
                 }
             }}
         } catch (e: Exception) {

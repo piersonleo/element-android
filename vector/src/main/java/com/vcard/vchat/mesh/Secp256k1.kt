@@ -18,8 +18,6 @@ object Secp256k1 {
                 )
         )
 
-
-
         val hashMessage = HashUtils.meshHash(payloadBytes)
 
         val signature = SECP256K1.signHashed(hashMessage, keyPair)
