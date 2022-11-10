@@ -14,11 +14,16 @@ enum class PrefixEnum(val prefix: String){
 
 object Address {
 
-
+    /**
+     * Create address hash from SECP256K1 public key. Returns byte array of the address hash
+     * @param publicKey SECP256K1 public key used to hash
+     */
     fun computeAddressHash(publicKey: SECP256K1.PublicKey): ByteArray{
 
         val rawData = publicKey.bytesArray()
         val outputStream = ByteArrayOutputStream()
+
+        //prefix byte of 4 is needed to be in sync with go-mesh
         val prefixByte = byteArrayOf(4)
         outputStream.write(prefixByte)
         outputStream.write(rawData)
@@ -31,6 +36,11 @@ object Address {
         return addressData
     }
 
+    /**
+     * Construct a mesh address
+     * @param prefixEnum The address prefix
+     * @param addressData The address hash
+     */
     fun setAddress(prefixEnum: PrefixEnum, addressData: ByteArray): MeshAddress{
         val meshAddress = MeshAddress(
                 getPrefix(prefixEnum),
@@ -41,6 +51,10 @@ object Address {
         return meshAddress
     }
 
+    /**
+     * Get prefix string from given PrefixEnum parameter
+     * @param prefixEnum The prefix enum to b
+     */
     private fun getPrefix(prefixEnum: PrefixEnum): String{
         return when (prefixEnum){
             PrefixEnum. UndefinedPrefix -> "m1"
@@ -50,8 +64,13 @@ object Address {
         }
     }
 
+    /**
+     * Construct MeshAddress from given address string. The address string must be the complete address
+     * @param fullAddress The address string that'll be constructed into MeshAddress
+     */
     fun getMeshAddressFromString(fullAddress: String): MeshAddress{
 
+        if (!isValidMeshAddressString(fullAddress)) throw Exception("$fullAddress is not a valid mesh address string")
 
         val prefix = fullAddress.substring(0, Constants.MaximumPrefixHexLength)
 
@@ -67,8 +86,14 @@ object Address {
         )
     }
 
+    /**
+     * Construct MeshAddressTxd from given address string. The address string must be the complete address
+     * Use this to create transaction receipt
+     * @param fullAddress The address string that'll be constructed into MeshAddress
+     */
     fun getMeshAddressTxdFromString(fullAddress: String): MeshAddessTxd{
 
+        if (!isValidMeshAddressString(fullAddress)) throw Exception("$fullAddress is not a valid mesh address string")
 
         val prefix = fullAddress.substring(0, Constants.MaximumPrefixHexLength)
 
@@ -84,10 +109,20 @@ object Address {
         )
     }
 
+    /**
+     * Construct a complete mesh address string from given prefix, address, and checksum
+     * @param prefix The prefix of the address
+     * @param address The address hash
+     * @param checksum The checksum of the prefix and address hash
+     */
     fun createFullAddress(prefix: String, address: ByteArray, checksum: ByteArray): String {
         return "${prefix}${address.toHex()}${checksum.toHex()}"
     }
 
+    /**
+     * Verify given string is a valid mesh address string
+     * @param fullAddress The address string that'll be verified
+     */
     fun isValidMeshAddressString(fullAddress: String): Boolean{
         if (fullAddress == "" || fullAddress.length != Constants.MaximumFullAddressHexLength){
             return false
@@ -131,6 +166,10 @@ object Address {
         return true
     }
 
+    /**
+     * Verify given string is a valid mesh address prefix
+     * @param prefix The prefix address string that'll be verified
+     */
     fun isValidAddressPrefix(prefix: String): Boolean{
         if (prefix != PrefixEnum.DefaultPrefix.prefix && prefix != PrefixEnum.VaultPrefix.prefix && prefix != PrefixEnum.DogPrefix.prefix){
             return false
@@ -140,7 +179,12 @@ object Address {
     }
 
 
-    // Verify checksum of a raw address.
+    /**
+     * Verify whether address checksum is valid
+     * @param prefix The prefix address string used to verify the checksum
+     * @param address The address hash used to verify the checksum
+     * @param checksum The checksum to be verified
+     */
     fun isValidAddressChecksum(prefix: String, address: ByteArray, checksum: ByteArray): Boolean {
         if (prefix == "" || address.isEmpty() || checksum.isEmpty()) {
             return false
@@ -150,6 +194,11 @@ object Address {
         return crc.contentEquals(checksum)
     }
 
+    /**
+     * Create address checksum from given prefix and address hash
+     * @param prefix The prefix address string used to verify the checksum
+     * @param addressData The address hash used to verify the checksum
+     */
     private fun computeAddressChecksum(prefix: String, addressData: ByteArray): ByteArray {
         if (prefix == "" || addressData.isEmpty()) {
             return byteArrayOf()

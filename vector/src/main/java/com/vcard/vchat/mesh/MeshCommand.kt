@@ -30,21 +30,21 @@ import java.util.TreeMap
 
 object MeshCommand {
 
-    fun getAccount(address: String, unencryptedKey: String): MeshServicePayload {
+    /**
+     * Command to get account balance via grpc call
+     * @param address The target address of the account to get the balance from
+     * @param key The unencrypted key of the account
+     * @return MeshServicePayload The response payload containing the command and data
+     */
+    fun getAccount(address: String, key: String): MeshServicePayload {
         val channel = GrpcUtils.getChannel()
 
         val message = Mesh.MeshMessage.newBuilder()
 
         message.sourceId = address
-        //message.sourceId = "m14075abe6d0722614b2a45017443f696dd339c9bf1a4e1909"
         message.network = "meshtest"
 
-        val privateKey = BigInteger(unencryptedKey, 16)
-
-        //val privateKey = BigInteger("2354161917356255589292793974672092891942487462967551788533302831359367298795")
-
-        //val senderAddress = "m1ca040703ee3c8fe542611412191e84b209fc0ef5ff3316dc"
-        //val receiverAddress = "m17b1f1178662c449d9f2290c7911da4b4bfc4f89d904b2d9e"
+        val privateKey = BigInteger(key, 16)
 
         val account = MeshAccount(
                 address,
@@ -53,20 +53,14 @@ object MeshCommand {
 
         val dataBytesJson = Gson().toJson(account)
 
-        //non mutxo payload
-        //val payload = MeshServicePayload(Constants.ServiceCommandGetAccount, dataBytesJson.toByteArray())
-
         val payload = MeshServicePayload(Constants.ServiceCommandGetMutxoByAddress, dataBytesJson.toByteArray())
 
         val payloadJson = Gson().toJson(payload)
-
-        Timber.d("payloadJson: $payloadJson")
 
         val payloadBytes = payloadJson.toByteArray()
 
         //hash is done in the signPayload function
         val signedPayload = signPayload(privateKey, payloadBytes)
-        Timber.d("signedPayload: ${signedPayload.contentToString()} \nlength: ${signedPayload.size}")
 
         message.payload = ByteString.copyFrom(payloadBytes)
         message.signature = ByteString.copyFrom(signedPayload)
@@ -74,30 +68,6 @@ object MeshCommand {
         val txnRequest = Mesh.MeshRequest.newBuilder()
 
         txnRequest.requestMessage = message.build()
-
-        //try to recover public key and create address
-        val keyPair = SECP256K1.KeyPair.fromSecretKey(
-                SECP256K1.SecretKey.fromInteger(
-                        privateKey
-                )
-        )
-
-
-        val hashMessage = HashUtils.meshHash(payloadBytes)
-
-        val signature = SECP256K1.signHashed(hashMessage, keyPair)
-
-        Timber.d("hashMessage: ${hashMessage.contentToString()}")
-        val pubFromSecret = SECP256K1.PublicKey.fromSecretKey(SECP256K1.SecretKey.fromInteger(privateKey)).bytesArray()
-        Timber.d("publicKeyBytes: ${pubFromSecret.contentToString()}\nsize: ${pubFromSecret.size}")
-
-        val recoverPublicKey = recoverPublicKey(hashMessage, signature)
-
-        val addressData = Address.computeAddressHash(recoverPublicKey!!)
-        val addressFromPublic = Address.setAddress(PrefixEnum.DefaultPrefix, addressData)
-
-        val fullAddress = "${addressFromPublic.p}${NumberUtil.bytesToHexStr(addressFromPublic.a)}${NumberUtil.bytesToHexStr(addressFromPublic.c)}"
-        Timber.d("source: ${message.sourceId}\naddressFromPublic: $fullAddress")
 
         try {
             val stub = MeshServiceGrpc.newBlockingStub(channel)
@@ -112,7 +82,6 @@ object MeshCommand {
 
             return responsePayload
         } catch (e: StatusRuntimeException) {
-            Timber.d("error grpc: $e")
             channel?.shutdown()
             return if (e.status.code.equals(io.grpc.Status.UNAVAILABLE.code)) {
                 MeshServicePayload("unavailable", byteArrayOf())
@@ -122,18 +91,25 @@ object MeshCommand {
         }
     }
 
+    /**
+     * Command to send transaction from sender to recipient via grpc call
+     * @param senderAddress The address of the sender
+     * @param senderPrivateKey The unencrypted key of the sender
+     * @param recipientAddress The address of the recipient
+     * @param amount The amount to be sent
+     * @param reference The comment/remark/reference inputted by the sender
+     * @param time The timestamp of when this transaction occurs. Format example: 2022-10-03T09:27:59.6333756Z
+     * @return MeshServicePayload The response payload containing the command and data
+     */
     fun sendTransaction(senderAddress: String, senderPrivateKey: String, recipientAddress: String, amount: BigInteger, reference: String, time: String): MeshServicePayload{
         val channel = GrpcUtils.getChannel()
 
         val message = Mesh.MeshMessage.newBuilder()
 
         message.sourceId = senderAddress
-        //message.sourceId = "m14075abe6d0722614b2a45017443f696dd339c9bf1a4e1909"
         message.network = "meshtest"
 
-        //val privateKey = BigInteger("2354161917356255589292793974672092891942487462967551788533302831359367298795")
         val privateKey = BigInteger(senderPrivateKey, 16)
-        Timber.d("sender private: $privateKey")
 
         val transactionReceipt = getTransactionReceipt(senderAddress, senderPrivateKey, recipientAddress, amount, reference, time)
 
@@ -147,10 +123,9 @@ object MeshCommand {
 
         val payloadBytes = payloadJson.toByteArray()
 
-        //hash is done in the signPayload function
+        //Hash is done in the signPayload function
         val signedPayload = signPayload(privateKey, payloadBytes)
 
-        Timber.d("signedPayload:  ${signedPayload.contentToString()}")
         message.payload = ByteString.copyFrom(payloadBytes)
         message.signature = ByteString.copyFrom(signedPayload)
 
@@ -161,8 +136,6 @@ object MeshCommand {
         try {
             val stub = MeshServiceGrpc.newBlockingStub(channel)
             val response = stub.call(txnRequest.build())
-
-            Timber.d("response: $response")
 
             val decodedPayloadResp = response.payload.toByteArray().decodeToString()
             val parseJson = JSONObject(decodedPayloadResp)
@@ -187,12 +160,20 @@ object MeshCommand {
         }
     }
 
+    /**
+     * Construct a transaction receipt which includes the txd, and candidates for election
+     * @param senderAddress The address of the sender
+     * @param senderPrivateKey The unencrypted key of the sender
+     * @param recipientAddress The address of the recipient
+     * @param amount The amount to be sent
+     * @param reference The comment/remark/reference inputted by the sender
+     * @param time The timestamp of when this transaction occurs. Format example: 2022-10-03T09:27:59.6333756Z
+     * @return MeshTransactionReceipt the receipt that'll be send to the server
+     */
     private fun getTransactionReceipt(senderAddress: String, senderPrivateKey: String, recipientAddress: String, amount: BigInteger, reference: String, time: String): MeshTransactionReceipt {
         val privateKeyBigInt = BigInteger(senderPrivateKey, 16)
-        Timber.d("sender private string: $senderPrivateKey\nsender private big int: $privateKeyBigInt")
 
         val totalFee = TxnFee.calculateTotalFeeBigInt(CurrencyEnum.MeshGold, amount)
-        Timber.d("totalFee: $totalFee")
 
         val mutxo = RealmExec().getAccountMutxoByAddress(senderAddress)
 
@@ -207,32 +188,21 @@ object MeshCommand {
         val txd = MeshTransactionData(
                 senderAddress,
                 MeshGoldCurrency,
-//                nonce+1,
                 1,
                 recipientAddress,
                 amount,
                 totalFee,
                 reference,
                 time,
-                //"2022-10-03T09:27:59.6333756Z",
                 listMutxo.toList()
         )
 
         val txdGson = GsonBuilder().disableHtmlEscaping().registerTypeAdapter(MeshTransactionData::class.java, MeshTransactionDataSerializer()).create()
         val txdJson = txdGson.toJson(txd)
-        Timber.d("txdJson: $txdJson")
 
         val txdBytes = txdJson.toString().toByteArray()
 
         val signedTxd = signPayload(privateKeyBigInt, txdBytes)
-
-        Timber.d("signedTxd: ${signedTxd.contentToString()}")
-
-//        val signedTxdUint =  ArrayList<UInt>()
-//        for (byte in signedTxd){
-//            val  uInt = byte.toUInt()
-//            signedTxdUint.add(uInt)
-//        }
 
         val unsignedIntTxd = IntArray(signedTxd.size)
 
@@ -240,27 +210,6 @@ object MeshCommand {
             val unsignedInt = toUnsigned(byte)
             unsignedIntTxd[index] = unsignedInt
         }
-
-        Timber.d("unsigned: ${unsignedIntTxd.contentToString()}")
-
-//        val nodeAddress = "m1ff42d265bc16bdd514f5e74e7393495f3311185d3c52d1b9"
-//        val nodeKey = BigInteger("34b318c9b3e80df98298b10f72ba95a6d982afde0ff2d7cde728cb74961d21cc", 16)
-
-//        val timestamp = Utils.getTime()
-
-//        val txf = MeshTransactionFee(
-//                Constants.MeshSystemAddress,
-//                BigInteger("12"),
-//                Constants.MeshCommunityAddress,
-//                BigInteger("12"),
-//                nodeAddress,
-//                BigInteger("12"),
-//                timestamp
-//        )
-//
-//        val txfBytes = txf.toString().toByteArray()
-//
-//        val signedTxf = signPayload(nodeKey, txfBytes)
 
         //val candidateList = RealmExec().getNodesForElection(senderAddress, recipientAddress)
         val getNodes = RealmExec().getNodesForElection2(senderAddress, recipientAddress)
@@ -290,17 +239,12 @@ object MeshCommand {
             candidateMap[candidate.id] = "${candidate.ipAddress}:${candidate.port}"
         }
 
-
-        Timber.d("candidateMap: $candidateMap")
-
-        //need to create sorted jso
+        //need to create sorted json
         val candidateJson = Gson().toJson(candidateMap)
         val map = Gson().fromJson(candidateJson, TreeMap::class.java)
         val sortedJson: String = Gson().toJson(map)
-        Timber.d("candidateJson: $sortedJson")
 
         val candidateBytes = sortedJson.toByteArray()
-        //val signedCandidates = Secp256k1.signCandidateList(privateKeyBigInt, txdBytes, candidateBytes)
         val signedCandidates = signPayload(privateKeyBigInt, candidateBytes)
 
         val unsignedIntCandidates = IntArray(signedCandidates.size)
@@ -308,8 +252,6 @@ object MeshCommand {
             val unsignedInt = toUnsigned(byte)
             unsignedIntCandidates[index] = unsignedInt
         }
-
-        Timber.d("signedCandidates: ${signedCandidates.contentToString()}")
 
         val election = MeshTransactionElection(
                 candidateMap,

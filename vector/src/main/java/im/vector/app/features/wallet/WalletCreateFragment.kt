@@ -45,7 +45,7 @@ class WalletCreateFragment@Inject constructor(
 
     private fun setupViews(){
         setupToolbar(views.walletCreateToolbar)
-                .setTitle("Create New Account")
+                .setTitle(getString(R.string.create_account_title))
                 .allowBack(useCross = false)
 
     }
@@ -57,17 +57,17 @@ class WalletCreateFragment@Inject constructor(
 
             when {
                 accountName.isEmpty() -> {
-                    views.accountNameInput.error = "name can't be empty"
+                    views.accountNameInput.error = getString(R.string.vchat_error_name_empty)
                 }
                 passphrase.isEmpty() -> {
-                    views.passphraseLayout.error = "passphrase can't be empty"
+                    views.passphraseLayout.error = getString(R.string.vchat_error_passphrase_empty)
                 }
                 retypePassphrase.isEmpty() -> {
-                    views.retypePassphraseLayout.error = "please retype your passphrase"
+                    views.retypePassphraseLayout.error = getString(R.string.vchat_error_retype_passphrase_empty)
                 }
                 passphrase != retypePassphrase -> {
-                    views.passphraseInput.error = "passphrase doesn't match"
-                    views.retypePassphraseInput.error = "passphrase doesn't match"
+                    views.passphraseInput.error = getString(R.string.vchat_error_passphrase_not_match)
+                    views.retypePassphraseInput.error = getString(R.string.vchat_error_passphrase_not_match)
                 }
                 else -> {
                     val loadingDialog = prepareDialogLoader(requireContext())
@@ -78,7 +78,6 @@ class WalletCreateFragment@Inject constructor(
                         val gson = GsonBuilder().registerTypeAdapter(EncryptedKeyData::class.java, EncryptedKeyDataSerializer()).setPrettyPrinting().create()
                         val data = gson.fromJson(encryptedJson, EncryptedKeyData::class.java)
 
-                        Timber.d("fullAddress: ${data.fullAddress}")
                         val msp = MeshSharedPref(requireContext())
                         msp.storePp(data.fullAddress, passphrase)
 

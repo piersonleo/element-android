@@ -16,11 +16,7 @@ public class AccountEntity extends RealmObject {
     public String privateKey = "";
 
     public String currency = "";
-    public Integer nonce = 0;
-
     public String balance = "0";
-    public byte[] rootHash = new byte[0];
-    public byte[] moduleHash = new byte[0];
 
     public String type = "";
 }

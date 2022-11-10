@@ -10,6 +10,8 @@
     <string name="bottom_action_wallet">Mesh Wallet</string>
 
     <string name="wallet_title">Mesh Wallet</string>
+    <string name="create_account_title">Create New Account</string>
+
     <string name="action_receive">Receive</string>
     <string name="vchat_action_leave">Delete</string>
 
@@ -117,6 +119,7 @@
 
     <string name="vchat_wallet_account_scan_qr_error_yourself">Can\'t scan your own QR code</string>
     <string name="vchat_wallet_account_scan_qr_error_invalid">Not a valid Mesh QR Code</string>
+    <string name="vchat_wallet_account_scan_qr_error_failed">Failed to scan QR code. Please try again.</string>
     <string name="vchat_show_more_content_description">Show more</string>
 
     <string name="vchat_wallet_qr_appbar_title">Account QR Code</string>
@@ -151,9 +154,13 @@
     <string name="vchat_save_account_description">Your new account has been created. In order to not lose your account upon logout, please save your account so you can import it back anytime.</string>
 
     <string name="vchat_save_account_qr_title">Account: %s</string>
-
+    <string name="vchat_import_wallet_title">Import wallet</string>
+    <string name="vchat_import_wallet_desc">You are about to import a Mesh wallet. Would you like to start importing?</string>
+    <string name="vchat_import_wallet_success">Successfully imported %d account(s)</string>
     <string name="vchat_home_wallet_menu_save_accounts">Save Wallet</string>
     <string name="vchat_wallet_account_save_account">Save account</string>
+    <string name="vchat_wallet_account_save_qr">Save QR code</string>
+    <string name="vchat_wallet_transfer_summary">Transfer summary</string>
 
     <string name="vchat_enter_passphrase">Enter passphrase</string>
     <string name="vchat_change_account_passphrase">Change passphrase</string>
@@ -163,7 +170,37 @@
     <string name="vchat_new_passphrase">Enter new passphrase</string>
     <string name="vchat_retype_new_passphrase">Retype new passphrase</string>
 
+    <string name="vchat_passphrase_updated">Passphrase successfully updated</string>
+
     <string name="vchat_error_name_empty">Name cannot be empty</string>
     <string name="vchat_error_invalid_pass">Invalid passphrase</string>
+    <string name="vchat_error_import_invalid_mesh_account">Not a valid Mesh account</string>
+    <string name="vchat_error_import_invalid_address">Invalid Mesh address found</string>
+    <string name="vchat_error_import_duplicate_account">Account with the same Mesh address already exist</string>
+    <string name="vchat_error_no_account_to_share">No account to share</string>
+    <string name="vchat_error_no_account_to_save">No account to save</string>
+    <string name="vchat_error_cannot_save_as_qr_title">Unable to save as QR code</string>
+    <string name="vchat_error_cannot_save_as_qr_desc">There are too many accounts to save as QR code. Please save your wallet as a file instead.</string>
 
+    <string name="vchat_error_invalid_account_address">Account address is invalid</string>
+    <string name="vchat_error_passphrase_empty">Passphrase cannot be empty</string>
+    <string name="vchat_error_retype_passphrase_empty">Please retype your passphrase</string>
+    <string name="vchat_error_current_passphrase_empty">Current passphrase cannot be empty</string>
+    <string name="vchat_error_current_passphrase_invalid">Current passphrase is invalid</string>
+    <string name="vchat_error_new_passphrase_empty">New passphrase cannot be empty</string>
+    <string name="vchat_error_retype_new_passphrase_empty">Retype new passphrase cannot be empty</string>
+    <string name="vchat_error_passphrase_not_match">Passphrase doesn\'t match</string>
+    <string name="vchat_error_retype_new_passphrase_not_match">New passphrase and retype new passphrase is not the same</string>
+    <string name="vchat_error_insufficient_balance">Insufficient balance</string>
+    <string name="vchat_error_enter_amount">Please enter an amount</string>
+
+    <string name="vchat_account_no_gold">This account doesn\'t have any gold yet</string>
+
+    <string name="vchat_transfer_gold_title">Transfer Gold</string>
+    <string name="vchat_transfer_dialog_confirm">Confirm transfer</string>
+
+    <string name="vchat_yes">Yes</string>
+    <string name="vchat_cancel">Cancel</string>
+    <string name="vchat_ok">OK</string>
+    <string name="vchat_account_name">Account Name</string>
 </resources>
