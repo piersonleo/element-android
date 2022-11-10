@@ -159,7 +159,6 @@ class WalletDetailFragment @Inject constructor(
         if (accountData != null) {
             accountBalance = BigDecimal(accountData.balance)
             ek = accountData.encryptedKey
-            Timber.d("accountBalance: ${accountData.balance}")
             displayBalance(accountBalance)
         }else{
             views.btnRefreshAccount.performClick()
@@ -199,7 +198,6 @@ class WalletDetailFragment @Inject constructor(
 
                 Thread {
                     val refreshAccount = MeshCommand.getAccount(fragmentArgs.address, fragmentArgs.privateKey)
-                    Timber.d("account data: $refreshAccount")
 
                     when (refreshAccount.c) {
                         "unavailable" -> {
@@ -219,38 +217,30 @@ class WalletDetailFragment @Inject constructor(
                                 val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
                                 val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
 
-                                Timber.d("decodeParams: $decodeParamsUtf8\n")
                                 val gson = GsonBuilder().disableHtmlEscaping().create()
                                 val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
                                 val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
 
-                                Timber.d("accountData: ${gson.toJson(accountData)}")
                                 val accountEntity = AccountEntity()
                                 accountEntity.address = address
                                 accountEntity.balance = accountData.total
                                 accountEntity.currency = CurrencyEnum.MeshGold.name
-//                                accountEntity.nonce = accountData.nonce
-//                                accountEntity.moduleHash = accountData.moduleHash?.toByteArray()
-//                                accountEntity.rootHash = accountData.rootHash.toByteArray()
 //
                                 RealmExec().addUpdateAccountBalance(accountEntity)
+
                                 //TODO: for int and long values they needed to be accessed first before they can be inserted to realm. Need to investigate
 //                              RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+
                                 //Temp function to insert the data manually
                                 RealmExec().addAccountMutxoFromMapManual(address, accountData.mutxoList)
-//                                val mapValues = accountData.mutxoList.values
-//                                val mapJson = gson.toJson(mapValues.toList())
-//                                val mutxoValues = gson.fromJson(mapJson, Array<MUnspentTransactionObjectData>::class.java)
-//
-//                                Toast.makeText(requireContext(), "amt: ${mutxoValues[0].amount}, st: ${mutxoValues[0].sourceType}", Toast.LENGTH_LONG).show()
 
                                 accountBalance = BigDecimal(accountData.total)
 
                                 displayBalance(accountBalance)
 
                                 if (BigDecimal(accountData.total).signum() == 0){
-                                    Toast.makeText(requireContext(), "This account doesn't have any gold yet.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), getString(R.string.vchat_account_no_gold), Toast.LENGTH_SHORT).show()
                                 }
 
                                 setScanButtonState()
@@ -271,10 +261,10 @@ class WalletDetailFragment @Inject constructor(
                                 views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
                                 views.simpleActivityWaitingView.visibility = View.INVISIBLE
 
-                                val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
-                                val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
-
-                                Timber.d("decodeParams: $decodeParamsUtf8")
+//                                val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
+//                                val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+//
+//                                Timber.d("decodeParams: $decodeParamsUtf8")
 
                                 Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_update_account_fail), Toast.LENGTH_SHORT).show()
                             })
@@ -406,12 +396,12 @@ class WalletDetailFragment @Inject constructor(
                             val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
 
                             Timber.d("decodeParams: $decodeParamsUtf8\n")
+
                             val gson = GsonBuilder().disableHtmlEscaping().create()
                             val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
                             val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
 
-                            Timber.d("accountData: ${gson.toJson(accountData)}")
                             val accountEntity = AccountEntity()
                             accountEntity.address = address
                             accountEntity.balance = accountData.total
@@ -425,7 +415,7 @@ class WalletDetailFragment @Inject constructor(
                             displayBalance(accountBalance)
 
                             if (BigDecimal(accountData.total).signum() == 0){
-                                Toast.makeText(requireContext(), "This account doesn't have any gold yet.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.vchat_account_no_gold), Toast.LENGTH_SHORT).show()
                             }
 
                             setScanButtonState()
@@ -444,10 +434,10 @@ class WalletDetailFragment @Inject constructor(
                             views.walletDetailHeaderSubtitle.visibility = View.VISIBLE
                             views.simpleActivityWaitingView.visibility = View.INVISIBLE
 
-                            val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
-                            val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
-
-                            Timber.d("decodeParams: $decodeParamsUtf8")
+//                            val decodeParams = Base64.decode(refreshAccount.d, Base64.DEFAULT)
+//                            val decodeParamsUtf8 = decodeParams.toString(StandardCharsets.UTF_8)
+//
+//                            Timber.d("decodeParams: $decodeParamsUtf8")
 
                             Toast.makeText(requireContext(), getString(R.string.vchat_grpc_error_update_account_fail), Toast.LENGTH_SHORT).show()
                         })
@@ -487,7 +477,7 @@ class WalletDetailFragment @Inject constructor(
             ekfJson = Account.generateAccountEkJson(fragmentArgs.address, ek)
         }catch (e: java.lang.Exception){
             if (e.message == "invalid address"){
-                return Toast.makeText(requireContext(), "The address of this account is not valid", Toast.LENGTH_SHORT).show()
+                return Toast.makeText(requireContext(), getString(R.string.vchat_error_invalid_account_address), Toast.LENGTH_SHORT).show()
             }
         }
         accountQRImage.setData2("${Constants.meshEncryptedAccountQrIdentifier}$ekfJson", icon)
@@ -511,7 +501,7 @@ class WalletDetailFragment @Inject constructor(
                     activity = requireActivity(),
                     activityResultLauncher = saveRecoveryActivityResultLauncher,
                     defaultFileName = filename,
-                    chooserHint = "Save Account"
+                    chooserHint = getString(R.string.vchat_wallet_account_save_account)
             )
             dialog.dismiss()
         }
@@ -519,7 +509,6 @@ class WalletDetailFragment @Inject constructor(
         saveQrView.debouncedClicks {
             val timestamp = Utils.getTime()
             val filename = "mesh-account-${fragmentArgs.name}-${timestamp}"
-//            val qrBitmap = createQRCodeBitmap(fragmentArgs.jsonString)
             saveBitmap(accountQrView.drawToBitmap(), filename)
             dialog.dismiss()
         }
@@ -610,6 +599,7 @@ class WalletDetailFragment @Inject constructor(
         val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
         val dialogViews = DialogBaseEditTextBinding.bind(layout)
         dialogViews.editText.setText(currentName)
+        dialogViews.baseTil.hint = getString(R.string.vchat_account_name)
 
 
         val dialog = MaterialAlertDialogBuilder(requireActivity())
@@ -670,17 +660,17 @@ class WalletDetailFragment @Inject constructor(
             updateButton.debouncedClicks {
                 when {
                     dialogViews.etCurrentPp.text.toString() == "" -> {
-                        dialogViews.currentPpTil.error = "Current passphrase cannot be empty"
+                        dialogViews.currentPpTil.error = getString(R.string.vchat_error_current_passphrase_empty)
                     }
                     dialogViews.etNewPp.text.toString() == "" -> {
-                        dialogViews.newPpTil.error = "New passphrase cannot be empty"
+                        dialogViews.newPpTil.error = getString(R.string.vchat_error_new_passphrase_empty)
                     }
                     dialogViews.etRetypeNewPp.text.toString() == "" -> {
-                        dialogViews.retypeNewPpTil.error = "Retype new passphrase cannot be empty"
+                        dialogViews.retypeNewPpTil.error = getString(R.string.vchat_error_retype_new_passphrase_empty)
                     }
                     dialogViews.etNewPp.text.toString() != dialogViews.etRetypeNewPp.text.toString() -> {
-                        dialogViews.newPpTil.error = "New passphrase and retype new passphrase is not the same"
-                        dialogViews.retypeNewPpTil.error = "New passphrase and retype new passphrase is not the same"
+                        dialogViews.newPpTil.error = getString(R.string.vchat_error_retype_new_passphrase_not_match)
+                        dialogViews.retypeNewPpTil.error = getString(R.string.vchat_error_retype_new_passphrase_not_match)
                     }
                     else -> {
                         try {
@@ -688,13 +678,13 @@ class WalletDetailFragment @Inject constructor(
                             val msp = MeshSharedPref(requireContext())
                             msp.storePp(fragmentArgs.address, dialogViews.etRetypeNewPp.text.toString())
 
-                            Toast.makeText(requireContext(), "Passphrase successfully updated", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.vchat_passphrase_updated), Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
                         }catch (e: java.lang.Exception){
                             if (e.message == "invalid passphrase"){
-                                Toast.makeText(requireContext(), "Current passphrase is invalid", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.vchat_error_current_passphrase_invalid), Toast.LENGTH_SHORT).show()
                             }else if (e.message == "invalid address"){
-                                Toast.makeText(requireContext(), "Account address is invalid", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), getString(R.string.vchat_error_invalid_account_address), Toast.LENGTH_SHORT).show()
 
                             }
                         }

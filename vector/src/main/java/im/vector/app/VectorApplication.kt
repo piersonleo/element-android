@@ -44,6 +44,7 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import com.vcard.vchat.mesh.database.MeshModule
+import com.vcard.vchat.mesh.database.RealmExec
 import com.vcard.vchat.utils.MeshSharedPref
 import dagger.hilt.android.HiltAndroidApp
 import im.vector.app.config.Config
@@ -215,14 +216,7 @@ class VectorApplication :
 
         //vChat: initialize mesh realm
         Realm.init(this)
-        val realmConfig = RealmConfiguration.Builder()
-                .name("vcard_mesh.realm")
-                .modules(MeshModule())
-                .schemaVersion(1)
-                .allowWritesOnUiThread(true)
-                .build()
-
-        Realm.setDefaultConfiguration(realmConfig)
+        Realm.setDefaultConfiguration(RealmExec().create())
 
         //vChat: setup mesh launch pp
 
