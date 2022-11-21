@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.airbnb.mvrx.args
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.vcard.vchat.utils.Constants
+import com.vcard.mesh.sdk.MeshConstants
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
 import im.vector.app.R
@@ -55,10 +55,10 @@ class WalletReceiptFragment @Inject constructor(
         views.tvRecipientAddress.text = fragmentArgs.recipientAddress
         views.tvAmountDetail.text = amount
 
-        val convertedFee = (fragmentArgs.fee.toDouble()/com.vcard.vchat.mesh.Constants.milligramRate)
+        val convertedFee = (fragmentArgs.fee.toDouble()/MeshConstants.milligramRate)
         Timber.d("fee: ${fragmentArgs.fee}, convertedFee: $convertedFee")
 
-        val fee = "$convertedFee ${com.vcard.vchat.mesh.Constants.milligramUnit}"
+        val fee = "$convertedFee ${MeshConstants.milligramUnit}"
         views.tvFeeDetail.text = fee
         views.tvReference.text = fragmentArgs.reference
     }
@@ -88,11 +88,11 @@ class WalletReceiptFragment @Inject constructor(
 
     private fun getRateByUnit(unit: String): BigDecimal{
         return when(unit){
-            com.vcard.vchat.mesh.Constants.kilogramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.kilogramRate.toString())
-            com.vcard.vchat.mesh.Constants.gramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.gramRate.toString())
-            com.vcard.vchat.mesh.Constants.milligramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.milligramRate.toString())
-            com.vcard.vchat.mesh.Constants.microgramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.microgramRate.toString())
-            com.vcard.vchat.mesh.Constants.nanogramUnit -> BigDecimal(com.vcard.vchat.mesh.Constants.nanogramRate.toString())
+            MeshConstants.kilogramUnit -> BigDecimal(MeshConstants.kilogramRate.toString())
+            MeshConstants.gramUnit -> BigDecimal(MeshConstants.gramRate.toString())
+            MeshConstants.milligramUnit -> BigDecimal(MeshConstants.milligramRate.toString())
+            MeshConstants.microgramUnit -> BigDecimal(MeshConstants.microgramRate.toString())
+            MeshConstants.nanogramUnit -> BigDecimal(MeshConstants.nanogramRate.toString())
             else -> throw Exception("Not a valid unit")
         }
     }

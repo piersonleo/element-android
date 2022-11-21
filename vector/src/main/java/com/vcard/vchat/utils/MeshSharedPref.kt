@@ -1,15 +1,11 @@
 package com.vcard.vchat.utils
 
 import android.content.Context
-import androidx.preference.PreferenceManager
-import com.vcard.vchat.mesh.Aes256
-import com.vcard.vchat.mesh.NumberUtil
+import com.vcard.mesh.sdk.crypto.Aes256
+import com.vcard.mesh.sdk.utils.NumberUtil
 import com.vcard.vchat.utils.StringUtil.decodeHex
 import im.vector.app.R
-import timber.log.Timber
 import java.lang.Exception
-import java.util.Base64
-import java.util.UUID
 
 class MeshSharedPref(private val context: Context) {
 
