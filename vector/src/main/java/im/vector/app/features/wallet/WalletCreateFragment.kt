@@ -27,7 +27,6 @@ class WalletCreateFragment@Inject constructor(
     private lateinit var callback: CreateAccountCallback
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletCreateBinding {
-        setHasOptionsMenu(true)
 
         return FragmentWalletCreateBinding.inflate(inflater, container, false)
     }

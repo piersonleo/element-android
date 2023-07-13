@@ -89,7 +89,7 @@ class HomeWalletFragment @Inject constructor(
     private var jsonWallet = ""
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletHomeBinding {
-        setHasOptionsMenu(true)
+        //setHasOptionsMenu(true)
 
         return FragmentWalletHomeBinding.inflate(inflater, container, false)
     }
@@ -123,16 +123,16 @@ class HomeWalletFragment @Inject constructor(
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.menu_home_save_wallets -> {
-                showSaveWalletBottomDialog()
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when(item.itemId){
+//            R.id.menu_home_save_wallets -> {
+//                showSaveWalletBottomDialog()
+//            }
+//        }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
+//
     override fun onItemClick(wallet: AccountEntity) {
 
         val args = WalletDetailsArgs(

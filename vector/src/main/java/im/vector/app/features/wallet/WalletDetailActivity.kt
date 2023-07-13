@@ -38,9 +38,6 @@ class WalletDetailActivity:  VectorBaseActivity<ActivitySimpleBinding>(){
         }
 
     }
-
-    override fun getMenuRes()= R.menu.vchat_wallet_account_menu
-
     private fun showFragment(fragmentClass: KClass<out Fragment>, params: Parcelable? = null) {
         if (supportFragmentManager.findFragmentByTag(fragmentClass.simpleName) == null) {
             replaceFragment(views.simpleFragmentContainer, fragmentClass.java, params, fragmentClass.simpleName, useCustomAnimation = true)

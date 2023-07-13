@@ -59,7 +59,6 @@ class WalletTransferFragment@Inject constructor(
 
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletTransferBinding {
-        setHasOptionsMenu(true)
 
         return FragmentWalletTransferBinding.inflate(inflater, container, false)
     }

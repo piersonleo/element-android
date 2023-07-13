@@ -12,9 +12,6 @@ apply plugin: 'kotlinx-knit'
 if (project.hasProperty("coverage")) {
     apply plugin: 'jacoco'
 }
-//vChat: apply protobuf
-apply plugin: 'com.google.protobuf'
-apply plugin: 'realm-android'
 
 kapt {
     correctErrorTypes = true
@@ -576,18 +573,4 @@ dependencies {
     androidTestImplementation libs.mockk.mockkAndroid
     androidTestUtil libs.androidx.orchestrator
     debugImplementation libs.androidx.fragmentTesting
-
-    //vChat: for hash
-    implementation libs.khash.keccak
-
-    //vChat: grpc libraries
-    implementation 'io.grpc:grpc-okhttp:1.47.0'
-    implementation 'io.grpc:grpc-protobuf-lite:1.47.0'
-    implementation 'io.grpc:grpc-stub:1.47.0'
-
-    //vChat: for mesh signature
-    implementation  libs.bouncycastle.bouncycastle
-    implementation libs.apache.tuweni
-    compileOnly libs.apache.tomcat
-
 }

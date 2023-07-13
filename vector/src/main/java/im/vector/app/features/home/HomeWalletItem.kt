@@ -15,7 +15,7 @@ import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.glide.GlideApp
 
 @EpoxyModelClass(layout = R.layout.item_wallet_account)
-abstract class HomeWalletItem(private val context: Context) : VectorEpoxyModel<HomeWalletItem.Holder>() {
+abstract class HomeWalletItem(private val context: Context) : VectorEpoxyModel<HomeWalletItem.Holder>(R.layout.item_wallet_account) {
 
     @EpoxyAttribute
     lateinit var model: AccountEntity
