@@ -92,7 +92,7 @@ class CreateDirectRoomActivity : SimpleFragmentActivity() {
                     views.container,
                     UserListFragment::class.java,
                     UserListFragmentArgs(
-                            title = getString(R.string.fab_menu_create_chat),
+                            title = getString(R.string.vchat_fab_menu_create_chat),
                             menuResId = R.menu.vector_create_direct_room,
                             submitMenuItemId = R.id.action_create_direct_room,
                     )
@@ -173,11 +173,11 @@ class CreateDirectRoomActivity : SimpleFragmentActivity() {
         }
     }
 
-    private fun renderCreationLoading() {
+    fun renderCreationLoading() {
         updateWaitingView(WaitingViewData(getString(R.string.creating_direct_room)))
     }
 
-    private fun renderCreationFailure(error: Throwable) {
+    fun renderCreationFailure(error: Throwable) {
         hideWaitingView()
         when (error) {
             is CreateRoomFailure.CreatedWithTimeout -> {
@@ -205,7 +205,7 @@ class CreateDirectRoomActivity : SimpleFragmentActivity() {
         }
     }
 
-    private fun renderCreationSuccess(roomId: String) {
+    fun renderCreationSuccess(roomId: String) {
         navigator.openRoom(
                 context = this,
                 roomId = roomId,
