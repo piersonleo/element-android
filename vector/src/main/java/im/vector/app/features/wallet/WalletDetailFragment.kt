@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -21,8 +22,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.net.toUri
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.drawToBitmap
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import arrow.core.Try
 import com.airbnb.mvrx.args
@@ -93,7 +97,7 @@ class WalletDetailFragment @Inject constructor(
     }
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletDetailBinding {
-        setHasOptionsMenu(true)
+        //etHasOptionsMenu(true)
 
         return FragmentWalletDetailBinding.inflate(inflater, container, false)
     }
@@ -107,33 +111,33 @@ class WalletDetailFragment @Inject constructor(
         setupSubmitButton()
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val changePassphrase = menu.findItem(R.id.change_passphrase)
-        if (changePassphrase != null && fragmentArgs.type == MeshConstants.test) {
-            changePassphrase.isVisible = false
-        }
-
-        val saveAccount = menu.findItem(R.id.save_account)
-        if (changePassphrase != null && fragmentArgs.type == MeshConstants.test) {
-            saveAccount.isVisible = false
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.save_account -> {
-                showSaveBottomDialog()
-            }
-            R.id.change_name -> {
-                showChangeNameDialog(views.walletDetailHeaderTitle.text.toString())
-            }
-            R.id.change_passphrase ->{
-                showChangePpDialog()
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
+//    override fun onPrepareOptionsMenu(menu: Menu) {
+//        val changePassphrase = menu.findItem(R.id.change_passphrase)
+//        if (changePassphrase != null && fragmentArgs.type == MeshConstants.test) {
+//            changePassphrase.isVisible = false
+//        }
+//
+//        val saveAccount = menu.findItem(R.id.save_account)
+//        if (changePassphrase != null && fragmentArgs.type == MeshConstants.test) {
+//            saveAccount.isVisible = false
+//        }
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when(item.itemId){
+//            R.id.save_account -> {
+//                showSaveBottomDialog()
+//            }
+//            R.id.change_name -> {
+//                showChangeNameDialog(views.walletDetailHeaderTitle.text.toString())
+//            }
+//            R.id.change_passphrase ->{
+//                showChangePpDialog()
+//            }
+//        }
+//
+//        return super.onOptionsItemSelected(item)
+//    }
 
     private fun setupViews(){
         setupToolbar(views.walletDetailToolBar)

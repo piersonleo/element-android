@@ -37,7 +37,6 @@ class WalletCodeFragment @Inject constructor(
     private lateinit var orientationEventListener: OrientationEventListener
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletCodeBinding {
-        setHasOptionsMenu(true)
 
         return FragmentWalletCodeBinding.inflate(inflater, container, false)
     }

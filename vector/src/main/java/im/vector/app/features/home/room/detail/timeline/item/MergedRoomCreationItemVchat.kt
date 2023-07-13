@@ -44,7 +44,7 @@ import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.util.toMatrixItem
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base_noinfo)
-abstract class MergedRoomCreationItemVchat : BasedMergedItem<MergedRoomCreationItemVchat.Holder>() {
+abstract class MergedRoomCreationItemVchat : BasedMergedItem<MergedRoomCreationItemVchat.Holder>(R.layout.item_timeline_event_base_noinfo) {
 
     @EpoxyAttribute
     override lateinit var attributes: Attributes

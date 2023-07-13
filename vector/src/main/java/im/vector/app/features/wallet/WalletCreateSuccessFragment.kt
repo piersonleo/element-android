@@ -57,7 +57,6 @@ class WalletCreateSuccessFragment@Inject constructor(
     private lateinit var callback: CreateSuccessCallback
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentWalletCreateSuccessBinding {
-        setHasOptionsMenu(true)
 
         return FragmentWalletCreateSuccessBinding.inflate(inflater, container, false)
     }
