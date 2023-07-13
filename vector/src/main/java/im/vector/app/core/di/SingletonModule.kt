@@ -48,6 +48,7 @@ import im.vector.app.features.navigation.Navigator
 import im.vector.app.features.pin.PinCodeStore
 import im.vector.app.features.pin.SharedPrefPinCodeStore
 import im.vector.app.features.room.VectorRoomDisplayNameFallbackProvider
+import im.vector.app.features.room.VectorRoomDisplayNameFallbackProviderVchat
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.ui.SharedPreferencesUiStateRepository
 import im.vector.app.features.ui.UiStateRepository
@@ -121,7 +122,7 @@ object VectorStaticModule {
     @Provides
     fun providesMatrixConfiguration(
             vectorPreferences: VectorPreferences,
-            vectorRoomDisplayNameFallbackProvider: VectorRoomDisplayNameFallbackProvider,
+            vectorRoomDisplayNameFallbackProvider: VectorRoomDisplayNameFallbackProviderVchat,
             flipperProxy: FlipperProxy,
     ): MatrixConfiguration {
         return MatrixConfiguration(
