@@ -324,6 +324,7 @@ class HomeDetailFragment @Inject constructor(
                 R.id.bottom_action_people -> HomeTab.RoomList(RoomListDisplayMode.PEOPLE)
                 R.id.bottom_action_rooms -> HomeTab.RoomList(RoomListDisplayMode.ROOMS)
                 R.id.bottom_action_notification -> HomeTab.RoomList(RoomListDisplayMode.NOTIFICATIONS)
+                R.id.bottom_action_wallet -> HomeTab.Wallet(WalletDisplayMode.WALLETS)
                 else -> HomeTab.DialPad
             }
             viewModel.handle(HomeDetailAction.SwitchTab(tab))
@@ -358,6 +359,10 @@ class HomeDetailFragment @Inject constructor(
                     is HomeTab.DialPad -> {
                         add(R.id.roomListContainer, createDialPadFragment(), fragmentTag)
                     }
+                    is HomeTab.Wallet ->{
+                        add(R.id.roomListContainer, createWalletFragment(), fragmentTag)
+
+                    }
                 }
             } else {
                 if (tab is HomeTab.DialPad) {
@@ -366,6 +371,11 @@ class HomeDetailFragment @Inject constructor(
                 attach(fragmentToShow)
             }
         }
+    }
+
+    private fun createWalletFragment(): Fragment{
+        val fragment = childFragmentManager.fragmentFactory.instantiate(vectorBaseActivity.classLoader, HomeWalletFragment::class.java.name)
+        return (fragment as HomeWalletFragment)
     }
 
     private fun createDialPadFragment(): Fragment {
@@ -438,6 +448,7 @@ class HomeDetailFragment @Inject constructor(
             RoomListDisplayMode.ROOMS -> R.id.bottom_action_rooms
             else -> R.id.bottom_action_notification
         }
+        is HomeTab.Wallet -> R.id.bottom_action_wallet
     }
 
     override fun onTapToReturnToCall() {
