@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:paddingEnd="@dimen/layout_horizontal_margin"
-            app:title="@string/fab_menu_create_chat"
+            app:title="@string/vchat_fab_menu_create_chat"
             tools:ignore="RtlSymmetry" />
 
     </com.google.android.material.appbar.AppBarLayout>
