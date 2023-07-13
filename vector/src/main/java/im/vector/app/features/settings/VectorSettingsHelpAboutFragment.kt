@@ -35,7 +35,7 @@ class VectorSettingsHelpAboutFragment @Inject constructor(
         private val versionProvider: VersionProvider
 ) : VectorSettingsBaseFragment() {
 
-    override var titleRes = R.string.preference_root_help_about
+    override var titleRes = R.string.vchat_preference_root_help_about
     override val preferenceXmlRes = R.xml.vector_settings_help_about
 
     private val firstThrottler = FirstThrottler(1000)
@@ -65,11 +65,13 @@ class VectorSettingsHelpAboutFragment @Inject constructor(
         // application version
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_VERSION_PREFERENCE_KEY)!!.let {
             it.summary = buildString {
-                append(versionProvider.getVersion(longFormat = false, useBuildNumber = true))
-                if (BuildConfig.DEBUG) {
-                    append(" ")
-                    append(BuildConfig.GIT_BRANCH_NAME)
-                }
+                //vChat: we only want the version name
+                append(BuildConfig.VERSION_NAME)
+//                append(versionProvider.getVersion(longFormat = false, useBuildNumber = true))
+//                if (BuildConfig.DEBUG) {
+//                    append(" ")
+//                    append(BuildConfig.GIT_BRANCH_NAME)
+//                }
             }
 
             it.setOnPreferenceClickListener { pref ->
