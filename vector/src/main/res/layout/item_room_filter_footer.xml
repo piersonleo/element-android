@@ -18,6 +18,7 @@
         android:textColor="?vctr_content_secondary" />
 
     <Button
+        android:visibility="gone"
         android:id="@+id/roomFilterFooterCreateRoom"
         style="@style/Widget.Vector.Button.Text"
         android:layout_width="wrap_content"
@@ -31,10 +32,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/room_filtering_footer_create_new_direct_message" />
+        android:text="@string/vchat_room_filtering_footer_create_new_direct_message" />
 
     <!-- Note: can also be used to open the SpaceExploreActivity-->
     <Button
+        android:visibility="gone"
         android:id="@+id/roomFilterFooterOpenRoomDirectory"
         style="@style/Widget.Vector.Button.Text"
         android:layout_width="wrap_content"

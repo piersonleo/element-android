@@ -22,12 +22,14 @@
             android:title="@string/settings_password" />
 
         <im.vector.app.core.preference.VectorPreference
+            app:isPreferenceVisible="false"
             android:key="SETTINGS_EMAILS_AND_PHONE_NUMBERS_PREFERENCE_KEY"
-            android:summary="@string/settings_emails_and_phone_numbers_summary"
+            android:summary="@string/vchat_settings_emails_and_phone_numbers_summary"
             android:title="@string/settings_emails_and_phone_numbers_title"
             app:fragment="im.vector.app.features.settings.threepids.ThreePidsSettingsFragment" />
 
         <im.vector.app.core.preference.VectorPreference
+            app:isPreferenceVisible="false"
             android:key="SETTINGS_DISCOVERY_PREFERENCE_KEY"
             android:persistent="false"
             android:summary="@string/settings_discovery_manage"
@@ -51,7 +53,9 @@
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
-    <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_integrations">
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        android:title="@string/settings_integrations"
+        app:isPreferenceVisible="false">
 
         <im.vector.app.core.preference.VectorPreference
             android:focusable="false"
@@ -108,7 +112,9 @@
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
-    <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_deactivate_account_section">
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        app:isPreferenceVisible="false"
+        android:title="@string/settings_deactivate_account_section">
 
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_DEACTIVATE_ACCOUNT_KEY"
