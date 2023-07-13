@@ -2,14 +2,19 @@ package im.vector.app.features.wallet
 
 import android.content.Context
 import android.content.Intent
+import android.os.Parcelable
+import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.Mavericks
+import com.vcard.vchat.mesh.Aes256
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.core.extensions.addFragment
+import im.vector.app.core.extensions.replaceFragment
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.databinding.ActivitySimpleBinding
 import im.vector.app.features.home.WalletDetailsArgs
 import im.vector.app.features.roommemberprofile.RoomMemberProfileArgs
 import im.vector.app.features.roommemberprofile.RoomMemberProfileFragment
+import kotlin.reflect.KClass
 
 @AndroidEntryPoint
 class WalletDetailActivity:  VectorBaseActivity<ActivitySimpleBinding>(){
@@ -33,4 +38,11 @@ class WalletDetailActivity:  VectorBaseActivity<ActivitySimpleBinding>(){
         }
 
     }
+
+    private fun showFragment(fragmentClass: KClass<out Fragment>, params: Parcelable? = null) {
+        if (supportFragmentManager.findFragmentByTag(fragmentClass.simpleName) == null) {
+            replaceFragment(views.simpleFragmentContainer, fragmentClass.java, params, fragmentClass.simpleName, useCustomAnimation = true)
+        }
+    }
+
 }

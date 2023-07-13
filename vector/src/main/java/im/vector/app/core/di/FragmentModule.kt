@@ -192,6 +192,11 @@ import im.vector.app.features.spaces.preview.SpacePreviewFragment
 import im.vector.app.features.terms.ReviewTermsFragment
 import im.vector.app.features.usercode.ShowUserCodeFragment
 import im.vector.app.features.userdirectory.UserListFragment
+import im.vector.app.features.wallet.WalletCodeFragment
+import im.vector.app.features.wallet.WalletCreateFragment
+import im.vector.app.features.wallet.WalletCreateSuccessFragment
+import im.vector.app.features.wallet.WalletReceiptFragment
+import im.vector.app.features.wallet.WalletTransferFragment
 import im.vector.app.features.widgets.WidgetFragment
 
 @InstallIn(ActivityComponent::class)
@@ -212,6 +217,31 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(HomeWalletFragment::class)
     fun bindHomeWalletFragment(fragment: HomeWalletFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(WalletCodeFragment::class)
+    fun bindWalletCodeFragment(fragment: WalletCodeFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(WalletCreateFragment::class)
+    fun bindWalletCreateFragment(fragment: WalletCreateFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(WalletCreateSuccessFragment::class)
+    fun bindWalletCreateSuccessFragment(fragment: WalletCreateSuccessFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(WalletTransferFragment::class)
+    fun bindWalletTransferFragment(fragment: WalletTransferFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(WalletReceiptFragment::class)
+    fun bindWalletReceiptFragment(fragment: WalletReceiptFragment): Fragment
 
     @Binds
     @IntoMap

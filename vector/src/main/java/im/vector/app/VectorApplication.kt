@@ -39,6 +39,7 @@ import com.gabrielittner.threetenbp.LazyThreeTen
 import com.mapbox.mapboxsdk.Mapbox
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
+import com.vcard.vchat.mesh.database.MeshModule
 import dagger.hilt.android.HiltAndroidApp
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.extensions.configureAndStart
@@ -61,11 +62,15 @@ import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.version.VersionProvider
 import im.vector.app.flipper.FlipperProxy
 import im.vector.app.push.fcm.FcmHelper
+import io.realm.Realm
+import io.realm.RealmConfiguration
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.jitsi.meet.sdk.log.JitsiMeetDefaultLogHandler
 import org.matrix.android.sdk.api.Matrix
 import org.matrix.android.sdk.api.auth.AuthenticationService
 import org.matrix.android.sdk.api.legacy.LegacySessionImporter
 import timber.log.Timber
+import java.security.Security
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -203,6 +208,22 @@ class VectorApplication :
 
         // Initialize Mapbox before inflating mapViews
         Mapbox.getInstance(this)
+
+        //vChat: insert library bouncy castle
+        Security.removeProvider("BC")
+        val bc = BouncyCastleProvider()
+        Security.insertProviderAt(bc, 1)
+
+        //vChat: initialize mesh realm
+        Realm.init(this)
+        val realmConfig = RealmConfiguration.Builder()
+                .name("vcard_mesh.realm")
+                .modules(MeshModule())
+                .schemaVersion(1)
+                .allowWritesOnUiThread(true)
+                .build()
+
+        Realm.setDefaultConfiguration(realmConfig)
     }
 
     private val startSyncOnFirstStart = object : DefaultLifecycleObserver {
