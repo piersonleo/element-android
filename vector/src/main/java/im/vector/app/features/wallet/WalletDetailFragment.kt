@@ -30,21 +30,17 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.GsonBuilder
-import com.vcard.vchat.mesh.Account
-import com.vcard.vchat.mesh.Address
-import com.vcard.vchat.mesh.Aes256
-import com.vcard.vchat.mesh.Constants
-import com.vcard.vchat.mesh.CurrencyEnum
-import com.vcard.vchat.mesh.HashUtils
-import com.vcard.vchat.mesh.MeshCommand
-import com.vcard.vchat.mesh.NumberUtil
-import com.vcard.vchat.mesh.QrCode
-import com.vcard.vchat.mesh.data.EncryptedKeyData
-import com.vcard.vchat.mesh.data.EncryptedKeyDataSerializer
-import com.vcard.vchat.mesh.data.MUnspentTransactionObjectData
-import com.vcard.vchat.mesh.data.MutxoListData
-import com.vcard.vchat.mesh.database.AccountEntity
-import com.vcard.vchat.mesh.database.RealmExec
+import com.vcard.mesh.sdk.account.Account
+import com.vcard.mesh.sdk.address.MeshAddressUtil
+import com.vcard.mesh.sdk.crypto.Aes256
+import com.vcard.mesh.sdk.MeshConstants
+import com.vcard.mesh.sdk.database.MeshRealm
+import com.vcard.mesh.sdk.currency.CurrencyEnum
+import com.vcard.mesh.sdk.transaction.MeshCommand
+import com.vcard.mesh.sdk.utils.NumberUtil
+import com.vcard.mesh.sdk.qr.MeshQrUtil
+import com.vcard.mesh.sdk.mutxo.data.MutxoListData
+import com.vcard.mesh.sdk.database.entity.AccountEntity
 import com.vcard.vchat.utils.MeshSharedPref
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
@@ -83,7 +79,7 @@ class WalletDetailFragment @Inject constructor(
     private val fragmentArgs: WalletDetailsArgs by args()
 
     private var accountBalance = BigDecimal.ZERO
-    private var displayUnit = Constants.gramUnit
+    private var displayUnit = MeshConstants.gramUnit
     private var ekfJson = ""
     private var ek = ""
 
@@ -113,12 +109,12 @@ class WalletDetailFragment @Inject constructor(
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val changePassphrase = menu.findItem(R.id.change_passphrase)
-        if (changePassphrase != null && fragmentArgs.type == Constants.test) {
+        if (changePassphrase != null && fragmentArgs.type == MeshConstants.test) {
             changePassphrase.isVisible = false
         }
 
         val saveAccount = menu.findItem(R.id.save_account)
-        if (changePassphrase != null && fragmentArgs.type == Constants.test) {
+        if (changePassphrase != null && fragmentArgs.type == MeshConstants.test) {
             saveAccount.isVisible = false
         }
     }
@@ -155,7 +151,7 @@ class WalletDetailFragment @Inject constructor(
     }
 
     private fun setupAccount(){
-        val accountData = RealmExec().getAccountByAddress(fragmentArgs.address)
+        val accountData = MeshRealm().getAccountByAddress(fragmentArgs.address)
         if (accountData != null) {
             accountBalance = BigDecimal(accountData.balance)
             ek = accountData.encryptedKey
@@ -192,7 +188,7 @@ class WalletDetailFragment @Inject constructor(
 
         views.btnRefreshAccount.debouncedClicks{
 
-            if (fragmentArgs.type == Constants.test) {
+            if (fragmentArgs.type == MeshConstants.test) {
                 views.walletDetailHeaderSubtitle.visibility = View.INVISIBLE
                 views.simpleActivityWaitingView.visibility = View.VISIBLE
 
@@ -220,20 +216,20 @@ class WalletDetailFragment @Inject constructor(
                                 val gson = GsonBuilder().disableHtmlEscaping().create()
                                 val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
-                                val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
+                                val address = MeshAddressUtil.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
 
                                 val accountEntity = AccountEntity()
                                 accountEntity.address = address
                                 accountEntity.balance = accountData.total
                                 accountEntity.currency = CurrencyEnum.MeshGold.name
 //
-                                RealmExec().addUpdateAccountBalance(accountEntity)
+                                MeshRealm().addUpdateAccountBalance(accountEntity)
 
                                 //TODO: for int and long values they needed to be accessed first before they can be inserted to realm. Need to investigate
 //                              RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
 
                                 //Temp function to insert the data manually
-                                RealmExec().addAccountMutxoFromMapManual(address, accountData.mutxoList)
+                                MeshRealm().addAccountMutxoFromMapManual(address, accountData.mutxoList)
 
                                 accountBalance = BigDecimal(accountData.total)
 
@@ -291,7 +287,7 @@ class WalletDetailFragment @Inject constructor(
         views.walletDetailHeaderSubtitle.debouncedClicks {
 
             //switch display
-            displayUnit = if (displayUnit == Constants.gramUnit)  Constants.milligramUnit else Constants.gramUnit
+            displayUnit = if (displayUnit == MeshConstants.gramUnit)  MeshConstants.milligramUnit else MeshConstants.gramUnit
             displayBalance(accountBalance)
 
         }
@@ -309,7 +305,7 @@ class WalletDetailFragment @Inject constructor(
             if (wasQrCode && !scannedQrCode.isNullOrBlank()) {
 
                 try{
-                    val meshQr = QrCode.parseQrCodeContent(scannedQrCode)
+                    val meshQr = MeshQrUtil.parseQrCodeContent(scannedQrCode)
 
                     if (meshQr.address == fragmentArgs.address){
                         Toast.makeText(requireContext(), getString(R.string.vchat_wallet_account_scan_qr_error_yourself), Toast.LENGTH_SHORT).show()
@@ -400,15 +396,15 @@ class WalletDetailFragment @Inject constructor(
                             val gson = GsonBuilder().disableHtmlEscaping().create()
                             val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
-                            val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
+                            val address = MeshAddressUtil.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
 
                             val accountEntity = AccountEntity()
                             accountEntity.address = address
                             accountEntity.balance = accountData.total
                             accountEntity.currency = CurrencyEnum.MeshGold.name
 
-                            RealmExec().addUpdateAccountBalance(accountEntity)
-                            RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+                            MeshRealm().addUpdateAccountBalance(accountEntity)
+                            MeshRealm().addAccountMutxoFromMap(address, accountData.mutxoList)
 
                             accountBalance = BigDecimal(accountData.total)
 
@@ -449,7 +445,7 @@ class WalletDetailFragment @Inject constructor(
 
     private fun displayBalance(balance: BigDecimal){
 
-        val conversionRate = if (displayUnit == Constants.gramUnit) Constants.gramRate else Constants.milligramRate
+        val conversionRate = if (displayUnit == MeshConstants.gramUnit) MeshConstants.gramRate else MeshConstants.milligramRate
 
         val convertedBalance = balance.divide(BigDecimal(conversionRate))
         val formattedBalance = StringUtil.formatBalanceForDisplayBigDecimal(convertedBalance)
@@ -480,7 +476,7 @@ class WalletDetailFragment @Inject constructor(
                 return Toast.makeText(requireContext(), getString(R.string.vchat_error_invalid_account_address), Toast.LENGTH_SHORT).show()
             }
         }
-        accountQRImage.setData2("${Constants.meshEncryptedAccountQrIdentifier}$ekfJson", icon)
+        accountQRImage.setData2("${MeshConstants.meshEncryptedAccountQrIdentifier}$ekfJson", icon)
 
         shareAccountView.debouncedClicks {
             val timestamp = Utils.getTime()
@@ -633,7 +629,7 @@ class WalletDetailFragment @Inject constructor(
         accountEntity.name = newName
 
         Thread{
-            RealmExec().addUpdateAccountName(accountEntity)
+            MeshRealm().addUpdateAccountName(accountEntity)
         }.start()
 
         views.walletDetailHeaderTitle.text = newName

@@ -318,7 +318,7 @@ android {
 
             dimension "store"
             isDefault = true
-            versionName "1.4.25.vc6"
+            versionName "1.4.25.vc7"
 
             resValue "bool", "isGplay", "true"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
@@ -328,7 +328,7 @@ android {
         fdroid {
             dimension "store"
 
-            versionName "1.4.25.vc6"
+            versionName "1.4.25.vc7"
 
             resValue "bool", "isGplay", "false"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
@@ -380,27 +380,6 @@ android {
     }
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.19.2"
-    }
-    plugins {
-        grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.47.0'
-        }
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java { option 'lite' }
-            }
-            task.plugins {
-                grpc { option 'lite' }
-            }
-        }
-    }
-}
-
 dependencies {
     implementation project(":vector-config")
     implementation project(":matrix-sdk-android")
@@ -411,6 +390,7 @@ dependencies {
     implementation project(":library:attachment-viewer")
     implementation project(":library:diff-match-patch")
     implementation project(":library:multipicker")
+    implementation project(":mesh-sdk-android")
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation libs.jetbrains.coroutinesCore

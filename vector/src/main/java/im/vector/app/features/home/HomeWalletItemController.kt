@@ -2,11 +2,7 @@ package im.vector.app.features.home
 
 import android.content.Context
 import com.airbnb.epoxy.TypedEpoxyController
-import com.vcard.vchat.mesh.database.AccountEntity
-import im.vector.app.features.userdirectory.UserListController
-import org.matrix.android.sdk.api.session.identity.ThreePid
-import org.matrix.android.sdk.api.session.user.model.User
-import timber.log.Timber
+import com.vcard.mesh.sdk.database.entity.AccountEntity
 import javax.inject.Inject
 
 class HomeWalletItemController @Inject constructor(private val context: Context) : TypedEpoxyController<List<AccountEntity>>() {

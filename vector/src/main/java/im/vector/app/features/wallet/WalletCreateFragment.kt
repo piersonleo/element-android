@@ -10,9 +10,9 @@ import android.view.Window
 import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.GsonBuilder
-import com.vcard.vchat.mesh.Account
-import com.vcard.vchat.mesh.data.EncryptedKeyData
-import com.vcard.vchat.mesh.data.EncryptedKeyDataSerializer
+import com.vcard.mesh.sdk.account.Account
+import com.vcard.mesh.sdk.account.data.EncryptedAccountData
+import com.vcard.mesh.sdk.account.data.EncryptedAccountDataSerializer
 import com.vcard.vchat.utils.MeshSharedPref
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
@@ -74,9 +74,9 @@ class WalletCreateFragment@Inject constructor(
                     loadingDialog.show()
 
                     Thread {
-                        val encryptedJson = Account.generateAccount(passphrase, accountName)
-                        val gson = GsonBuilder().registerTypeAdapter(EncryptedKeyData::class.java, EncryptedKeyDataSerializer()).setPrettyPrinting().create()
-                        val data = gson.fromJson(encryptedJson, EncryptedKeyData::class.java)
+                        val encryptedJson = Account.generateMeshAccount(passphrase, accountName)
+                        val gson = GsonBuilder().registerTypeAdapter(EncryptedAccountData::class.java, EncryptedAccountDataSerializer()).setPrettyPrinting().create()
+                        val data = gson.fromJson(encryptedJson, EncryptedAccountData::class.java)
 
                         val msp = MeshSharedPref(requireContext())
                         msp.storePp(data.fullAddress, passphrase)
