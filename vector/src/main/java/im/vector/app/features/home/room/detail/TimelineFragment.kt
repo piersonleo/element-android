@@ -1827,7 +1827,7 @@ class TimelineFragment @Inject constructor(
                         activity = requireActivity(),
                         askForReason = action.askForReason,
                         confirmationRes = action.dialogDescriptionRes,
-                        positiveRes = R.string.action_remove,
+                        positiveRes = R.string.action_delete,
                         reasonHintRes = R.string.delete_event_dialog_reason_hint,
                         titleRes = action.dialogTitleRes
                 ) { reason ->

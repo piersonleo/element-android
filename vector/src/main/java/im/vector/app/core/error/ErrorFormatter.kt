@@ -54,7 +54,7 @@ class DefaultErrorFormatter @Inject constructor(
                         stringProvider.getString(R.string.login_error_ssl_other)
                     else ->
                         // TODO Check network state, airplane mode, etc.
-                        stringProvider.getString(R.string.error_no_network)
+                        stringProvider.getString(R.string.vchat_error_no_network)
                 }
             }
             is Failure.ServerError -> {

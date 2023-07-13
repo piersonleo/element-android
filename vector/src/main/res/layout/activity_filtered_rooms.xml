@@ -25,8 +25,8 @@
                     android:id="@+id/filteredRoomsSearchView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:queryHint="@string/room_filtering_filter_hint"
-                    app:searchIcon="@drawable/ic_filter" />
+                    app:queryHint="@string/vchat_room_filtering_filter_hint"
+                    app:searchIcon="@drawable/ic_search" />
 
             </com.google.android.material.appbar.MaterialToolbar>
 

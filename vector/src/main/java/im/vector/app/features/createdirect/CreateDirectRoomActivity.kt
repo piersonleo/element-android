@@ -174,7 +174,7 @@ class CreateDirectRoomActivity : SimpleFragmentActivity() {
     }
 
     fun renderCreationLoading() {
-        updateWaitingView(WaitingViewData(getString(R.string.creating_direct_room)))
+        updateWaitingView(WaitingViewData(getString(R.string.vchat_creating_direct_room)))
     }
 
     fun renderCreationFailure(error: Throwable) {

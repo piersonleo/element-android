@@ -69,7 +69,7 @@ class SpaceCreateRobot {
         onView(withId(R.id.roomList))
                 .perform(
                         RecyclerViewActions.actionOnItem<RecyclerView.ViewHolder>(
-                                ViewMatchers.hasDescendant(withText(R.string.room_displayname_empty_room)),
+                                ViewMatchers.hasDescendant(withText(R.string.vchat_room_displayname_empty_room)),
                                 click()
                         ).atPosition(0)
                 )
