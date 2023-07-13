@@ -87,7 +87,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/roomNameTileText"
-            tools:text="@string/this_is_the_beginning_of_room_no_name" />
+            tools:text="@string/this_is_the_beginning_of_room_no_name"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/roomNameTopicText"

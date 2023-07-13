@@ -28,7 +28,8 @@ import im.vector.app.core.extensions.canReact
 import im.vector.app.core.platform.EmptyViewEvents
 import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.resources.StringProvider
-import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
+//import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
+import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatterVchat
 import im.vector.app.features.html.EventHtmlRenderer
 import im.vector.app.features.html.PillsPostProcessor
 import im.vector.app.features.html.VectorHtmlCompressor
@@ -76,7 +77,7 @@ class MessageActionsViewModel @AssistedInject constructor(
         private val eventHtmlRenderer: Lazy<EventHtmlRenderer>,
         private val htmlCompressor: VectorHtmlCompressor,
         private val session: Session,
-        private val noticeEventFormatter: NoticeEventFormatter,
+        private val noticeEventFormatter: NoticeEventFormatterVchat,
         private val errorFormatter: ErrorFormatter,
         private val stringProvider: StringProvider,
         private val pillsPostProcessorFactory: PillsPostProcessor.Factory,

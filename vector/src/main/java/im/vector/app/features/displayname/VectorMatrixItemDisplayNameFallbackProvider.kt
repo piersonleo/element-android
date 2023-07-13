@@ -16,6 +16,7 @@
 
 package im.vector.app.features.displayname
 
+import com.vcard.vchat.utils.Utils
 import org.matrix.android.sdk.api.MatrixItemDisplayNameFallbackProvider
 import org.matrix.android.sdk.api.util.MatrixItem
 
@@ -23,6 +24,6 @@ import org.matrix.android.sdk.api.util.MatrixItem
 object VectorMatrixItemDisplayNameFallbackProvider : MatrixItemDisplayNameFallbackProvider {
     override fun getDefaultName(matrixItem: MatrixItem): String {
         // Can customize something from the id if necessary here
-        return matrixItem.id
+        return Utils.removeUrlSuffix(matrixItem.id)!!
     }
 }

@@ -67,6 +67,8 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vanniktech.emoji.EmojiPopup
+import im.vector.app.BuildConfig
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.animations.play
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
@@ -2458,7 +2460,7 @@ class TimelineFragment @Inject constructor(
                                             glideRequests,
                                             avatarRenderer,
                                             requireContext(),
-                                            MatrixItem.UserItem(userId, displayName, roomMember?.avatarUrl)
+                                            MatrixItem.UserItem(userId, Utils.removeUrlSuffix(displayName), roomMember?.avatarUrl)
                                     )
                                             .also { it.bind(views.composerLayout.views.composerEditText) },
                                     0,
