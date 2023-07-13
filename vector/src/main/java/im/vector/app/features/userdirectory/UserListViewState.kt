@@ -34,7 +34,8 @@ data class UserListViewState(
         val singleSelection: Boolean,
         val configuredIdentityServer: String? = null,
         private val showInviteActions: Boolean,
-        val showContactBookAction: Boolean
+        val showContactBookAction: Boolean,
+        val createAndInviteState: Async<String> = Uninitialized
 ) : MavericksState {
 
     constructor(args: UserListFragmentArgs) : this(

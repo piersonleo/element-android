@@ -18,7 +18,9 @@ package im.vector.app.features.userdirectory
 
 import androidx.lifecycle.asFlow
 import com.airbnb.mvrx.Fail
+import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -28,9 +30,16 @@ import im.vector.app.core.di.MavericksAssistedViewModelFactory
 import im.vector.app.core.di.hiltMavericksViewModelFactory
 import im.vector.app.core.extensions.isEmail
 import im.vector.app.core.extensions.toggle
+import im.vector.app.core.mvrx.runCatchingToAsync
 import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.resources.StringProvider
+import im.vector.app.features.analytics.AnalyticsTracker
+import im.vector.app.features.analytics.plan.CreatedRoom
+import im.vector.app.features.createdirect.CreateDirectRoomViewState
 import im.vector.app.features.discovery.fetchIdentityServerWithTerms
+import im.vector.app.features.raw.wellknown.getElementWellknown
+import im.vector.app.features.raw.wellknown.isE2EByDefault
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
@@ -40,13 +49,17 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.MatrixPatterns
+import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.extensions.tryOrNull
+import org.matrix.android.sdk.api.raw.RawService
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.identity.IdentityServiceError
 import org.matrix.android.sdk.api.session.identity.IdentityServiceListener
 import org.matrix.android.sdk.api.session.identity.ThreePid
+import org.matrix.android.sdk.api.session.room.model.create.CreateRoomParams
 import org.matrix.android.sdk.api.session.user.model.User
 import org.matrix.android.sdk.api.util.toMatrixItem
+import timber.log.Timber
 import kotlin.random.Random
 
 data class ThreePidUser(
@@ -54,10 +67,16 @@ data class ThreePidUser(
         val user: User?
 )
 
+/*
+  vChat modifications
+  added rawService, session, and analyticsTracker params for quick room creation
+*/
 class UserListViewModel @AssistedInject constructor(
         @Assisted initialState: UserListViewState,
+        private val rawService: RawService,
         private val stringProvider: StringProvider,
-        private val session: Session
+        private val session: Session,
+        val analyticsTracker: AnalyticsTracker
 ) : VectorViewModel<UserListViewState, UserListAction, UserListViewEvents>(initialState) {
 
     private val knownUsersSearch = MutableStateFlow("")
@@ -102,6 +121,7 @@ class UserListViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
+    //vChat: add CreateRoom action
     override fun handle(action: UserListAction) {
         when (action) {
             is UserListAction.SearchUsers -> handleSearchUsers(action.value)
@@ -112,6 +132,7 @@ class UserListViewModel @AssistedInject constructor(
             UserListAction.UserConsentRequest -> handleUserConsentRequest()
             is UserListAction.UpdateUserConsent -> handleISUpdateConsent(action)
             UserListAction.Resumed -> handleResumed()
+            is UserListAction.CreateRoomAndInviteSelectedUsers -> onSubmitInvitees(action.selections)
         }
     }
 
@@ -265,6 +286,61 @@ class UserListViewModel @AssistedInject constructor(
     private fun handleRemoveSelectedUser(action: UserListAction.RemovePendingSelection) = withState { state ->
         val selections = state.pendingSelections.minus(action.pendingSelection)
         setState { copy(pendingSelections = selections) }
+    }
+
+    /**
+     * If users already have a DM room then navigate to it instead of creating a new room.
+     */
+    private fun onSubmitInvitees(selections: Set<PendingSelection>) {
+        val existingRoomId = selections.singleOrNull()?.getMxId()?.let { userId ->
+            session.roomService().getExistingDirectRoomWithUser(userId)
+        }
+
+        Timber.i("onSubmitInvitees existingRoomId: $existingRoomId")
+
+        if (existingRoomId != null) {
+            // Do not create a new DM, just tell that the creation is successful by passing the existing roomId
+            setState {
+                copy(createAndInviteState = Success(existingRoomId))
+            }
+        } else {
+            // Create the DM
+                Timber.i("create DM")
+            createRoomAndInviteSelectedUsers(selections)
+        }
+    }
+
+    private fun createRoomAndInviteSelectedUsers(selections: Set<PendingSelection>) {
+        setState { copy(createAndInviteState = Loading()) }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val adminE2EByDefault = rawService.getElementWellknown(session.sessionParams)
+                    ?.isE2EByDefault()
+                    ?: true
+
+            val roomParams = CreateRoomParams()
+                    .apply {
+                        selections.forEach {
+                            when (it) {
+                                is PendingSelection.UserPendingSelection     -> invitedUserIds.add(it.user.userId)
+                                is PendingSelection.ThreePidPendingSelection -> invite3pids.add(it.threePid)
+                            }
+                        }
+                        setDirectMessage()
+                        enableEncryptionIfInvitedUsersSupportIt = adminE2EByDefault
+                    }
+
+            val result = runCatchingToAsync {
+                session.roomService().createRoom(roomParams)
+            }
+            analyticsTracker.capture(CreatedRoom(isDM = roomParams.isDirect.orFalse()))
+
+            setState {
+                copy(
+                        createAndInviteState = result
+                )
+            }
+        }
     }
 }
 
