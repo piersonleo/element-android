@@ -50,7 +50,7 @@ class SpacePreviewController @Inject constructor(
         if (result.isNotEmpty()) {
             genericHeaderItem {
                 id("header_rooms")
-                text(host.stringProvider.getString(R.string.rooms))
+                text(host.stringProvider.getString(R.string.vchat_rooms))
             }
 
             buildChildren(result, 0)

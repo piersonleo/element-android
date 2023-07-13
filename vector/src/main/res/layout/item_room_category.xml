@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth="wrap_content_constrained"
-        tools:text="@string/room_participants_header_direct_chats" />
+        tools:text="@string/vchat_room_participants_header_direct_chats" />
 
     <TextView
         android:id="@+id/roomCategoryCounterView"

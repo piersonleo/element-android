@@ -1,0 +1,25 @@
+syntax = "proto3";
+package rpc;
+option go_package = "github.com/vcard/go-mesh/net/rpc";
+
+message MeshMessage {
+    string network = 1;
+    string sourceId = 2;
+    bytes signature = 3;
+    bytes payload = 4;
+}
+
+message MeshRequest {
+    MeshMessage requestMessage = 1;
+}
+
+message MeshResponse {
+    string sourceId = 1;
+    bytes signature = 2;
+    bytes payload = 3;
+}
+
+service MeshService {
+    rpc Call(MeshRequest) returns (MeshResponse) {}
+    rpc TxnCall(MeshRequest) returns (MeshResponse) {}
+}

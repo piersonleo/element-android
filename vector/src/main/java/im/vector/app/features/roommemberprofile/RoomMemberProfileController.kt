@@ -151,7 +151,7 @@ class RoomMemberProfileController @Inject constructor(
 
                     genericFooterItem {
                         id("verify_footer")
-                        text(host.stringProvider.getString(R.string.room_profile_encrypted_subtitle).toEpoxyCharSequence())
+                        text(host.stringProvider.getString(R.string.vchat_room_profile_encrypted_subtitle).toEpoxyCharSequence())
                         centered(false)
                     }
                 }
@@ -163,7 +163,7 @@ class RoomMemberProfileController @Inject constructor(
                         title = stringProvider.getString(R.string.room_profile_section_security_learn_more),
                         editable = false,
                         divider = false,
-                        subtitle = stringProvider.getString(R.string.room_profile_encrypted_subtitle),
+                        subtitle = stringProvider.getString(R.string.vchat_room_profile_encrypted_subtitle),
                         action = { callback?.onShowDeviceListNoCrossSigning() }
                 )
             }

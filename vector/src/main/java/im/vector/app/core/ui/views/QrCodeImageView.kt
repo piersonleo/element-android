@@ -17,17 +17,24 @@
 package im.vector.app.core.ui.views
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import com.vcard.vchat.utils.Utils.Companion.mergeBitmapLogoToQrCode
 import im.vector.app.core.qrcode.toBitMatrix
+import im.vector.app.core.qrcode.toBitMatrixMesh
 import im.vector.app.core.qrcode.toBitmap
+import timber.log.Timber
 
 class QrCodeImageView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : AppCompatImageView(context, attrs, defStyleAttr) {
 
     private var data: String? = null
+    private var overlayBitmap: Bitmap? = null
 
     init {
         setBackgroundColor(Color.WHITE)
@@ -39,17 +46,35 @@ class QrCodeImageView @JvmOverloads constructor(
         render()
     }
 
+    fun setData2(data: String, overlayBitmap: Bitmap) {
+        this.data = data
+        this.overlayBitmap = overlayBitmap
+
+        render()
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         render()
     }
 
     private fun render() {
-        data
-                ?.takeIf { height > 0 }
-                ?.let {
-                    val bitmap = it.toBitMatrix(height).toBitmap()
-                    post { setImageBitmap(bitmap) }
-                }
+        if (overlayBitmap == null) {
+            data
+                    ?.takeIf { height > 0 }
+                    ?.let {
+                        val bitmap = it.toBitMatrix(height).toBitmap()
+                        post { setImageBitmap(bitmap) }
+                    }
+        }else{
+            data
+                    ?.takeIf { height > 0 }
+                    ?.let {
+                        Timber.d("qrHeight: $height")
+                        val bitmap = it.toBitMatrixMesh(height).toBitmap()
+                        val logo = overlayBitmap!!
+                        post { setImageBitmap(mergeBitmapLogoToQrCode(logo, bitmap)) }
+                    }
+        }
     }
 }

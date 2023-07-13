@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_version">App Version: %s</string>
+    <string name="mesh_title">MESH</string>
+    <string name="mesh_shared_pref_key">com.vcard.vchat.mesh.PREFERENCE_FILE_KEY</string>
+    <string name="mesh_account_title">Mesh Account</string>
+
+    <!--Bottom navigation buttons-->
+    <string name="bottom_action_wallet">Mesh Wallet</string>
+
+    <string name="wallet_title">Mesh Wallet</string>
+    <string name="create_account_title">Create New Account</string>
+
+    <string name="action_receive">Receive</string>
+    <string name="vchat_action_leave">Delete</string>
+
+    <string name="wallet_account_placeholder">0.00 MESH</string>
+    <string name="wallet_value">%s %s</string>
+    <string name="new_chat_title">New Chat</string>
+    <string name="vchat_help_long_click_on_room_for_more_options">Long click on a chat to see more options</string>
+
+    <!--  Chat participants -->
+    <string name="vchat_room_participants_leave_prompt_title">Delete this chat?</string>
+    <string name="vchat_room_participants_leave_prompt_msg">Are you sure you want to delete this chat?</string>
+    <string name="vchat_room_participants_leave_private_warning">This room is not public. You will not be able to rejoin without an invite.</string>
+    <string name="vchat_room_participants_header_direct_chats">Chat</string>
+
+    <string name="vchat_fab_menu_create_chat">"New Chat"</string>
+    <string name="vchat_bottom_action_people_x">Chat</string>
+
+    <string name="vchat_delete_event_dialog_title">Delete Message</string>
+    <string name="vchat_delete_event_dialog_content">Are you sure you wish to delete this message?</string>
+
+    <string name="vchat_preference_root_help_about">About</string>
+    <string name="vchat_settings_emails_and_phone_numbers_summary">Manage emails and phone numbers linked to your account</string>
+    <string name="vchat_settings_enable_this_device">Enable notifications for this device</string>
+    <string name="vchat_home_filter_placeholder_home">Search chat</string>
+    <string name="vchat_room_filtering_filter_hint">Search…</string>
+    <string name="vchat_room_filtering_footer_create_new_room">Create a new group</string>
+    <string name="vchat_room_filtering_footer_create_new_direct_message">Create a new chat</string>
+    <string name="vchat_user_directory_search_hint_2">Search by name or ID</string>
+
+    <string name="vchat_creating_direct_room">"Creating chat…"</string>
+    <string name="vchat_room_list_quick_actions_leave">"Delete chat"</string>
+    <string name="vchat_room_profile_section_more_leave">Delete Chat</string>
+    <string name="vchat_direct_room_profile_section_more_leave">Delete</string>
+    <string name="vchat_room_profile_leaving_room">"Deleting chat…"</string>
+
+    <string name="vchat_room_settings_name_hint">Chat Name</string>
+    <string name="vchat_room_settings_room_read_history_rules_pref_title">Chat History Readability</string>
+    <string name="vchat_room_settings_room_access_title">Chat access</string>
+
+    <string name="vchat_decide_who_can_find_and_join">Decide who can find and join this chat.</string>
+
+    <string name="vchat_room_displayname_empty_room">Empty chat</string>
+    <string name="vchat_room_displayname_empty_room_was">Empty chat</string>
+
+    <string name="vchat_create_room_in_progress">Creating chat…</string>
+
+    <string name="vchat_room_profile_encrypted_subtitle">Messages in this chat are end-to-end encrypted.</string>
+    <string name="vchat_direct_room_profile_encrypted_subtitle">Messages here are end-to-end encrypted.</string>
+    <string name="vchat_direct_room_encryption_enabled_tile_description">Messages in this chat are end-to-end encrypted.</string>
+
+    <string name="vchat_room_list_people_empty_body">Your chat conversations will be displayed here. Tap the + at the bottom right to start some.</string>
+    <string name="vchat_this_is_the_beginning_of_dm">This is the beginning of your chat history with %s.</string>
+
+    <string name="vchat_error_no_network">Unable to connect to server. Please check your Internet connection and try again.</string>
+
+    <string name="vchat_notice_room_visibility_invited">all chat members, from the point they are invited.</string>
+    <string name="vchat_notice_room_visibility_joined">all chat members, from the point they joined.</string>
+    <string name="vchat_notice_room_visibility_shared">all chat members.</string>
+
+    <string name="vchat_settings_notification_mentions_and_keywords">Mentions</string>
+
+    <string name="vchat_uploads_media_no_result">There are no media in this chat</string>
+    <string name="vchat_uploads_files_no_result">There are no files in this chat</string>
+
+    <string name="vchat_room_profile_section_more_uploads">Media and Files</string>
+
+    <string name="vchat_rooms">Chat</string>
+    <string name="vchat_room_list_rooms_empty_title">Chat</string>
+
+    <!-- Rooms fragment -->
+    <string name="vchat_rooms_header">Chat</string>
+
+    <string name="vchat_bottom_action_rooms">Chat</string>
+    <string name="vchat_room_settings_save_success">Chat settings changed successfully</string>
+
+    <string name="vchat_notice_room_created">%1$s created the chat</string>
+    <string name="vchat_notice_room_created_by_you">You created the chat</string>
+
+    <string name="vchat_notice_room_avatar_changed">%1$s changed the chat display picture</string>
+    <string name="vchat_notice_room_avatar_changed_by_you">You changed the chat display picture</string>
+    <string name="vchat_notice_room_name_changed">%1$s changed the chat name to: %2$s</string>
+    <string name="vchat_notice_room_name_changed_by_you">You changed the chat name to: %1$s</string>
+    <string name="vchat_notice_room_update">%s upgraded this chat.</string>
+    <string name="vchat_notice_room_update_by_you">You upgraded this chat.</string>
+
+    <string name="vchat_notice_room_name_removed">%1$s removed the chat name</string>
+    <string name="vchat_notice_room_name_removed_by_you">You removed the chat name</string>
+    <string name="vchat_notice_room_topic_removed">%1$s removed the chat topic</string>
+    <string name="vchat_notice_room_topic_removed_by_you">You removed the chat topic</string>
+    <string name="vchat_notice_room_avatar_removed">%1$s removed the chat avatar</string>
+    <string name="vchat_notice_room_avatar_removed_by_you">You removed the chat avatar</string>
+    <string name="vchat_notice_room_third_party_invite">%1$s sent an invitation to %2$s to join the chat</string>
+    <string name="vchat_notice_room_third_party_invite_by_you">You sent an invitation to %1$s to join the chat</string>
+    <string name="vchat_notice_room_third_party_revoked_invite">%1$s revoked the invitation for %2$s to join the chat</string>
+    <string name="vchat_notice_room_third_party_revoked_invite_by_you">You revoked the invitation for %1$s to join the chat</string>
+
+    <string name="vchat_placeholder_lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing elit</string>
+
+    <!--Mesh text-->
+    <string name="vchat_placeholder_amount">0 currency</string>
+    <string name="vchat_placeholder_date">00:00:00</string>
+
+    <string name="vchat_wallet_account_show_qr">Show QR code</string>
+    <string name="vchat_wallet_account_scan_qr">Scan QR code to transfer</string>
+
+    <string name="vchat_wallet_account_scan_qr_error_yourself">Can\'t scan your own QR code</string>
+    <string name="vchat_wallet_account_scan_qr_error_invalid">Not a valid Mesh QR Code</string>
+    <string name="vchat_wallet_account_scan_qr_error_failed">Failed to scan QR code. Please try again.</string>
+    <string name="vchat_show_more_content_description">Show more</string>
+
+    <string name="vchat_wallet_qr_appbar_title">Account QR Code</string>
+    <string name="vchat_wallet_qr_address_title">Your account address</string>
+
+    <string name="vchat_wallet_transfer_input_amount">Amount to transfer</string>
+    <string name="vchat_wallet_transfer">Transfer</string>
+    <string name="vchat_wallet_recipient_address">Recipient address</string>
+    <string name="vchat_wallet_receipt_date_title">Date</string>
+    <string name="vchat_wallet_receipt_fee_title">Fee
+    </string>
+
+    <string name="vchat_wallet_receipt_amount_title">Sent amount</string>
+    <string name="vchat_wallet_reference_title">Reference</string>
+    <string name="vchat_wallet_receipt_done">Done</string>
+
+    <string name="vchat_grpc_error_unavailable">Server is unavailable. Please try  again later</string>
+    <string name="vchat_grpc_error_busy">Server is busy. Please try  again later</string>
+    <string name="vchat_grpc_error_update_account_fail">Failed to update account. Please  try again later</string>
+    <string name="vchat_grpc_error_send_transaction_fail">Transfer failed. Please  try again later</string>
+
+    <string name="vchat_send_transaction_progress">Sending gold…</string>
+    <string name="vchat_send_create_account_progress">Creating account…</string>
+
+    <string name="vchat_create_mesh_account_info">Disclaimer: vCard Chat does not store your passphrase. Please remember or note down your passphrase so you do not lose access to your account.</string>
+    <string name="vchat_create_mesh_account_export_saved">Your account file has been saved to your device.</string>
+    <string name="vchat_create_mesh_account_export_saved_qr_code">Your account QR code has been saved to your device.</string>
+
+    <string name="vchat_create_mesh_wallet_export_saved">Your wallet file has been saved to your device.</string>
+    <string name="vchat_create_mesh_wallet_export_saved_qr_code">Your wallet QR code has been saved to your device.</string>
+
+    <string name="vchat_save_account_description">Your new account has been created. In order to not lose your account upon logout, please save your account so you can import it back anytime.</string>
+
+    <string name="vchat_save_account_qr_title">Account: %s</string>
+    <string name="vchat_import_wallet_title">Import wallet</string>
+    <string name="vchat_import_wallet_desc">You are about to import a Mesh wallet. Would you like to start importing?</string>
+    <string name="vchat_import_wallet_success">Successfully imported %d account(s)</string>
+    <string name="vchat_home_wallet_menu_save_accounts">Save Wallet</string>
+    <string name="vchat_wallet_account_save_account">Save account</string>
+    <string name="vchat_wallet_account_save_qr">Save QR code</string>
+    <string name="vchat_wallet_transfer_summary">Transfer summary</string>
+
+    <string name="vchat_enter_passphrase">Enter passphrase</string>
+    <string name="vchat_change_account_passphrase">Change passphrase</string>
+    <string name="vchat_change_account_name">Change name</string>
+
+    <string name="vchat_current_passphrase">Enter current passphrase</string>
+    <string name="vchat_new_passphrase">Enter new passphrase</string>
+    <string name="vchat_retype_new_passphrase">Retype new passphrase</string>
+
+    <string name="vchat_passphrase_updated">Passphrase successfully updated</string>
+
+    <string name="vchat_error_name_empty">Name cannot be empty</string>
+    <string name="vchat_error_invalid_pass">Invalid passphrase</string>
+    <string name="vchat_error_import_invalid_mesh_account">Not a valid Mesh account</string>
+    <string name="vchat_error_import_invalid_address">Invalid Mesh address found</string>
+    <string name="vchat_error_import_duplicate_account">Account with the same Mesh address already exist</string>
+    <string name="vchat_error_no_account_to_share">No account to share</string>
+    <string name="vchat_error_no_account_to_save">No account to save</string>
+    <string name="vchat_error_cannot_save_as_qr_title">Unable to save as QR code</string>
+    <string name="vchat_error_cannot_save_as_qr_desc">There are too many accounts to save as QR code. Please save your wallet as a file instead.</string>
+
+    <string name="vchat_error_invalid_account_address">Account address is invalid</string>
+    <string name="vchat_error_passphrase_empty">Passphrase cannot be empty</string>
+    <string name="vchat_error_retype_passphrase_empty">Please retype your passphrase</string>
+    <string name="vchat_error_current_passphrase_empty">Current passphrase cannot be empty</string>
+    <string name="vchat_error_current_passphrase_invalid">Current passphrase is invalid</string>
+    <string name="vchat_error_new_passphrase_empty">New passphrase cannot be empty</string>
+    <string name="vchat_error_retype_new_passphrase_empty">Retype new passphrase cannot be empty</string>
+    <string name="vchat_error_passphrase_not_match">Passphrase doesn\'t match</string>
+    <string name="vchat_error_retype_new_passphrase_not_match">New passphrase and retype new passphrase is not the same</string>
+    <string name="vchat_error_insufficient_balance">Insufficient balance</string>
+    <string name="vchat_error_enter_amount">Please enter an amount</string>
+
+    <string name="vchat_account_no_gold">This account doesn\'t have any gold yet</string>
+
+    <string name="vchat_transfer_gold_title">Transfer Gold</string>
+    <string name="vchat_transfer_dialog_confirm">Confirm transfer</string>
+
+    <string name="vchat_yes">Yes</string>
+    <string name="vchat_cancel">Cancel</string>
+    <string name="vchat_ok">OK</string>
+    <string name="vchat_account_name">Account Name</string>
+</resources>

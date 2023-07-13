@@ -64,7 +64,7 @@ sealed class RoomListQuickActionsSharedAction(
     )
 
     data class Leave(val roomId: String, val showIcon: Boolean = true) : RoomListQuickActionsSharedAction(
-            R.string.room_list_quick_actions_leave,
+            R.string.vchat_room_list_quick_actions_leave,
             if (showIcon) R.drawable.ic_room_actions_leave else null,
             true
     )

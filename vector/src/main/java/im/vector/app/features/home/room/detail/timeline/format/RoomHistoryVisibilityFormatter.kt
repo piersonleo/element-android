@@ -28,9 +28,9 @@ class RoomHistoryVisibilityFormatter @Inject constructor(
         return stringProvider.getString(
                 when (roomHistoryVisibility) {
                     RoomHistoryVisibility.WORLD_READABLE -> R.string.notice_room_visibility_world_readable
-                    RoomHistoryVisibility.SHARED -> R.string.notice_room_visibility_shared
-                    RoomHistoryVisibility.INVITED -> R.string.notice_room_visibility_invited
-                    RoomHistoryVisibility.JOINED -> R.string.notice_room_visibility_joined
+                    RoomHistoryVisibility.SHARED -> R.string.vchat_notice_room_visibility_shared
+                    RoomHistoryVisibility.INVITED -> R.string.vchat_notice_room_visibility_invited
+                    RoomHistoryVisibility.JOINED -> R.string.vchat_notice_room_visibility_joined
                 }
         )
     }

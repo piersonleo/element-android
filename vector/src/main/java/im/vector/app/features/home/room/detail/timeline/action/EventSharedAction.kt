@@ -66,10 +66,10 @@ sealed class EventSharedAction(
             EventSharedAction(R.string.global_retry, R.drawable.ic_refresh_cw)
 
     data class Remove(val eventId: String) :
-            EventSharedAction(R.string.action_remove, R.drawable.ic_trash, true)
+            EventSharedAction(R.string.action_delete, R.drawable.ic_trash, true)
 
     data class Redact(val eventId: String, val askForReason: Boolean, val dialogTitleRes: Int, val dialogDescriptionRes: Int) :
-            EventSharedAction(R.string.message_action_item_redact, R.drawable.ic_delete, true)
+            EventSharedAction(R.string.action_delete, R.drawable.ic_trash, true)
 
     data class Cancel(val eventId: String, val force: Boolean) :
             EventSharedAction(R.string.action_cancel, R.drawable.ic_close_round)

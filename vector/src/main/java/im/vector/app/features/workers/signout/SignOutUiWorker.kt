@@ -18,6 +18,7 @@ package im.vector.app.features.workers.signout
 
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.vcard.mesh.sdk.database.MeshRealm
 import im.vector.app.R
 import im.vector.app.core.extensions.cannotLogoutSafely
 import im.vector.app.core.extensions.singletonEntryPoint
@@ -48,7 +49,25 @@ class SignOutUiWorker(private val activity: FragmentActivity) {
         }
     }
 
+    //For vChat use
+    fun performWithoutSessionCheck(){
+        // Display a simple confirmation dialog
+        MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.action_sign_out)
+                .setMessage(R.string.action_sign_out_confirmation_simple)
+                .setPositiveButton(R.string.action_sign_out) { _, _ ->
+                    doSignOut()
+                }
+                .setNegativeButton(R.string.action_cancel, null)
+                .show()
+    }
+
     private fun doSignOut() {
+        //vChat: clear user's mesh data on logout
+        Thread{
+            MeshRealm().clearRealmDb()
+        }.start()
+
         MainActivity.restartApp(activity, MainActivityArgs(clearCredentials = true))
     }
 }

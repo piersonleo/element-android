@@ -42,10 +42,13 @@ abstract class NotificationSettingsFooterItem : VectorEpoxyModel<NotificationSet
                 accountSettingsString
         )
         val manageNotificationsBuilder = StringBuilder(manageNotificationsString)
+        /*
+        vChat don't need this
         if (encrypted) {
             val encryptionNotice = holder.view.context.getString(R.string.room_settings_room_notifications_encryption_notice)
             manageNotificationsBuilder.appendLine().append(encryptionNotice)
         }
+         */
 
         holder.textView.setTextWithColoredPart(
                 manageNotificationsBuilder.toString(),

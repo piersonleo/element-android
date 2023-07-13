@@ -18,6 +18,7 @@ package im.vector.app.features.settings
 
 import android.os.Bundle
 import androidx.preference.Preference
+import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.extensions.orEmpty
 import im.vector.app.core.preference.VectorPreference
@@ -36,7 +37,7 @@ class VectorSettingsHelpAboutFragment @Inject constructor(
         private val buildMeta: BuildMeta,
 ) : VectorSettingsBaseFragment() {
 
-    override var titleRes = R.string.preference_root_help_about
+    override var titleRes = R.string.vchat_preference_root_help_about
     override val preferenceXmlRes = R.xml.vector_settings_help_about
 
     private val firstThrottler = FirstThrottler(1000)
@@ -66,11 +67,14 @@ class VectorSettingsHelpAboutFragment @Inject constructor(
         // application version
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_VERSION_PREFERENCE_KEY)!!.let {
             it.summary = buildString {
-                append(versionProvider.getVersion(longFormat = false, useBuildNumber = true))
-                if (buildMeta.isDebug) {
-                    append(" ")
-                    append(buildMeta.gitBranchName)
-                }
+
+                //vChat: we only want the version name
+                append(BuildConfig.VERSION_NAME)
+//                append(versionProvider.getVersion(longFormat = false, useBuildNumber = true))
+//                if (buildMeta.isDebug) {
+//                    append(" ")
+//                    append(buildMeta.gitBranchName)
+//                }
             }
 
             it.setOnPreferenceClickListener { pref ->

@@ -17,6 +17,7 @@
 package im.vector.app.features.userdirectory
 
 import im.vector.app.core.platform.VectorViewModelAction
+import im.vector.app.features.createdirect.CreateDirectRoomAction
 
 sealed class UserListAction : VectorViewModelAction {
     data class SearchUsers(val value: String) : UserListAction()
@@ -26,5 +27,8 @@ sealed class UserListAction : VectorViewModelAction {
     object ComputeMatrixToLinkForSharing : UserListAction()
     object UserConsentRequest : UserListAction()
     data class UpdateUserConsent(val consent: Boolean) : UserListAction()
+    data class CreateRoomAndInviteSelectedUsers(
+            val selections: Set<PendingSelection>
+    ) : UserListAction()
     object Resumed : UserListAction()
 }
