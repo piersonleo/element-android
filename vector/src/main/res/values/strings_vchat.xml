@@ -104,4 +104,44 @@
     <string name="vchat_notice_room_third_party_revoked_invite">%1$s revoked the invitation for %2$s to join the chat</string>
     <string name="vchat_notice_room_third_party_revoked_invite_by_you">You revoked the invitation for %1$s to join the chat</string>
 
+    <string name="vchat_placeholder_lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipisicing elit</string>
+
+    <!--Mesh text-->
+    <string name="vchat_placeholder_amount">0 currency</string>
+    <string name="vchat_placeholder_date">00:00:00</string>
+
+    <string name="vchat_wallet_account_show_qr">Show QR code</string>
+    <string name="vchat_wallet_account_scan_qr">Scan QR code to transfer</string>
+
+    <string name="vchat_wallet_account_scan_qr_error_yourself">Can\'t scan your own QR code</string>
+    <string name="vchat_wallet_account_scan_qr_error_invalid">Not a valid Mesh QR Code</string>
+    <string name="vchat_show_more_content_description">Show more</string>
+
+    <string name="vchat_wallet_qr_appbar_title">Account QR Code</string>
+    <string name="vchat_wallet_qr_address_title">Your account address</string>
+
+    <string name="vchat_wallet_transfer_input_amount">Amount to transfer</string>
+    <string name="vchat_wallet_transfer">Transfer</string>
+    <string name="vchat_wallet_recipient_address">Recipient address</string>
+    <string name="vchat_wallet_receipt_date_title">Date</string>
+    <string name="vchat_wallet_receipt_fee_title">Fee
+    </string>
+
+    <string name="vchat_wallet_receipt_amount_title">Sent amount</string>
+    <string name="vchat_wallet_reference_title">Reference</string>
+    <string name="vchat_wallet_receipt_done">Done</string>
+
+    <string name="vchat_grpc_error_unavailable">Server is unavailable. Please try  again later</string>
+    <string name="vchat_grpc_error_busy">Server is busy. Please try  again later</string>
+    <string name="vchat_grpc_error_update_account_fail">Failed to update account. Please  try again later</string>
+    <string name="vchat_grpc_error_send_transaction_fail">Transfer failed. Please  try again later</string>
+
+    <string name="vchat_send_transaction_progress">Sending gold…</string>
+    <string name="vchat_send_create_account_progress">Creating account…</string>
+
+    <string name="vchat_create_mesh_account_info">Disclaimer: vCard Chat does not store your passphrase. Please remember or note down your passphrase so you do not lose access to your account.</string>
+    <string name="vchat_create_mesh_account_export_saved">The account file has been saved to your device.</string>
+    <string name="vchat_create_mesh_account_export_saved_qr_code">The account QR Code has been saved to your device.</string>
+
+    <string name="vchat_save_account_description">Your new account has been created. In order to not lose your account upon logout, please save your account so you can import it back anytime.</string>
 </resources>

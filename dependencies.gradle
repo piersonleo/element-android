@@ -160,12 +160,20 @@ ext.libs = [
                 'emojiGoogle'            : "com.vanniktech:emoji-google:$vanniktechEmoji"
         ],
         apache      : [
-                'commonsImaging'         : "org.apache.sanselan:sanselan:0.97-incubator"
+                'commonsImaging'         : "org.apache.sanselan:sanselan:0.97-incubator",
+                'tuweni'                 : "org.apache.tuweni:tuweni-crypto:2.2.0",
+                'tomcat'                 : "org.apache.tomcat:annotations-api:6.0.53"
         ],
         tests       : [
                 'kluent'                 : "org.amshove.kluent:kluent-android:1.68",
                 'timberJunitRule'        : "net.lachlanmckee:timber-junit-rule:1.0.1",
                 'junit'                  : "junit:junit:4.13.2"
+        ],
+        khash :[
+                'keccak'                 : "com.github.komputing.khash:keccak:1.1.1"
+        ],
+        bouncycastle: [
+                'bouncycastle'           : "org.bouncycastle:bcprov-jdk15on:1.70"
         ]
 ]
 

@@ -354,6 +354,12 @@
         <activity android:name=".features.settings.font.FontScaleSettingActivity"/>
 
         <activity android:name=".features.wallet.WalletDetailActivity"/>
+        <activity android:name=".features.wallet.WalletCodeActivity"/>
+        <activity android:name=".features.wallet.WalletCreateActivity"/>
+        <activity android:name=".features.wallet.WalletCreateSuccessActivity"/>
+        <activity android:name=".features.wallet.WalletTransferActivity"/>
+        <activity android:name=".features.wallet.WalletReceiptActivity"/>
+
         <!-- Services -->
 
         <service
