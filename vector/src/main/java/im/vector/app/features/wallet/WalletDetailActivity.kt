@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.Mavericks
-import com.vcard.vchat.mesh.Aes256
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.extensions.addFragment

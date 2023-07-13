@@ -17,23 +17,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.drawToBitmap
-import androidx.core.view.isVisible
 import com.airbnb.mvrx.args
-import com.airbnb.mvrx.withState
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.vcard.vchat.mesh.QrCode
-import com.vcard.vchat.utils.Utils
-import com.vcard.vchat.utils.ViewUtil
+import com.vcard.mesh.sdk.qr.MeshQrUtil
 import im.vector.app.R
-import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentWalletCodeBinding
-import im.vector.app.databinding.FragmentWalletDetailBinding
-import im.vector.app.features.home.WalletDetailsArgs
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -72,7 +63,7 @@ class WalletCodeFragment @Inject constructor(
         views.walletAddressSubtitle.text = fragmentArgs.address
 
         // val qrData = "MESH${fragmentArgs.address}"
-        val qrData = QrCode.generateQrCodeContent(fragmentArgs.address, fragmentArgs.accountName)
+        val qrData = MeshQrUtil.generateQrCodeContent(fragmentArgs.address, fragmentArgs.accountName)
         //views.accountQRImage.setData(fragmentArgs.address)
         val icon = BitmapFactory.decodeResource(resources, R.drawable.img_logo_vbiz_rounded_corner_2)
         views.accountQRImage.setData2(qrData, icon)

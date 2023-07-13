@@ -18,7 +18,7 @@ package im.vector.app.features.workers.signout
 
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.vcard.vchat.mesh.database.RealmExec
+import com.vcard.mesh.sdk.database.MeshRealm
 import im.vector.app.R
 import im.vector.app.core.extensions.cannotLogoutSafely
 import im.vector.app.core.extensions.singletonEntryPoint
@@ -63,9 +63,9 @@ class SignOutUiWorker(private val activity: FragmentActivity) {
     }
 
     private fun doSignOut() {
-        //vChat addition to clear user realm on logout
+        //vChat: clear user's mesh data on logout
         Thread{
-            RealmExec().clearRealm()
+            MeshRealm().clearRealmDb()
         }.start()
 
         MainActivity.restartApp(activity, MainActivityArgs(clearCredentials = true))

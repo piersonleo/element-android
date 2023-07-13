@@ -27,13 +27,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
-import com.vcard.vchat.mesh.Account
-import com.vcard.vchat.mesh.Address
-import com.vcard.vchat.mesh.Constants
-import com.vcard.vchat.mesh.data.BatchAccountData
-import com.vcard.vchat.mesh.data.EncryptedKeyData
-import com.vcard.vchat.mesh.database.AccountEntity
-import com.vcard.vchat.mesh.database.RealmExec
+import com.vcard.mesh.sdk.account.Account
+import com.vcard.mesh.sdk.address.MeshAddressUtil
+import com.vcard.mesh.sdk.MeshConstants
+import com.vcard.mesh.sdk.account.data.BatchAccountData
+import com.vcard.mesh.sdk.account.data.EncryptedAccountData
+import com.vcard.mesh.sdk.database.entity.AccountEntity
+import com.vcard.mesh.sdk.database.MeshRealm
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
 import com.vcard.vchat.utils.Utils.Companion.openJsonFileSelection
@@ -99,7 +99,7 @@ class HomeWalletFragment @Inject constructor(
 
         setupTestAccounts()
         setupRecyclerView()
-        //setupSearchView()
+        setupSearchView()
         insertNodesFromJson()
         setupButton()
 
@@ -149,7 +149,7 @@ class HomeWalletFragment @Inject constructor(
 
     private fun setupTestAccounts() {
         val walletJson = Utils.getJsonDataFromAsset(this.requireContext(), "wallets.json")
-        RealmExec().addAccountsFromJson(walletJson)
+        MeshRealm().addAccountsFromJson(walletJson)
     }
 
     private fun setupRecyclerView(){
@@ -182,7 +182,7 @@ class HomeWalletFragment @Inject constructor(
     private fun insertNodesFromJson(){
         val nodesJson = Utils.getJsonDataFromAsset(this.requireContext(), "nodes.json")
         Thread {
-            RealmExec().addNodesFromJson(nodesJson)
+            MeshRealm().addNodesFromJson(nodesJson)
         }.start()
     }
 
@@ -245,10 +245,10 @@ class HomeWalletFragment @Inject constructor(
 
             if (!isJson){
                 //check for mesh identifier
-                if (!fileString.startsWith(Constants.meshWalletQrIdentifier)){
+                if (!fileString.startsWith(MeshConstants.meshWalletQrIdentifier)){
                     Toast.makeText(requireContext(), "Not a valid Mesh account", Toast.LENGTH_SHORT).show()
                 }else{
-                    val payload = fileString.substringAfter(Constants.meshWalletQrIdentifier)
+                    val payload = fileString.substringAfter(MeshConstants.meshWalletQrIdentifier)
                     val isJsonArray = StringUtil.isValidJsonArray(payload)
 
                     //confirm if payload is in json array
@@ -263,7 +263,7 @@ class HomeWalletFragment @Inject constructor(
                         //make sure payload is complete and address is valid
                         if (batchData.any { it.address == null || it.encryptedKey == null || it.name == null}) {
                             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_mesh_account), Toast.LENGTH_SHORT).show()
-                        }else if (!batchData.any{Address.isValidMeshAddressString(it.address!!)}){
+                        }else if (!batchData.any{MeshAddressUtil.isValidMeshAddressString(it.address!!)}){
                             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_address), Toast.LENGTH_SHORT).show()
                         }else{
                             MaterialAlertDialogBuilder(requireContext())
@@ -271,7 +271,7 @@ class HomeWalletFragment @Inject constructor(
                                     .setMessage(getString(R.string.vchat_import_wallet_desc))
                                     .setPositiveButton(R.string.vchat_yes) { _, _ ->
                                         Thread{
-                                            RealmExec().addBatchAccountsFromArray(batchData)
+                                            MeshRealm().addBatchAccountsFromArray(batchData)
 
                                             activity?.runOnUiThread{
                                                 Toast.makeText(requireContext(), getString(R.string.vchat_import_wallet_success, batchData.size), Toast.LENGTH_SHORT).show()
@@ -287,7 +287,7 @@ class HomeWalletFragment @Inject constructor(
                 }
             }else{
                 if (validateAccount(fileString)){
-                    val toJson = Gson().fromJson(fileString, EncryptedKeyData::class.java)
+                    val toJson = Gson().fromJson(fileString, EncryptedAccountData::class.java)
                     accountNameDialog(toJson)
                 }
             }
@@ -296,10 +296,10 @@ class HomeWalletFragment @Inject constructor(
 
     private fun validateAccount(content: String): Boolean{
 
-        val toJson: EncryptedKeyData?
+        val toJson: EncryptedAccountData?
 
         try {
-             toJson = Gson().fromJson(content, EncryptedKeyData::class.java)
+             toJson = Gson().fromJson(content, EncryptedAccountData::class.java)
         }catch (e: JsonSyntaxException){
             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_mesh_account), Toast.LENGTH_SHORT).show()
             return false
@@ -315,9 +315,9 @@ class HomeWalletFragment @Inject constructor(
                 toJson.encryptedKey.keyChecksum.isEmpty()){
 
             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_mesh_account), Toast.LENGTH_SHORT).show()
-        }else if (!Address.isValidMeshAddressString(toJson.fullAddress)){
+        }else if (!MeshAddressUtil.isValidMeshAddressString(toJson.fullAddress)){
             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_address), Toast.LENGTH_SHORT).show()
-        }else if (RealmExec().getAccountByAddress(toJson.fullAddress) != null){
+        }else if (MeshRealm().getAccountByAddress(toJson.fullAddress) != null){
             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_duplicate_account), Toast.LENGTH_SHORT).show()
         }else{
             return true
@@ -327,7 +327,7 @@ class HomeWalletFragment @Inject constructor(
 
     }
 
-    private fun accountNameDialog(encryptedKeyData: EncryptedKeyData) {
+    private fun accountNameDialog(encryptedKeyData: EncryptedAccountData) {
         val inflater = requireActivity().layoutInflater
         val layout = inflater.inflate(R.layout.dialog_base_edit_text, null)
         val views = DialogBaseEditTextBinding.bind(layout)
@@ -350,7 +350,7 @@ class HomeWalletFragment @Inject constructor(
                 if (name.isEmpty()){
                     views.editText.error = getString(R.string.vchat_error_name_empty)
                 }else {
-                    Account.addAccountFromEncryptedKeyData(name, encryptedKeyData)
+                    Account.addAccountFromEncryptedAccountData(name, encryptedKeyData)
                     checkDataUpdated()
                     dialog.dismiss()
                 }
@@ -362,7 +362,7 @@ class HomeWalletFragment @Inject constructor(
 
     private fun prepareBatchAccountsJson(): String{
 
-        val accounts = RealmExec().getAccountsForBatchSave()
+        val accounts = MeshRealm().getAccountsForBatchSave()
 
         val gson = GsonBuilder().serializeNulls().create()
         val accountsJson = gson.toJson(accounts)
@@ -372,7 +372,7 @@ class HomeWalletFragment @Inject constructor(
         val toBatchJson = gson.toJson(toBatchData)
 
         if (accounts.isNotEmpty()) {
-            jsonWallet = "${Constants.meshWalletQrIdentifier}$toBatchJson"
+            jsonWallet = "${MeshConstants.meshWalletQrIdentifier}$toBatchJson"
         }
 
         return jsonWallet
@@ -391,10 +391,10 @@ class HomeWalletFragment @Inject constructor(
             if (wasQrCode && !scannedQrCode.isNullOrBlank()) {
 
                 //verify qr code contains mesh identifier
-                if (scannedQrCode.startsWith(Constants.meshEncryptedAccountQrIdentifier) || scannedQrCode.startsWith(Constants.meshWalletQrIdentifier)) {
+                if (scannedQrCode.startsWith(MeshConstants.meshEncryptedAccountQrIdentifier) || scannedQrCode.startsWith(MeshConstants.meshWalletQrIdentifier)) {
                     //determine batch or single account
-                    if (scannedQrCode.startsWith(Constants.meshWalletQrIdentifier)) {
-                        val payload = scannedQrCode.substringAfter(Constants.meshWalletQrIdentifier)
+                    if (scannedQrCode.startsWith(MeshConstants.meshWalletQrIdentifier)) {
+                        val payload = scannedQrCode.substringAfter(MeshConstants.meshWalletQrIdentifier)
                         val isJsonArray = StringUtil.isValidJsonArray(payload)
 
                         //confirm if payload is in json array
@@ -408,7 +408,7 @@ class HomeWalletFragment @Inject constructor(
                                 batchData.any { it.address == null || it.encryptedKey == null || it.name == null  } -> {
                                     Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_mesh_account), Toast.LENGTH_SHORT).show()
                                 }
-                                batchData.any {!Address.isValidMeshAddressString(it.address!!)} -> {
+                                batchData.any {!MeshAddressUtil.isValidMeshAddressString(it.address!!)} -> {
                                     Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_address), Toast.LENGTH_SHORT).show()
                                 }
                                 else -> {
@@ -418,7 +418,7 @@ class HomeWalletFragment @Inject constructor(
                                             .setMessage(getString(R.string.vchat_import_wallet_desc))
                                             .setPositiveButton(R.string.vchat_yes) { _, _ ->
                                                 Thread {
-                                                    RealmExec().addBatchAccountsFromArray(batchData)
+                                                    MeshRealm().addBatchAccountsFromArray(batchData)
 
                                                     activity?.runOnUiThread {
                                                         Toast.makeText(requireContext(), getString(R.string.vchat_import_wallet_success, batchData.size), Toast.LENGTH_SHORT).show()
@@ -432,14 +432,14 @@ class HomeWalletFragment @Inject constructor(
                             }
                         }
                     } else {
-                        val payload = scannedQrCode.substringAfter(Constants.meshEncryptedAccountQrIdentifier)
+                        val payload = scannedQrCode.substringAfter(MeshConstants.meshEncryptedAccountQrIdentifier)
                         val isJson = StringUtil.isValidJson(payload)
 
                         //confirm if payload is in json format
                         if (!isJson) {
                             Toast.makeText(requireContext(), getString(R.string.vchat_error_import_invalid_mesh_account), Toast.LENGTH_SHORT).show()
                         } else if (validateAccount(payload)) {
-                            val toJson = Gson().fromJson(payload, EncryptedKeyData::class.java)
+                            val toJson = Gson().fromJson(payload, EncryptedAccountData::class.java)
                             accountNameDialog(toJson)
                         }
                     }
@@ -596,7 +596,7 @@ class HomeWalletFragment @Inject constructor(
     }
 
     private fun checkDataUpdated(){
-        val latestAccounts = RealmExec().getAccountsList()
+        val latestAccounts = MeshRealm().getAccountsList()
 
         if (accounts.size != latestAccounts.size){
             accounts = latestAccounts

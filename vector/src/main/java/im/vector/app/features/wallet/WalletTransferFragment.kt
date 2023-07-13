@@ -22,24 +22,22 @@ import androidx.appcompat.app.AlertDialog
 import com.airbnb.mvrx.args
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.GsonBuilder
-import com.vcard.vchat.mesh.Address
-import com.vcard.vchat.mesh.Aes256
-import com.vcard.vchat.mesh.Constants
-import com.vcard.vchat.mesh.CurrencyEnum
-import com.vcard.vchat.mesh.MeshCommand
-import com.vcard.vchat.mesh.NumberUtil
-import com.vcard.vchat.mesh.TxnFee
-import com.vcard.vchat.mesh.data.MUnspentTransactionObjectData
-import com.vcard.vchat.mesh.data.MutxoListData
-import com.vcard.vchat.mesh.database.AccountEntity
-import com.vcard.vchat.mesh.database.RealmExec
+import com.vcard.mesh.sdk.address.MeshAddressUtil
+import com.vcard.mesh.sdk.crypto.Aes256
+import com.vcard.mesh.sdk.MeshConstants
+import com.vcard.mesh.sdk.currency.CurrencyEnum
+import com.vcard.mesh.sdk.transaction.MeshCommand
+import com.vcard.mesh.sdk.utils.NumberUtil
+import com.vcard.mesh.sdk.currency.TxnFee
+import com.vcard.mesh.sdk.mutxo.data.MutxoListData
+import com.vcard.mesh.sdk.database.entity.AccountEntity
+import com.vcard.mesh.sdk.database.MeshRealm
 import com.vcard.vchat.utils.DecimalDigitsInputFilter
 import com.vcard.vchat.utils.MeshSharedPref
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
-import im.vector.app.databinding.DialogBaseEditTextBinding
 import im.vector.app.databinding.DialogBaseInputPassphraseBinding
 import im.vector.app.databinding.FragmentWalletTransferBinding
 import timber.log.Timber
@@ -85,14 +83,14 @@ class WalletTransferFragment@Inject constructor(
 
         views.transferAddressText.setText(fragmentArgs.recipientAddress)
 
-        val items = listOf(Constants.kilogramUnit, Constants.gramUnit, Constants.milligramUnit, Constants.microgramUnit,  Constants.nanogramUnit)
+        val items = listOf(MeshConstants.kilogramUnit, MeshConstants.gramUnit, MeshConstants.milligramUnit, MeshConstants.microgramUnit,  MeshConstants.nanogramUnit)
         val adapter = ArrayAdapter(requireContext(), R.layout.item_transfer_unit_list, items)
         views.unitTextView.setAdapter(adapter)
 
         //defaults to milligram
         views.unitTextView.setText(items[2], false)
 
-        senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
+        senderAccount = MeshRealm().getAccountByAddress(fragmentArgs.senderAddress)!!
 
         displayCurrentBalance()
         limitDecimalInput()
@@ -183,9 +181,9 @@ class WalletTransferFragment@Inject constructor(
             val fee = TxnFee.calculateTotalFeeBigInt(CurrencyEnum.MeshGold, amount)
 
             //use divide to prevent rounding up
-            val convertedFee = BigDecimal(fee).divide(BigDecimal(Constants.milligramRate))
+            val convertedFee = BigDecimal(fee).divide(BigDecimal(MeshConstants.milligramRate))
 
-            val feeForDisplay = "$convertedFee ${Constants.milligramUnit}"
+            val feeForDisplay = "$convertedFee ${MeshConstants.milligramUnit}"
             val reference = views.transferReferenceInput.text.toString()
 
             //Timber.d("bigDecimal:  $bigDecimalInput calcAmount: $calcAmount, amount: $amount, fee: $fee, convertedFee: $convertedFee, convertRate: $conversionRate")
@@ -193,7 +191,7 @@ class WalletTransferFragment@Inject constructor(
             if (amount + fee > BigInteger(senderAccount.balance.toString())){
                 Toast.makeText(requireContext(), getString(R.string.vchat_error_insufficient_balance), Toast.LENGTH_SHORT).show()
             }else{
-                if (fragmentArgs.type == Constants.test) {
+                if (fragmentArgs.type == MeshConstants.test) {
                     MaterialAlertDialogBuilder(requireContext())
                             .setTitle(getString(R.string.vchat_wallet_transfer_summary))
                             .setMessage("Recipient: ${fragmentArgs.recipientAddress}\n" +
@@ -208,7 +206,7 @@ class WalletTransferFragment@Inject constructor(
 
 //                        if (getAccountBalance(fragmentArgs.senderPrivateKey) == "ok") {
 
-                                    val updatedAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
+                                    val updatedAccount = MeshRealm().getAccountByAddress(fragmentArgs.senderAddress)!!
 
                                     if (amount + fee > BigInteger(updatedAccount.balance.toString())){
                                         activity?.runOnUiThread(Runnable {
@@ -361,7 +359,7 @@ class WalletTransferFragment@Inject constructor(
 
 //           if (getAccountBalance(dk) == "ok") {
 
-                val senderAccount = RealmExec().getAccountByAddress(fragmentArgs.senderAddress)!!
+                val senderAccount = MeshRealm().getAccountByAddress(fragmentArgs.senderAddress)!!
 
                 if (amount + fee > BigInteger(senderAccount.balance.toString())){
                     activity?.runOnUiThread(Runnable {
@@ -456,15 +454,15 @@ class WalletTransferFragment@Inject constructor(
                     val gson = GsonBuilder().disableHtmlEscaping().create()
                     val accountData = gson.fromJson(decodeParamsUtf8, MutxoListData::class.java)
 
-                    val address = Address.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
+                    val address = MeshAddressUtil.createFullAddress(accountData.ownerAddress.prefix, accountData.ownerAddress.address, accountData.ownerAddress.checksum)
 
                     val accountEntity = AccountEntity()
                     accountEntity.address = address
                     accountEntity.balance = accountData.total
                     accountEntity.currency = CurrencyEnum.MeshGold.name
 
-                    RealmExec().addUpdateAccountBalance(accountEntity)
-                    RealmExec().addAccountMutxoFromMap(address, accountData.mutxoList)
+                    MeshRealm().addUpdateAccountBalance(accountEntity)
+                    MeshRealm().addAccountMutxoFromMap(address, accountData.mutxoList)
                 })
 
                 return "ok"
@@ -503,18 +501,18 @@ class WalletTransferFragment@Inject constructor(
 
     private fun getRateByUnit(unit: String): BigDecimal{
         return when(unit){
-            Constants.kilogramUnit -> BigDecimal(Constants.kilogramRate.toString())
-            Constants.gramUnit -> BigDecimal(Constants.gramRate.toString())
-            Constants.milligramUnit -> BigDecimal(Constants.milligramRate.toString())
-            Constants.microgramUnit -> BigDecimal(Constants.microgramRate.toString())
-            Constants.nanogramUnit -> BigDecimal(Constants.nanogramRate.toString())
+            MeshConstants.kilogramUnit -> BigDecimal(MeshConstants.kilogramRate.toString())
+            MeshConstants.gramUnit -> BigDecimal(MeshConstants.gramRate.toString())
+            MeshConstants.milligramUnit -> BigDecimal(MeshConstants.milligramRate.toString())
+            MeshConstants.microgramUnit -> BigDecimal(MeshConstants.microgramRate.toString())
+            MeshConstants.nanogramUnit -> BigDecimal(MeshConstants.nanogramRate.toString())
             else -> throw Exception("Not a valid unit")
         }
     }
 
     private fun setInputType(){
         val selectedUnit = views.unitTextView.text.toString()
-        if (selectedUnit == Constants.nanogramUnit) {
+        if (selectedUnit == MeshConstants.nanogramUnit) {
             views.transferAmountInput.inputType = InputType.TYPE_CLASS_NUMBER
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
                 views.transferAmountInput.keyListener = DigitsKeyListener.getInstance(Locale.ENGLISH, false, false)
@@ -539,19 +537,19 @@ class WalletTransferFragment@Inject constructor(
         val currentInputAmount = views.transferAmountInput.text.toString()
 
         when(selectedUnit){
-            Constants.gramUnit ->{
+            MeshConstants.gramUnit ->{
                 //9 decimal places
-                removeExceedingDecimals(currentInputAmount, Constants.gramRate)
+                removeExceedingDecimals(currentInputAmount, MeshConstants.gramRate)
             }
-            Constants.milligramUnit -> {
+            MeshConstants.milligramUnit -> {
                 //6 decimal places
-                removeExceedingDecimals(currentInputAmount, Constants.milligramRate)
+                removeExceedingDecimals(currentInputAmount, MeshConstants.milligramRate)
             }
-            Constants.microgramUnit -> {
+            MeshConstants.microgramUnit -> {
                 //3 decimal places
-                removeExceedingDecimals(currentInputAmount, Constants.microgramRate)
+                removeExceedingDecimals(currentInputAmount, MeshConstants.microgramRate)
             }
-            Constants.nanogramUnit -> {
+            MeshConstants.nanogramUnit -> {
                 //no decimals
                 val substring = currentInputAmount.substringBefore(".")
                 views.transferAmountInput.setText(substring)
@@ -560,34 +558,35 @@ class WalletTransferFragment@Inject constructor(
     }
 
     private fun removeExceedingDecimals(input: String, rate: Int){
-        val decimalSubstring = input.substringAfter(".")
+        if (input.contains(".")) {
+            val decimalSubstring = input.substringAfter(".")
 
-        if (decimalSubstring.length > rate.toString().length-1){
-            val endIndex = (input.indexOf(".")+rate.toString().length)
-            views.transferAmountInput.setText(input.substring(0, endIndex))
+            if (decimalSubstring.length > rate.toString().length - 1) {
+                val endIndex = (input.indexOf(".") + rate.toString().length)
+                views.transferAmountInput.setText(input.substring(0, endIndex))
+            }
         }
     }
 
     private fun limitDecimalInput(){
 
         when(views.unitTextView.text.toString()){
-            Constants.kilogramUnit ->{
+            MeshConstants.kilogramUnit ->{
                 //12 decimal places
-                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.kilogramRate.toString().length-1))
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(MeshConstants.kilogramRate.toString().length-1))
             }
 
-            Constants.gramUnit ->{
+            MeshConstants.gramUnit ->{
                 //9 decimal places
-                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.gramRate.toString().length-1))
-
-        }
-            Constants.milligramUnit -> {
-                //6 decimal places
-                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.milligramRate.toString().length-1))
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(MeshConstants.gramRate.toString().length-1))
             }
-            Constants.microgramUnit -> {
+            MeshConstants.milligramUnit -> {
+                //6 decimal places
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(MeshConstants.milligramRate.toString().length-1))
+            }
+            MeshConstants.microgramUnit -> {
                 //3 decimal places
-                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(Constants.microgramRate.toString().length-1))
+                views.transferAmountInput.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(MeshConstants.microgramRate.toString().length-1))
             }
         }
     }

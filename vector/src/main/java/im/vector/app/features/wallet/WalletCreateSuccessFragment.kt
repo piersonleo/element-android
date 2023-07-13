@@ -23,7 +23,7 @@ import com.airbnb.mvrx.args
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.vcard.vchat.mesh.Constants
+import com.vcard.mesh.sdk.MeshConstants
 import com.vcard.vchat.utils.Utils
 import com.vcard.vchat.utils.Utils.Companion.createJsonFile
 import com.vcard.vchat.utils.Utils.Companion.deleteJsonFile
@@ -45,9 +45,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 class WalletCreateSuccessFragment@Inject constructor(
@@ -67,7 +64,7 @@ class WalletCreateSuccessFragment@Inject constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        accountJsonString = "${Constants.meshEncryptedAccountQrIdentifier}${fragmentArgs.jsonString}"
+        accountJsonString = "${MeshConstants.meshEncryptedAccountQrIdentifier}${fragmentArgs.jsonString}"
         setupViews()
         setupClick()
     }
