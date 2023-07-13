@@ -197,7 +197,7 @@ class FtueAuthVariantVchat(
                 activity.popBackstack()
             }
             is OnboardingViewEvents.OnSendEmailSuccess -> {
-                openWaitForEmailVerification(viewEvents.email)
+                openWaitForEmailVerification(viewEvents.email, viewEvents.isRestoredSession)
             }
             is OnboardingViewEvents.OnSendMsisdnSuccess -> {
                 openMsisdnConfirmation(viewEvents.msisdn)
@@ -414,17 +414,19 @@ class FtueAuthVariantVchat(
         }
     }
 
-    private fun openWaitForEmailVerification(email: String) {
-        supportFragmentManager.popBackStack(FRAGMENT_REGISTRATION_STAGE_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    private fun openWaitForEmailVerification(email: String, isRestoredSession: Boolean) {
         when {
             vectorFeatures.isOnboardingCombinedRegisterEnabled() -> addRegistrationStageFragmentToBackstack(
                     FtueAuthWaitForEmailFragment::class.java,
-                    FtueAuthWaitForEmailFragmentArgument(email),
+                    FtueAuthWaitForEmailFragmentArgument(email, isRestoredSession),
             )
-            else -> addRegistrationStageFragmentToBackstack(
-                    FtueAuthLegacyWaitForEmailFragment::class.java,
-                    FtueAuthWaitForEmailFragmentArgument(email),
-            )
+            else -> {
+                supportFragmentManager.popBackStack(FRAGMENT_REGISTRATION_STAGE_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                addRegistrationStageFragmentToBackstack(
+                        FtueAuthLegacyWaitForEmailFragment::class.java,
+                        FtueAuthWaitForEmailFragmentArgument(email, isRestoredSession),
+                )
+            }
         }
     }
 
@@ -483,7 +485,11 @@ class FtueAuthVariantVchat(
 
     private fun navigateToHome() {
         withState(onboardingViewModel) {
-            val intent = HomeActivity.newIntent(activity, authenticationDescription = it.selectedAuthenticationState.description)
+            val intent = HomeActivity.newIntent(
+                    activity,
+                    firstStartMainActivity = false,
+                    authenticationDescription = it.selectedAuthenticationState.description
+            )
             activity.startActivity(intent)
             activity.finish()
         }

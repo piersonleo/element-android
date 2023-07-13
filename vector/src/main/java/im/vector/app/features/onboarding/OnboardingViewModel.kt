@@ -706,7 +706,7 @@ class OnboardingViewModel @AssistedInject constructor(
             runCatching { startAuthenticationFlowUseCase.execute(homeServerConnectionConfig) }.fold(
                     onSuccess = {
                         onAuthenticationStartedSuccess(trigger, homeServerConnectionConfig, it, serverTypeOverride)
-                        //postAction()
+                        postAction()
                         setState { copy(isLoading = true) }
                     },
                     onFailure = { onAuthenticationStartError(it, trigger)
