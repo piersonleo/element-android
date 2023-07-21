@@ -40,6 +40,7 @@ import im.vector.app.features.login.SSORedirectRouterActivity
 import im.vector.app.features.login.ServerType
 import im.vector.app.features.login.SignMode
 import im.vector.app.features.login.SocialLoginButtonsView
+import im.vector.app.features.login.render
 import im.vector.app.features.onboarding.OnboardingAction
 import im.vector.app.features.onboarding.OnboardingViewEvents
 import im.vector.app.features.onboarding.OnboardingViewState
@@ -119,13 +120,11 @@ class FtueAuthLoginFragmentVchat @Inject constructor() : AbstractSSOFtueAuthFrag
         }
     }
 
-    private fun setupSocialLoginButtons(state: OnboardingViewState) {
-        views.loginSocialLoginButtons.mode = when (state.signMode) {
-            //SignMode.Unknown            -> error("developer error")
-            SignMode.SignUp             -> SocialLoginButtonsView.Mode.MODE_SIGN_UP
-            SignMode.Unknown, SignMode.SignIn,
-            SignMode.SignInWithMatrixId -> SocialLoginButtonsView.Mode.MODE_SIGN_IN
-        }
+    private fun ssoMode(state: OnboardingViewState) = when (state.signMode) {
+        SignMode.Unknown -> error("developer error")
+        SignMode.SignUp -> SocialLoginButtonsView.Mode.MODE_SIGN_UP
+        SignMode.SignIn,
+        SignMode.SignInWithMatrixId -> SocialLoginButtonsView.Mode.MODE_SIGN_IN
     }
 
     private fun submitHomeServer(){
@@ -209,33 +208,30 @@ class FtueAuthLoginFragmentVchat @Inject constructor() : AbstractSSOFtueAuthFrag
                     views.loginTitle.text = getString(resId, state.selectedHomeserver.userFacingUrl.toReducedUrl())
                     views.loginNotice.text = getString(R.string.login_server_matrix_org_text)
                 }
-                ServerType.EMS       -> {
+                ServerType.EMS -> {
                     views.loginServerIcon.isVisible = true
                     views.loginServerIcon.setImageResource(R.drawable.ic_logo_element_matrix_services)
                     views.loginTitle.text = getString(resId, "Element Matrix Services")
                     views.loginNotice.text = getString(R.string.login_server_modular_text)
                 }
-                ServerType.Other     -> {
+                ServerType.Other -> {
                     views.loginServerIcon.isVisible = false
                     views.loginTitle.text = getString(resId, state.selectedHomeserver.userFacingUrl.toReducedUrl())
                     views.loginNotice.text = getString(R.string.login_server_other_text)
                 }
-                ServerType.Unknown   -> Unit /* Should not happen */
+                ServerType.Unknown -> Unit /* Should not happen */
             }
             views.loginPasswordNotice.isVisible = false
 
             if (state.selectedHomeserver.preferredLoginMode is LoginMode.SsoAndPassword) {
                 views.loginSocialLoginContainer.isVisible = true
-                views.loginSocialLoginButtons.ssoIdentityProviders = state.selectedHomeserver.preferredLoginMode.ssoIdentityProviders?.sorted()
-                views.loginSocialLoginButtons.listener = object : SocialLoginButtonsView.InteractionListener {
-                    override fun onProviderSelected(provider: SsoIdentityProvider?) {
-                        viewModel.fetchSsoUrl(
-                                redirectUrl = SSORedirectRouterActivity.VECTOR_REDIRECT_URL,
-                                deviceId = state.deviceId,
-                                provider = provider
-                        )
-                                ?.let { openInCustomTab(it) }
-                    }
+                views.loginSocialLoginButtons.render(state.selectedHomeserver.preferredLoginMode.ssoState, ssoMode(state)) { provider ->
+                    viewModel.fetchSsoUrl(
+                            redirectUrl = SSORedirectRouterActivity.VECTOR_REDIRECT_URL,
+                            deviceId = state.deviceId,
+                            provider = provider
+                    )
+                            ?.let { openInCustomTab(it) }
                 }
             } else {
                 views.loginSocialLoginContainer.isVisible = false
@@ -287,29 +283,28 @@ class FtueAuthLoginFragmentVchat @Inject constructor() : AbstractSSOFtueAuthFrag
 
     override fun onError(throwable: Throwable) {
         // Trick to display the error without text.
-        Timber.i("onError: $throwable")
         views.loginFieldTil.error = " "
         when {
             throwable.isUsernameInUse() || throwable.isInvalidUsername() -> {
                 views.loginFieldTil.error = errorFormatter.toHumanReadable(throwable)
             }
-            throwable.isLoginEmailUnknown()                              -> {
+            throwable.isLoginEmailUnknown() -> {
                 views.loginFieldTil.error = getString(R.string.login_login_with_email_error)
             }
-            throwable.isInvalidPassword() && spaceInPassword()           -> {
+            throwable.isInvalidPassword() && spaceInPassword() -> {
                 views.passwordFieldTil.error = getString(R.string.auth_invalid_login_param_space_in_password)
             }
-            throwable.isWeakPassword() || throwable.isInvalidPassword()  -> {
+            throwable.isWeakPassword() || throwable.isInvalidPassword() -> {
                 views.passwordFieldTil.error = errorFormatter.toHumanReadable(throwable)
             }
-            throwable.isRegistrationDisabled()                           -> {
+            isSignupMode && throwable.isRegistrationDisabled() -> {
                 MaterialAlertDialogBuilder(requireActivity())
                         .setTitle(R.string.dialog_title_error)
                         .setMessage(getString(R.string.login_registration_disabled))
                         .setPositiveButton(R.string.ok, null)
                         .show()
             }
-            else                                                         -> {
+            else -> {
                 super.onError(throwable)
             }
         }
@@ -318,10 +313,9 @@ class FtueAuthLoginFragmentVchat @Inject constructor() : AbstractSSOFtueAuthFrag
     override fun updateWithState(state: OnboardingViewState) {
         isSignupMode = state.signMode == SignMode.SignUp
         isNumericOnlyUserIdForbidden = state.serverType == ServerType.MatrixOrg
-        Timber.i("onboarding state: $state")
+
         setupUi(state)
         setupAutoFill(state)
-        setupSocialLoginButtons(state)
         setupButtons(state)
 
         if (state.isLoading) {
@@ -336,7 +330,7 @@ class FtueAuthLoginFragmentVchat @Inject constructor() : AbstractSSOFtueAuthFrag
     }
 
     /**
-     * Detect if password ends or starts with spaces
+     * Detect if password ends or starts with spaces.
      */
     private fun spaceInPassword() = views.passwordField.text.toString().let { it.trim() != it }
 }
