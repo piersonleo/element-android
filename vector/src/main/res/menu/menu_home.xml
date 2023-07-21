@@ -4,6 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/menu_home_save_wallets"
+        android:icon="@drawable/ic_settings_x"
+        android:title="@string/vchat_home_wallet_menu_save_accounts"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_home_setting"
         android:icon="@drawable/ic_settings_x"
         android:title="@string/settings"
@@ -12,11 +19,13 @@
     <item
         android:id="@+id/menu_home_suggestion"
         android:icon="@drawable/ic_material_bug_report"
+        android:visible="false"
         android:title="@string/send_suggestion" />
 
     <item
         android:id="@+id/menu_home_report_bug"
         android:icon="@drawable/ic_material_bug_report"
+        android:visible="false"
         android:title="@string/send_bug_report" />
 
     <item
@@ -31,9 +40,9 @@
 
     <item
         android:id="@+id/menu_home_filter"
-        android:icon="@drawable/ic_filter"
+        android:icon="@drawable/ic_search"
         android:title="@string/home_filter_placeholder_home"
         app:iconTint="?vctr_content_secondary"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
 </menu>

@@ -21,6 +21,7 @@ import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.epoxy.errorWithRetryItem
 import im.vector.app.core.epoxy.loadingItem
@@ -37,7 +38,9 @@ import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.identity.IdentityServiceError
 import org.matrix.android.sdk.api.session.identity.ThreePid
 import org.matrix.android.sdk.api.session.user.model.User
+import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.api.util.toMatrixItem
+import timber.log.Timber
 import javax.inject.Inject
 
 class UserListController @Inject constructor(
@@ -73,16 +76,17 @@ class UserListController @Inject constructor(
                     }
                 }
             }
-            if (currentState.showContactBookAction) {
-                actionItem {
-                    id(R.drawable.ic_baseline_perm_contact_calendar_24)
-                    title(host.stringProvider.getString(R.string.contacts_book_title))
-                    actionIconRes(R.drawable.ic_baseline_perm_contact_calendar_24)
-                    clickAction {
-                        host.callback?.onContactBookClick()
-                    }
-                }
-            }
+            //vChat: don't need for now
+//            if (currentState.showContactBookAction) {
+//                actionItem {
+//                    id(R.drawable.ic_baseline_perm_contact_calendar_24)
+//                    title(host.stringProvider.getString(R.string.contacts_book_title))
+//                    actionIconRes(R.drawable.ic_baseline_perm_contact_calendar_24)
+//                    clickAction {
+//                        host.callback?.onContactBookClick()
+//                    }
+//                }
+//            }
             if (currentState.showInviteActions()) {
                 actionItem {
                     id(R.drawable.ic_qr_code_add)
@@ -230,6 +234,7 @@ class UserListController @Inject constructor(
         }
     }
 
+    //vChat: add long click listener
     private fun buildKnownUsers(currentState: UserListViewState, selectedUsers: List<String>) {
         val host = this
         currentState.knownUsers()
@@ -249,10 +254,15 @@ class UserListController @Inject constructor(
                         userDirectoryUserItem {
                             id(item.userId)
                             selected(isSelected)
-                            matrixItem(item.toMatrixItem())
+                            matrixItem(MatrixItem.UserItem(Utils.removeUrlSuffix(item.userId)!!, Utils.removeUrlSuffix(item.displayName), item.avatarUrl))
                             avatarRenderer(host.avatarRenderer)
                             clickListener {
                                 host.callback?.onItemClick(item)
+                            }
+                            longClickListener {
+                                Timber.i("onLongClick")
+                                host.callback?.onItemLongClick(item)
+                                true
                             }
                         }
                     }
@@ -279,10 +289,15 @@ class UserListController @Inject constructor(
                 userDirectoryUserItem {
                     id(user.userId)
                     selected(isSelected)
-                    matrixItem(user.toMatrixItem())
+                    matrixItem(MatrixItem.UserItem(Utils.removeUrlSuffix(user.userId)!!, Utils.removeUrlSuffix(user.displayName), user.avatarUrl))
                     avatarRenderer(host.avatarRenderer)
                     clickListener {
                         host.callback?.onItemClick(user)
+                    }
+                    longClickListener {
+                        Timber.i("onLongClick")
+                        host.callback?.onItemLongClick(user)
+                        true
                     }
                 }
             }
@@ -311,11 +326,13 @@ class UserListController @Inject constructor(
         }
     }
 
+    //vChat: add long click callback
     interface Callback {
         fun onInviteFriendClick()
         fun onContactBookClick()
         fun onUseQRCode()
         fun onItemClick(user: User)
+        fun onItemLongClick(user: User)
         fun onMatrixIdClick(matrixId: String)
         fun onThreePidClick(threePid: ThreePid)
         fun onSetupDiscovery()

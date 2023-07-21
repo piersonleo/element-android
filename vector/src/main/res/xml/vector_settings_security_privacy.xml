@@ -86,6 +86,7 @@
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
     <im.vector.app.core.preference.VectorPreferenceCategory
+        app:isPreferenceVisible="false"
         android:key="SETTINGS_CRYPTOGRAPHY_MANAGE_PREFERENCE_KEY"
         android:title="@string/settings_cryptography_manage_keys">
 
@@ -120,6 +121,7 @@
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
     <im.vector.app.core.preference.VectorPreferenceCategory
+        app:isPreferenceVisible="false"
         android:key="SETTINGS_ANALYTICS_PREFERENCE_KEY"
         android:title="@string/settings_analytics">
 
@@ -141,10 +143,10 @@
             android:summary="@string/settings_security_application_protection_summary"
             android:title="@string/settings_security_application_protection_title" />
 
+        <!--vChat: hide summary-->
         <im.vector.app.core.preference.VectorSwitchPreference
             android:defaultValue="false"
             android:key="SETTINGS_SECURITY_USE_FLAG_SECURE"
-            android:summary="@string/settings_security_prevent_screenshots_summary"
             android:title="@string/settings_security_prevent_screenshots_title" />
 
     </im.vector.app.core.preference.VectorPreferenceCategory>

@@ -23,6 +23,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.fragmentViewModel
@@ -344,11 +345,18 @@ class NewHomeDetailFragment @Inject constructor(
                     is HomeTab.DialPad -> {
                         throw NotImplementedError("this tab shouldn't exists when app layout is enabled")
                     }
+                    is HomeTab.Wallet ->{
+                        add(R.id.roomListContainer, createWalletFragment(), fragmentTag)
+                    }
                 }
             } else {
                 attach(fragmentToShow)
             }
         }
+    }
+    private fun createWalletFragment(): Fragment {
+        val fragment = childFragmentManager.fragmentFactory.instantiate(vectorBaseActivity.classLoader, HomeWalletFragment::class.java.name)
+        return (fragment as HomeWalletFragment)
     }
 
     private fun updateTabVisibilitySafely(tabId: Int, isVisible: Boolean) {
@@ -409,6 +417,7 @@ class NewHomeDetailFragment @Inject constructor(
             RoomListDisplayMode.ROOMS -> R.id.bottom_action_rooms
             else -> R.id.bottom_action_notification
         }
+        is HomeTab.Wallet -> R.id.bottom_action_wallet
     }
 
     override fun onTapToReturnToCall() {

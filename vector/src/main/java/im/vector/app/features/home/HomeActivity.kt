@@ -436,19 +436,23 @@ class HomeActivity :
         }
     }
 
+    //vChat: disable verification on login
+    @Suppress("UNUSED_PARAMETER")
+
     private fun handleOnNewSession(event: HomeActivityViewEvents.CurrentSessionNotVerified) {
         // We need to ask
-        promptSecurityEvent(
-                event.userItem,
-                R.string.crosssigning_verify_this_session,
-                R.string.confirm_your_identity
-        ) {
-            if (event.waitForIncomingRequest) {
-                it.navigator.waitSessionVerification(it)
-            } else {
-                it.navigator.requestSelfSessionVerification(it)
-            }
-        }
+//        promptSecurityEvent(
+//                event.userItem,
+//                R.string.crosssigning_verify_this_session,
+//                R.string.confirm_your_identity
+//        ) {
+//            if (event.waitForIncomingRequest) {
+//                it.navigator.waitSessionVerification(it)
+//            } else {
+//                it.navigator.requestSelfSessionVerification(it)
+//            }
+//        }
+//        popupAlertManager.cancelAlert("upgradeSecurity")
     }
 
     private fun handleCantVerify(event: HomeActivityViewEvents.CurrentSessionCannotBeVerified) {
@@ -543,18 +547,19 @@ class HomeActivity :
     override fun onResume() {
         super.onResume()
 
-        if (vectorUncaughtExceptionHandler.didAppCrash()) {
-            vectorUncaughtExceptionHandler.clearAppCrashStatus()
-
-            MaterialAlertDialogBuilder(this)
-                    .setMessage(R.string.send_bug_report_app_crashed)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { _, _ -> bugReporter.openBugReportScreen(this) }
-                    .setNegativeButton(R.string.no) { _, _ -> bugReporter.deleteCrashFile() }
-                    .show()
-        } else {
-            showDisclaimerDialog(this)
-        }
+        //vChat: dialog message in case app crash. Comment it for now
+//        if (vectorUncaughtExceptionHandler.didAppCrash()) {
+//            vectorUncaughtExceptionHandler.clearAppCrashStatus()
+//
+//            MaterialAlertDialogBuilder(this)
+//                    .setMessage(R.string.send_bug_report_app_crashed)
+//                    .setCancelable(false)
+//                    .setPositiveButton(R.string.yes) { _, _ -> bugReporter.openBugReportScreen(this) }
+//                    .setNegativeButton(R.string.no) { _, _ -> bugReporter.deleteCrashFile() }
+//                    .show()
+//        } else {
+//            showDisclaimerDialog(this)
+//        }
 
         // Force remote backup state update to update the banner if needed
         serverBackupStatusViewModel.refreshRemoteStateIfNeeded()

@@ -201,18 +201,19 @@ class VectorSettingsGeneralFragment @Inject constructor(
         val discoveryPreference = findPreference<VectorPreference>(VectorPreferences.SETTINGS_DISCOVERY_PREFERENCE_KEY)!!
         discoveryPreference.onPreferenceClickListener = openDiscoveryScreenPreferenceClickListener
 
-        mIdentityServerPreference.onPreferenceClickListener = openDiscoveryScreenPreferenceClickListener
+        //mIdentityServerPreference.onPreferenceClickListener = openDiscoveryScreenPreferenceClickListener
 
         // Advanced settings
 
         // user account
+        /* Don't need for vChat
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_LOGGED_IN_PREFERENCE_KEY)!!
                 .summary = session.myUserId
 
         // homeserver
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_HOME_SERVER_PREFERENCE_KEY)!!
                 .summary = session.sessionParams.homeServerUrl
-
+        */
         // Contacts
         setContactsPreferences()
 
@@ -284,7 +285,9 @@ class VectorSettingsGeneralFragment @Inject constructor(
         findPreference<VectorPreference>("SETTINGS_SIGN_OUT_KEY")!!
                 .onPreferenceClickListener = Preference.OnPreferenceClickListener {
             activity?.let {
-                SignOutUiWorker(requireActivity()).perform()
+                //vChat: signout without encryption
+                SignOutUiWorker(requireActivity()).performWithoutSessionCheck()
+                //SignOutUiWorker(requireActivity()).perform()
             }
 
             false
@@ -294,7 +297,7 @@ class VectorSettingsGeneralFragment @Inject constructor(
     override fun onResume() {
         super.onResume()
         // Refresh identity server summary
-        mIdentityServerPreference.summary = session.identityService().getCurrentIdentityServerUrl() ?: getString(R.string.identity_server_not_defined)
+        //mIdentityServerPreference.summary = session.identityService().getCurrentIdentityServerUrl() ?: getString(R.string.identity_server_not_defined)
         refreshIntegrationManagerSettings()
         session.integrationManagerService().addListener(integrationServiceListener)
     }

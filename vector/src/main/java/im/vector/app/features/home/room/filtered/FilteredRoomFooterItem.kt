@@ -48,7 +48,8 @@ abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.
         )
 
         // The explore space screen will have a shortcut to create
-        holder.createRoomButton.isVisible = !inSpace
+        //vChat modification
+        //holder.createRoomButton.isVisible = !inSpace
     }
 
     class Holder : VectorEpoxyHolder() {

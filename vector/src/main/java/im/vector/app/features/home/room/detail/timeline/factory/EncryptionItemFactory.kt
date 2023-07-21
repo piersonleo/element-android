@@ -64,7 +64,7 @@ class EncryptionItemFactory @Inject constructor(
                             R.string.direct_room_encryption_enabled_tile_description_future
                         }
                         isDirect -> {
-                            R.string.direct_room_encryption_enabled_tile_description
+                            R.string.vchat_direct_room_encryption_enabled_tile_description
                         }
                         else -> {
                             R.string.encryption_enabled_tile_description

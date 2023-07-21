@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/vchat_gradient_scan_qr_background">
+
+    <!-- Source: https://www.figma.com/file/X4XTH9iS2KGJ2wFKDqkyed/Compound?node-id=2857%3A321 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/showUserCodeToolBar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                app:title="@string/vchat_wallet_qr_appbar_title"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/showUserCodeCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="130dp"
+            android:padding="16dp"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+            app:layout_constraintWidth_percent="0.8">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/walletAddressTitle"
+                    style="@style/Widget.Vector.TextView.Subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="@string/vchat_wallet_qr_address_title"
+                    android:textAlignment="center"
+                    android:textColor="?vctr_content_primary"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/walletAddressSubtitle"
+                    style="@style/Widget.Vector.TextView.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="32dp"
+                    android:maxLines="2"
+                    tools:text="@string/vchat_placeholder_lorem_ipsum"
+                    android:textAlignment="center"
+                    android:textColor="?vctr_content_tertiary"
+                    app:layout_constraintEnd_toStartOf="@id/buttonShowMore"
+                    app:layout_constraintTop_toBottomOf="@id/walletAddressTitle" />
+
+                <ImageButton
+                    android:visibility="invisible"
+                    android:id="@+id/buttonShowMore"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/ic_eye"
+                    app:layout_constraintTop_toBottomOf="@id/walletAddressTitle"
+                    app:layout_constraintStart_toEndOf="@id/walletAddressSubtitle"
+                    android:contentDescription="@string/vchat_show_more_content_description" />
+
+                <!--if we want to save bitmap with  the shadow.-->
+                <View
+                    android:layout_width="240dp"
+                    android:layout_height="240dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="32dp"
+                    android:background="@android:drawable/dialog_holo_light_frame"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/walletAddressSubtitle"
+                    app:layout_constraintWidth_percent="0.8"/>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="240dp"
+                    android:layout_height="240dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="32dp"
+                    android:backgroundTint="@color/palette_white"
+                    app:cardCornerRadius="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/walletAddressSubtitle"
+                    app:layout_constraintWidth_percent="0.8">
+
+                    <im.vector.app.core.ui.views.QrCodeImageView
+                        android:id="@+id/accountQRImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/a11y_qr_code_for_verification"
+                        tools:src="@drawable/ic_qr_code_add" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btnSaveQR"
+            style="@style/Widget.Vector.Button.Outlined.Login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="@dimen/layout_vertical_margin"
+            app:layout_goneMarginTop="240dp"
+            android:minWidth="200dp"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            android:backgroundTint="@color/palette_white"
+            app:layout_constraintTop_toBottomOf="@+id/showUserCodeCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/vchat_wallet_account_save_qr" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

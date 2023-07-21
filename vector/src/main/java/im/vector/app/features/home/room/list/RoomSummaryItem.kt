@@ -139,7 +139,8 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
     }
 
     private fun renderForFilteredDisplayMode(holder: Holder) {
-        holder.subtitleView.text = subtitle
+        //holder.subtitleView.text = subtitle
+        holder.subtitleView.visibility = View.GONE
     }
 
     override fun unbind(holder: Holder) {

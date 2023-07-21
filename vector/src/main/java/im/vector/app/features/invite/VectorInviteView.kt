@@ -21,6 +21,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
+import com.vcard.vchat.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.databinding.VectorInviteViewBinding
@@ -60,7 +61,7 @@ class VectorInviteView @JvmOverloads constructor(context: Context, attrs: Attrib
         if (mode == Mode.LARGE) {
             updateLayoutParams { height = LayoutParams.MATCH_CONSTRAINT }
             avatarRenderer.render(sender.toMatrixItem(), views.inviteAvatarView)
-            views.inviteIdentifierView.text = sender.userId
+            views.inviteIdentifierView.text = Utils.removeUrlSuffix(sender.userId)
             views.inviteNameView.text = sender.displayName
             views.inviteLabelView.text = context.getString(R.string.send_you_invite)
         } else {
@@ -68,7 +69,7 @@ class VectorInviteView @JvmOverloads constructor(context: Context, attrs: Attrib
             views.inviteAvatarView.visibility = View.GONE
             views.inviteIdentifierView.visibility = View.GONE
             views.inviteNameView.visibility = View.GONE
-            views.inviteLabelView.text = context.getString(R.string.invited_by, sender.userId)
+            views.inviteLabelView.text = context.getString(R.string.invited_by, Utils.removeUrlSuffix(sender.userId))
         }
         InviteButtonStateBinder.bind(views.inviteAcceptView, views.inviteRejectView, changeMembershipState)
     }

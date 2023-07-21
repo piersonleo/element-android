@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/LoginFormScrollView"
+    android:layout_height="match_parent"
+    android:background="@color/palette_gray_25"
+    android:fillViewport="true"
+    android:paddingTop="0dp"
+    android:paddingBottom="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/profilePictureGutterStart"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="@dimen/ftue_auth_gutter_start_percent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/profilePictureGutterEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="@dimen/ftue_auth_gutter_end_percent" />
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/walletDetailToolBar"
+            style="@style/Widget.Vector.Toolbar.Settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/walletImageView"
+            app:layout_constraintTop_toBottomOf="@id/walletDetailToolBar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:navigationIcon="@drawable/ic_back_24dp" />
+
+        <ImageView
+            android:id="@+id/walletImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="false"
+            android:background="@drawable/ic_card_placeholder_2"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_card_placeholder"
+            app:layout_constraintEnd_toEndOf="@id/profilePictureGutterEnd"
+            app:layout_constraintStart_toStartOf="@id/profilePictureGutterStart"
+            app:layout_constraintTop_toBottomOf="@id/walletDetailToolBar" />
+
+        <TextView
+            android:id="@+id/walletDetailHeaderTitle"
+            style="@style/Widget.Vector.TextView.Title.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:text="@string/mesh_title"
+            android:textColor="?vctr_content_primary"
+            app:layout_constraintBottom_toTopOf="@id/walletDetailHeaderSubtitle"
+            app:layout_constraintEnd_toEndOf="@id/profilePictureGutterEnd"
+            app:layout_constraintStart_toStartOf="@id/profilePictureGutterStart"
+            app:layout_constraintTop_toBottomOf="@id/walletImageView" />
+
+        <ImageButton
+            android:id="@+id/btnRefreshAccount"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_refresh_cw"
+            android:contentDescription="@string/refresh"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@id/walletDetailHeaderTitle"
+            app:layout_constraintBottom_toTopOf="@id/walletDetailHeaderSubtitle"
+            app:layout_constraintTop_toBottomOf="@id/walletImageView" />
+
+        <TextView
+            android:id="@+id/walletDetailHeaderSubtitle"
+            style="@style/Widget.Vector.TextView.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/vchat_placeholder_amount"
+            android:textColor="?vctr_content_secondary"
+            app:layout_constraintBottom_toTopOf="@id/entrySpacing"
+            app:layout_constraintEnd_toEndOf="@id/profilePictureGutterEnd"
+            app:layout_constraintStart_toStartOf="@id/profilePictureGutterStart"
+            app:layout_constraintTop_toBottomOf="@id/walletDetailHeaderTitle" />
+
+        <FrameLayout
+            android:id="@+id/simpleActivityWaitingView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="8dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@id/profilePictureGutterEnd"
+            app:layout_constraintStart_toStartOf="@id/profilePictureGutterStart"
+            app:layout_constraintTop_toBottomOf="@id/walletDetailHeaderTitle"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+        </FrameLayout>
+
+        <Space
+            android:id="@+id/entrySpacing"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/btnShowQRCode"
+            app:layout_constraintHeight_percent="0.05"
+            app:layout_constraintTop_toBottomOf="@id/walletDetailHeaderSubtitle" />
+
+        <Button
+            android:id="@+id/btnShowQRCode"
+            style="@style/Widget.Vector.Button.Outlined.Login"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/vchat_wallet_account_show_qr"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:textAllCaps="true"
+            android:backgroundTint="@color/palette_white"
+            app:icon="@drawable/ic_qr_code"
+            app:iconGravity="textStart"
+            app:layout_constraintEnd_toEndOf="@id/profilePictureGutterEnd"
+            app:layout_constraintStart_toStartOf="@id/profilePictureGutterStart"
+            app:layout_constraintTop_toBottomOf="@id/entrySpacing" />
+
+        <Button
+            android:id="@+id/btnScanQRCode"
+            style="@style/Widget.Vector.Button.Login"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:text="@string/vchat_wallet_account_scan_qr"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:textAllCaps="true"
+            android:background="@drawable/vchat_gradient_scan_qr_button"
+            app:backgroundTint="@null"
+            app:icon="@drawable/ic_qr_code_scanner"
+            app:iconGravity="textStart"
+            app:layout_constraintEnd_toEndOf="@id/profilePictureGutterEnd"
+            app:layout_constraintStart_toStartOf="@id/profilePictureGutterStart"
+            app:layout_constraintTop_toBottomOf="@id/btnShowQRCode" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
+
+

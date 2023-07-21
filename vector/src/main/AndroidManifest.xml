@@ -78,7 +78,7 @@
         android:name=".VectorApplication"
         android:allowBackup="false"
         android:hasFragileUserData="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/img_logo_vbiz_white_orange_bg"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:resizeableActivity="true"
@@ -197,6 +197,7 @@
             android:name=".features.link.LinkHandlerActivity"
             android:enabled="true"
             android:exported="true">
+            <!-- Not used in vChat
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -210,6 +211,7 @@
                 <data android:host="develop.element.io" />
                 <data android:host="staging.element.io" />
             </intent-filter>
+            -->
         </activity>
 
         <!-- Activity alias for matrix.to or element permalinks -->
@@ -229,13 +231,14 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.to" />
+                <!--Not used in vChat
                 <data
                     android:host="user"
                     android:scheme="element" />
                 <data
                     android:host="room"
                     android:scheme="element" />
-
+                -->
             </intent-filter>
         </activity-alias>
 
@@ -349,6 +352,13 @@
         <activity android:name=".features.location.live.map.LiveLocationMapViewActivity" />
         <activity android:name=".features.settings.font.FontScaleSettingActivity"/>
         <activity android:name=".features.call.dialpad.PstnDialActivity" />
+
+        <activity android:name=".features.wallet.WalletDetailActivity"/>
+        <activity android:name=".features.wallet.WalletCodeActivity"/>
+        <activity android:name=".features.wallet.WalletCreateActivity"/>
+        <activity android:name=".features.wallet.WalletCreateSuccessActivity"/>
+        <activity android:name=".features.wallet.WalletTransferActivity"/>
+        <activity android:name=".features.wallet.WalletReceiptActivity"/>
 
         <!-- Services -->
 

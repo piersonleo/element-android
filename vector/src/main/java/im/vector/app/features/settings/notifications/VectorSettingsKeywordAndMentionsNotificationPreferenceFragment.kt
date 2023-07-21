@@ -37,7 +37,7 @@ import org.matrix.android.sdk.api.session.pushrules.toJson
 class VectorSettingsKeywordAndMentionsNotificationPreferenceFragment :
         VectorSettingsPushRuleNotificationPreferenceFragment() {
 
-    override var titleRes: Int = R.string.settings_notification_mentions_and_keywords
+    override var titleRes: Int = R.string.vchat_settings_notification_mentions_and_keywords
 
     override val preferenceXmlRes = R.xml.vector_settings_notification_mentions_and_keywords
 
