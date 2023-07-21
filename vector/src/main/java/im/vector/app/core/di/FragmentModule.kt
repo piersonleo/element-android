@@ -203,6 +203,8 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(NewChatBottomSheet::class)
     fun bindNewChatBottomSheetFragment(fragment: NewChatBottomSheet): Fragment
+    @Binds
+    @IntoMap
     @FragmentKey(HomeWalletFragment::class)
     fun bindHomeWalletFragment(fragment: HomeWalletFragment): Fragment
 
