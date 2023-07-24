@@ -17,7 +17,8 @@
 package im.vector.app.features.home.room.detail.timeline.factory
 
 import im.vector.app.features.home.AvatarRenderer
-import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
+//import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatter
+import im.vector.app.features.home.room.detail.timeline.format.NoticeEventFormatterVchat
 import im.vector.app.features.home.room.detail.timeline.helper.AvatarSizeProvider
 import im.vector.app.features.home.room.detail.timeline.helper.MessageInformationDataFactory
 import im.vector.app.features.home.room.detail.timeline.item.NoticeItem
@@ -27,7 +28,7 @@ import org.matrix.android.sdk.api.extensions.orFalse
 import javax.inject.Inject
 
 class NoticeItemFactory @Inject constructor(
-        private val eventFormatter: NoticeEventFormatter,
+        private val eventFormatter: NoticeEventFormatterVchat,
         private val avatarRenderer: AvatarRenderer,
         private val informationDataFactory: MessageInformationDataFactory,
         private val avatarSizeProvider: AvatarSizeProvider

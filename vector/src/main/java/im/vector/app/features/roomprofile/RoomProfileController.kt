@@ -127,8 +127,9 @@ class RoomProfileController @Inject constructor(
         val e2eInfoText = if (roomSummary.isEncrypted) {
             if (roomSummary.roomEncryptionAlgorithm is RoomEncryptionAlgorithm.SupportedAlgorithm) {
                 stringProvider.getString(
-                        if (roomSummary.isDirect) R.string.direct_room_profile_encrypted_subtitle
-                        else R.string.room_profile_encrypted_subtitle
+//                        if (roomSummary.isDirect) R.string.direct_room_profile_encrypted_subtitle
+//                        else R.string.room_profile_encrypted_subtitle
+                        R.string.vchat_room_profile_encrypted_subtitle
                 )
             } else {
                 encryptionMisconfigured = true
@@ -265,7 +266,7 @@ class RoomProfileController @Inject constructor(
         }
         buildProfileAction(
                 id = "uploads",
-                title = stringProvider.getString(R.string.room_profile_section_more_uploads),
+                title = stringProvider.getString(R.string.vchat_room_profile_section_more_uploads),
                 icon = R.drawable.ic_room_profile_uploads,
                 action = { callback?.onUploadsClicked() }
         )
@@ -282,20 +283,23 @@ class RoomProfileController @Inject constructor(
                 id = "leave",
                 title = stringProvider.getString(
                         if (roomSummary.isDirect) {
-                            R.string.direct_room_profile_section_more_leave
+                            R.string.vchat_direct_room_profile_section_more_leave
                         } else {
-                            R.string.room_profile_section_more_leave
+                            R.string.vchat_room_profile_section_more_leave
                         }
                 ),
                 divider = false,
                 destructive = true,
-                icon = R.drawable.ic_room_actions_leave,
+                icon = R.drawable.ic_delete_vchat,
                 editable = false,
                 action = { callback?.onLeaveRoomClicked() }
         )
 
+        //vChat don't need
+        /*
         // Advanced
         buildProfileSection(stringProvider.getString(R.string.room_settings_category_advanced_title))
+
 
         buildProfileAction(
                 id = "alias",
@@ -314,6 +318,7 @@ class RoomProfileController @Inject constructor(
                 editable = true,
                 action = { callback?.onRoomPermissionsClicked() }
         )
+         */
 
         if (vectorPreferences.developerMode()) {
             buildProfileAction(

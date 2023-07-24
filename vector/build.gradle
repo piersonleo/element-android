@@ -54,6 +54,10 @@ android {
         testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
+
     testOptions {
         // Disables animations during instrumented tests you run from the command line…
         // This property does not affect tests that you run using Android Studio.”
@@ -113,6 +117,7 @@ dependencies {
     implementation project(":library:core-utils")
     implementation project(":library:attachment-viewer")
     implementation project(":library:multipicker")
+    implementation project(":mesh-sdk-android")
 
     implementation libs.jetbrains.coroutinesCore
     implementation libs.jetbrains.coroutinesAndroid

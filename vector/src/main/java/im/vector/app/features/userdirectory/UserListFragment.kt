@@ -25,6 +25,10 @@ import android.view.ViewGroup
 import android.widget.ScrollView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import com.airbnb.mvrx.Async
+import com.airbnb.mvrx.Fail
+import com.airbnb.mvrx.Loading
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.args
 import com.airbnb.mvrx.fragmentViewModel
@@ -42,14 +46,20 @@ import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.core.utils.showIdentityServerConsentDialog
 import im.vector.app.core.utils.startSharePlainTextIntent
 import im.vector.app.databinding.FragmentUserListBinding
+import im.vector.app.features.analytics.plan.ViewRoom
+import im.vector.app.features.createdirect.CreateDirectRoomActivity
 import im.vector.app.features.homeserver.HomeServerCapabilitiesViewModel
 import im.vector.app.features.settings.VectorSettingsActivity
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import org.matrix.android.sdk.api.failure.Failure
 import org.matrix.android.sdk.api.session.identity.ThreePid
+import org.matrix.android.sdk.api.session.room.failure.CreateRoomFailure
 import org.matrix.android.sdk.api.session.user.model.User
 import reactivecircus.flowbinding.android.widget.textChanges
+import timber.log.Timber
+import java.net.HttpURLConnection
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -109,6 +119,11 @@ class UserListFragment :
                 is UserListViewEvents.Failure -> showFailure(it.throwable)
                 is UserListViewEvents.OnPoliciesRetrieved -> showConsentDialog(it)
             }
+        }
+
+        //vChat: subscribe for room creation
+        viewModel.onEach(UserListViewState::createAndInviteState) {
+            renderCreateAndInviteState(it)
         }
     }
 
@@ -173,7 +188,10 @@ class UserListFragment :
         val newNumberOfChips = selections.size
 
         views.chipGroup.removeAllViews()
-        selections.forEach { addChipToGroup(it) }
+        selections.forEach {
+            //vChat: don't need to add the chip bubbles
+            //addChipToGroup(it)
+        }
 
         // Scroll to the bottom when adding chips. When removing chips, do not scroll
         if (newNumberOfChips >= currentNumberOfChips) {
@@ -207,9 +225,27 @@ class UserListFragment :
         sharedActionViewModel.post(UserListSharedAction.OpenPhoneBook)
     }
 
+    /*vChat: for single user click opens the chat immediately
+             if more than 1 user is already selected add them to pending selections
+    */
     override fun onItemClick(user: User) {
         view?.hideKeyboard()
-        viewModel.handle(UserListAction.AddPendingSelection(PendingSelection.UserPendingSelection(user)))
+        val matrixIdList = getCurrentState().getSelectedMatrixId()
+        if (matrixIdList.isEmpty()){
+            viewModel.handle(UserListAction.CreateRoomAndInviteSelectedUsers(setOf(PendingSelection.UserPendingSelection(user))))
+        }else{
+            viewModel.handle(UserListAction.AddPendingSelection(PendingSelection.UserPendingSelection(user)))
+        }
+    }
+
+    //vChat addition to mimic Whatsapp
+    override fun onItemLongClick(user: User) {
+        view?.hideKeyboard()
+        val matrixIdList = getCurrentState().getSelectedMatrixId()
+        Timber.i("onLongClick matrixIdList: $matrixIdList")
+        if (matrixIdList.isEmpty()) {
+            viewModel.handle(UserListAction.AddPendingSelection(PendingSelection.UserPendingSelection(user)))
+        }
     }
 
     override fun onMatrixIdClick(matrixId: String) {
@@ -248,5 +284,14 @@ class UserListFragment :
     override fun onUseQRCode() {
         view?.hideKeyboard()
         sharedActionViewModel.post(UserListSharedAction.AddByQrCode)
+    }
+
+    private fun renderCreateAndInviteState(state: Async<String>) {
+        when (state) {
+            is Loading -> (activity as CreateDirectRoomActivity?)?.renderCreationLoading()
+            is Success -> (activity as CreateDirectRoomActivity?)?.renderCreationSuccess(state())
+            is Fail    -> (activity as CreateDirectRoomActivity?)?.renderCreationFailure(state.error)
+            else       -> Unit
+        }
     }
 }

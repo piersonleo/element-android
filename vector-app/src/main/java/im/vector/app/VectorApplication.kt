@@ -43,6 +43,8 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import com.mapbox.mapboxsdk.Mapbox
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
+import com.vcard.mesh.sdk.MeshConfig
+import com.vcard.vchat.utils.MeshSharedPref
 import dagger.hilt.android.HiltAndroidApp
 import im.vector.app.config.Config
 import im.vector.app.core.debug.FlipperProxy
@@ -72,6 +74,7 @@ import org.matrix.android.sdk.api.Matrix
 import org.matrix.android.sdk.api.auth.AuthenticationService
 import org.matrix.android.sdk.api.legacy.LegacySessionImporter
 import timber.log.Timber
+import java.security.Security
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -208,6 +211,22 @@ class VectorApplication :
         Mapbox.getInstance(this)
 
         initMemoryLeakAnalysis()
+
+        //vChat: Initialize Mesh
+        MeshConfig.initialize(this)
+//        //vChat: insert library bouncy castle
+//        Security.removeProvider("BC")
+//        val bc = BouncyCastleProvider()
+//        Security.insertProviderAt(bc, 1)
+//
+//        //vChat: initialize mesh realm
+//        Realm.init(this)
+//        Realm.setDefaultConfiguration(RealmExec().create())
+
+        //vChat: setup mesh launch pp
+        val msp = MeshSharedPref(this)
+        msp.clearSp()
+        //msp.storeLaunchPp()
     }
 
     private fun configureEpoxy() {

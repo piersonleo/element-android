@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="vchat_accent_light">@color/palette_primary_vchat</color>
+
+</resources>

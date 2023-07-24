@@ -32,6 +32,7 @@
 
     <im.vector.app.core.preference.VectorPreferenceCategory
         android:title="@string/spaces"
+        app:isPreferenceVisible="false"
         android:key="SETTINGS_PREF_SPACE_CATEGORY">
 
         <im.vector.app.core.preference.VectorSwitchPreference
@@ -219,7 +220,9 @@
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
-    <im.vector.app.core.preference.VectorPreferenceCategory android:title="@string/settings_category_room_directory">
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        app:isPreferenceVisible="false"
+        android:title="@string/settings_category_room_directory">
 
         <im.vector.app.core.preference.VectorSwitchPreference
             android:key="SETTINGS_ROOM_DIRECTORY_SHOW_ALL_PUBLIC_ROOMS"

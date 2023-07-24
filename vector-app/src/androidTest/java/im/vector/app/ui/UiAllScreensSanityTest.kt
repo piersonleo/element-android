@@ -140,7 +140,7 @@ class UiAllScreensSanityTest {
                 advancedSettings { crawlDeveloperOptions() }
             }
             roomList {
-                openRoom(getString(R.string.room_displayname_empty_room)) {
+                openRoom(getString(R.string.vchat_room_displayname_empty_room)) {
                     val message = "Test view source"
                     postMessage(message)
                     openMessageMenu(message) {

@@ -24,6 +24,7 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
+import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.extensions.observeK
 import im.vector.app.core.extensions.replaceChildFragment
@@ -59,6 +60,8 @@ class HomeDrawerFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //vChat: add version
+        views.homeDrawerAppVersionView.text = getString(R.string.app_version, BuildConfig.VERSION_NAME)
         sharedActionViewModel = activityViewModelProvider.get(HomeSharedActionViewModel::class.java)
 
         if (savedInstanceState == null) {
@@ -85,7 +88,9 @@ class HomeDrawerFragment :
         // Sign out
         views.homeDrawerHeaderSignoutView.debouncedClicks {
             sharedActionViewModel.post(HomeActivitySharedAction.CloseDrawer)
-            SignOutUiWorker(requireActivity()).perform()
+            //vChat: signout without encryption
+            SignOutUiWorker(requireActivity()).performWithoutSessionCheck()
+            //SignOutUiWorker(requireActivity()).perform()
         }
 
         views.homeDrawerQRCodeButton.debouncedClicks {

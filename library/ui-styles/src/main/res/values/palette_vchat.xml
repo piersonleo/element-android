@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="palette_primary_vchat">#EF5323</color>
+
+    <color name="palette_primary_dark_vchat">#B53C1C</color>
+
+    <color name="palette_yellow_vchat">#FFFF00</color>
+</resources>

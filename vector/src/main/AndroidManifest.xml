@@ -163,6 +163,7 @@
             android:name=".features.link.LinkHandlerActivity"
             android:enabled="true"
             android:exported="true">
+            <!-- Not used in vChat
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -176,6 +177,7 @@
                 <data android:host="develop.element.io" />
                 <data android:host="staging.element.io" />
             </intent-filter>
+            -->
         </activity>
 
         <!-- Activity alias for matrix.to or element permalinks -->
@@ -195,13 +197,14 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="matrix.to" />
+                <!--Not used in vChat
                 <data
                     android:host="user"
                     android:scheme="element" />
                 <data
                     android:host="room"
                     android:scheme="element" />
-
+                -->
             </intent-filter>
         </activity-alias>
 
@@ -321,6 +324,13 @@
         <activity android:name=".features.settings.devices.v2.othersessions.OtherSessionsActivity" />
         <activity android:name=".features.settings.devices.v2.details.SessionDetailsActivity" />
         <activity android:name=".features.settings.devices.v2.rename.RenameSessionActivity" />
+
+        <activity android:name=".features.wallet.WalletDetailActivity"/>
+        <activity android:name=".features.wallet.WalletCodeActivity"/>
+        <activity android:name=".features.wallet.WalletCreateActivity"/>
+        <activity android:name=".features.wallet.WalletCreateSuccessActivity"/>
+        <activity android:name=".features.wallet.WalletTransferActivity"/>
+        <activity android:name=".features.wallet.WalletReceiptActivity"/>
 
         <!-- Services -->
 

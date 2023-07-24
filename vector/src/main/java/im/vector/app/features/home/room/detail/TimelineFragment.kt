@@ -69,6 +69,8 @@ import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vanniktech.emoji.EmojiPopup
 import dagger.hilt.android.AndroidEntryPoint
+import im.vector.app.BuildConfig
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.animations.play
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
@@ -1874,7 +1876,7 @@ class TimelineFragment :
                         activity = requireActivity(),
                         askForReason = action.askForReason,
                         confirmationRes = action.dialogDescriptionRes,
-                        positiveRes = R.string.action_remove,
+                        positiveRes = R.string.action_delete,
                         reasonHintRes = R.string.delete_event_dialog_reason_hint,
                         titleRes = action.dialogTitleRes
                 ) { reason ->
@@ -2499,7 +2501,7 @@ class TimelineFragment :
                                             glideRequests,
                                             avatarRenderer,
                                             requireContext(),
-                                            MatrixItem.UserItem(userId, displayName, roomMember?.avatarUrl)
+                                            MatrixItem.UserItem(userId, Utils.removeUrlSuffix(displayName), roomMember?.avatarUrl)
                                     )
                                             .also { it.bind(views.composerLayout.views.composerEditText) },
                                     0,

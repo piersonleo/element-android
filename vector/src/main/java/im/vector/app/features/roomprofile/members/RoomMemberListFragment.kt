@@ -29,6 +29,7 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import com.vcard.vchat.utils.Utils
 import im.vector.app.R
 import im.vector.app.core.extensions.cleanup
 import im.vector.app.core.extensions.configureWith
@@ -148,7 +149,7 @@ class RoomMemberListFragment :
 
     private fun renderRoomSummary(state: RoomMemberListViewState) {
         state.roomSummary()?.let {
-            views.roomSettingGeneric.roomSettingsToolbarTitleView.text = it.displayName
+            views.roomSettingGeneric.roomSettingsToolbarTitleView.text = Utils.removeUrlSuffix(it.displayName)
             avatarRenderer.render(it.toMatrixItem(), views.roomSettingGeneric.roomSettingsToolbarAvatarImageView)
             views.roomSettingGeneric.roomSettingsDecorationToolbarAvatarImageView.render(it.roomEncryptionTrustLevel)
         }

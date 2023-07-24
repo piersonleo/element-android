@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.withState
 import dagger.hilt.android.AndroidEntryPoint
+import com.vcard.vchat.utils.Utils
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.core.utils.PERMISSIONS_FOR_TAKING_PHOTO
@@ -88,6 +89,6 @@ class ShowUserCodeFragment :
         state.matrixItem?.let { avatarRenderer.render(it, views.showUserCodeAvatar) }
         state.shareLink?.let { views.showUserCodeQRImage.setData(it) }
         views.showUserCodeCardNameText.setTextOrHide(state.matrixItem?.displayName)
-        views.showUserCodeCardUserIdText.setTextOrHide(state.matrixItem?.id)
+        views.showUserCodeCardUserIdText.setTextOrHide(Utils.removeUrlSuffix(state.matrixItem?.id))
     }
 }

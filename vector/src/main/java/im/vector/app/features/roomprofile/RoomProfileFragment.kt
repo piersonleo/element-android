@@ -290,19 +290,20 @@ class RoomProfileFragment :
         ShortcutManagerCompat.requestPinShortcut(requireContext(), onShortcutReady.shortcutInfo, null)
     }
 
+    //vChat modification
     override fun onLeaveRoomClicked() {
         val isPublicRoom = roomProfileViewModel.isPublicRoom()
         val message = buildString {
-            append(getString(R.string.room_participants_leave_prompt_msg))
-            if (!isPublicRoom) {
-                append("\n\n")
-                append(getString(R.string.room_participants_leave_private_warning))
-            }
+            append(getString(R.string.vchat_room_participants_leave_prompt_msg))
+//            if (!isPublicRoom) {
+//                append("\n\n")
+//                append(getString(R.string.room_participants_leave_private_warning))
+//            }
         }
         MaterialAlertDialogBuilder(requireContext(), if (isPublicRoom) 0 else R.style.ThemeOverlay_Vector_MaterialAlertDialog_Destructive)
-                .setTitle(R.string.room_participants_leave_prompt_title)
+                .setTitle(R.string.vchat_room_participants_leave_prompt_title)
                 .setMessage(message)
-                .setPositiveButton(R.string.action_leave) { _, _ ->
+                .setPositiveButton(R.string.vchat_action_leave) { _, _ ->
                     roomProfileViewModel.handle(RoomProfileAction.LeaveRoom)
                 }
                 .setNegativeButton(R.string.action_cancel, null)

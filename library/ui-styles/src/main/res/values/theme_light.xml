@@ -56,11 +56,11 @@
         <item name="vctr_unread_background">?vctr_content_tertiary</item>
 
         <!-- Material color -->
-        <item name="colorPrimary">@color/element_accent_light</item>
-        <item name="colorPrimaryVariant">@color/element_accent_light</item>
+        <item name="colorPrimary">@color/vchat_accent_light</item>
+        <item name="colorPrimaryVariant">@color/vchat_accent_light</item>
         <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorSecondary">@color/element_accent_light</item>
-        <item name="colorSecondaryVariant">@color/element_accent_light</item>
+        <item name="colorSecondary">@color/vchat_accent_light</item>
+        <item name="colorSecondaryVariant">@color/vchat_accent_light</item>
         <item name="colorOnSecondary">@android:color/white</item>
         <item name="colorError">@color/element_alert_light</item>
         <item name="colorOnError">@color/palette_white</item>

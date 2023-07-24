@@ -90,7 +90,7 @@ class RoomSettingsController @Inject constructor(
             id("name")
             enabled(data.actionPermissions.canChangeName)
             value(data.newName ?: roomSummary.displayName)
-            hint(host.stringProvider.getString(R.string.room_settings_name_hint))
+            hint(host.stringProvider.getString(R.string.vchat_room_settings_name_hint))
             autoCapitalize(true)
 
             onTextChange { text ->
@@ -113,13 +113,14 @@ class RoomSettingsController @Inject constructor(
         }
         buildProfileAction(
                 id = "historyReadability",
-                title = stringProvider.getString(R.string.room_settings_room_read_history_rules_pref_title),
+                title = stringProvider.getString(R.string.vchat_room_settings_room_read_history_rules_pref_title),
                 subtitle = roomHistoryVisibilityFormatter.getSetting(data.newHistoryVisibility ?: data.currentHistoryVisibility),
                 divider = true,
                 editable = data.actionPermissions.canChangeHistoryVisibility,
                 action = { if (data.actionPermissions.canChangeHistoryVisibility) callback?.onHistoryVisibilityClicked() }
         )
 
+        /*
         buildProfileAction(
                 id = "joinRule",
                 title = stringProvider.getString(R.string.room_settings_room_access_title),
@@ -128,6 +129,7 @@ class RoomSettingsController @Inject constructor(
                 editable = data.actionPermissions.canChangeJoinRule,
                 action = { if (data.actionPermissions.canChangeJoinRule) callback?.onJoinRuleClicked() }
         )
+        */
 
         val isPublic = (data.newRoomJoinRules.newJoinRules ?: data.currentRoomJoinRules) == RoomJoinRules.PUBLIC
         if (vectorPreferences.developerMode() && isPublic) {

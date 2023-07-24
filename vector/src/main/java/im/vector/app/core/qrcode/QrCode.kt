@@ -20,8 +20,10 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 fun String.toBitMatrix(size: Int): BitMatrix {
     return QRCodeWriter().encode(
@@ -29,6 +31,16 @@ fun String.toBitMatrix(size: Int): BitMatrix {
             BarcodeFormat.QR_CODE,
             size,
             size
+    )
+}
+
+fun String.toBitMatrixMesh(size: Int): BitMatrix {
+    return QRCodeWriter().encode(
+            this,
+            BarcodeFormat.QR_CODE,
+            size,
+            size,
+            hashMapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.Q)
     )
 }
 

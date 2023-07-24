@@ -1,0 +1,25 @@
+[
+    {
+      "name": "Sender Gold",
+      "type": "test",
+      "id": "2",
+      "tokenName": "GOLD",
+      "currency": "mg",
+      "value": "450.312.332,44",
+      "address": "m1ca040703ee3c8fe542611412191e84b209fc0ef5ff3316dc",
+      "avatarUrl": "wallet_avatars/ic_card_placeholder.png",
+      "privateKey": "187dc06196cb99b99ee19afb876b79defd246cc123fb9e0c617345f77d3737df"
+    },
+    {
+      "name": "Receiver Gold",
+      "type": "test",
+      "id": "3",
+      "tokenName": "GOLD",
+      "currency": "mg",
+      "value": "212.423,32",
+      "address": "m17b1f1178662c449d9f2290c7911da4b4bfc4f89d904b2d9e",
+      "avatarUrl": "wallet_avatars/ic_card_placeholder.png",
+      "privateKey": "fb7f7a6c87cda5e0c19b35e7f2e0a024eb9f7f3e0b169ef6e3539fa0604272c7"
+    }
+]
+

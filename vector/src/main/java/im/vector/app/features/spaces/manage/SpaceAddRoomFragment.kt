@@ -204,7 +204,7 @@ class SpaceAddRoomFragment :
     }
 
     private fun setupRoomSection() {
-        roomEpoxyController.sectionName = getString(R.string.rooms_header)
+        roomEpoxyController.sectionName = getString(R.string.vchat_rooms_header)
         roomEpoxyController.listener = this
 
         viewModel.roomUpdatableLivePageResult.liveBoundaries.observe(viewLifecycleOwner) {

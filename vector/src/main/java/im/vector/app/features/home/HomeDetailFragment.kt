@@ -161,7 +161,7 @@ class HomeDetailFragment :
                     val olderUnverified = unknownDevices.filter { !it.isNew }
                     val newest = unknownDevices.firstOrNull { it.isNew }?.deviceInfo
                     if (newest != null) {
-                        promptForNewUnknownDevices(uid, state, newest)
+                        //promptForNewUnknownDevices(uid, state, newest)
                     } else if (olderUnverified.isNotEmpty()) {
                         // In this case we prompt to go to settings to review logins
                         promptToReviewChanges(uid, state, olderUnverified.map { it.deviceInfo })
@@ -332,6 +332,7 @@ class HomeDetailFragment :
                 R.id.bottom_action_people -> HomeTab.RoomList(RoomListDisplayMode.PEOPLE)
                 R.id.bottom_action_rooms -> HomeTab.RoomList(RoomListDisplayMode.ROOMS)
                 R.id.bottom_action_notification -> HomeTab.RoomList(RoomListDisplayMode.NOTIFICATIONS)
+                R.id.bottom_action_wallet -> HomeTab.Wallet(WalletDisplayMode.WALLETS)
                 else -> HomeTab.DialPad
             }
             viewModel.handle(HomeDetailAction.SwitchTab(tab))
@@ -366,6 +367,10 @@ class HomeDetailFragment :
                     is HomeTab.DialPad -> {
                         add(R.id.roomListContainer, createDialPadFragment(), fragmentTag)
                     }
+                    is HomeTab.Wallet ->{
+                        add(R.id.roomListContainer, createWalletFragment(), fragmentTag)
+
+                    }
                 }
             } else {
                 if (tab is HomeTab.DialPad) {
@@ -374,6 +379,11 @@ class HomeDetailFragment :
                 attach(fragmentToShow)
             }
         }
+    }
+
+    private fun createWalletFragment(): Fragment{
+        val fragment = childFragmentManager.fragmentFactory.instantiate(vectorBaseActivity.classLoader, HomeWalletFragment::class.java.name)
+        return (fragment as HomeWalletFragment)
     }
 
     private fun createDialPadFragment(): Fragment {
@@ -450,6 +460,7 @@ class HomeDetailFragment :
             RoomListDisplayMode.ROOMS -> R.id.bottom_action_rooms
             else -> R.id.bottom_action_notification
         }
+        is HomeTab.Wallet -> R.id.bottom_action_wallet
     }
 
     override fun onTapToReturnToCall() {
