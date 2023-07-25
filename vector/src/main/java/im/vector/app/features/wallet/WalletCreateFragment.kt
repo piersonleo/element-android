@@ -14,14 +14,15 @@ import com.vcard.mesh.sdk.account.Account
 import com.vcard.mesh.sdk.account.data.EncryptedAccountData
 import com.vcard.mesh.sdk.account.data.EncryptedAccountDataSerializer
 import com.vcard.vchat.utils.MeshSharedPref
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentWalletCreateBinding
 import timber.log.Timber
 import javax.inject.Inject
 
-class WalletCreateFragment@Inject constructor(
-) : VectorBaseFragment<FragmentWalletCreateBinding>()
+@AndroidEntryPoint
+class WalletCreateFragment@Inject constructor() : VectorBaseFragment<FragmentWalletCreateBinding>()
 {
 
     private lateinit var callback: CreateAccountCallback

@@ -12,7 +12,6 @@ import android.graphics.Matrix
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.utils.toast
 import org.matrix.android.sdk.api.util.MimeTypes
@@ -91,40 +90,40 @@ class Utils {
             }
         }
 
-        fun shareJsonFile(fragment: Fragment,
-                          activityResultLauncher: ActivityResultLauncher<Intent>?,
-                          chooserTitle: String?,
-                          text: String,
-                          subject: String? = null,
-                          extraTitle: String? = null,
-                          filename: String) {
-
-            val jsonFile = createJsonFile(fragment.requireContext(), text, filename)
-
-            val share = Intent(Intent.ACTION_SEND)
-            share.type = "application/json"
-            share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            // Add data to the intent, the receiving app will decide what to do with it.
-            share.putExtra(Intent.EXTRA_SUBJECT, subject)
-            share.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(fragment.requireContext(), BuildConfig.APPLICATION_ID + ".fileProvider", jsonFile))
-
-
-            extraTitle?.let {
-                share.putExtra(Intent.EXTRA_TITLE, it)
-            }
-
-            val intent = Intent.createChooser(share, chooserTitle)
-            try {
-                if (activityResultLauncher != null) {
-                    activityResultLauncher.launch(intent)
-                } else {
-                    fragment.startActivity(intent)
-                }
-            } catch (activityNotFoundException: ActivityNotFoundException) {
-                fragment.activity?.toast(R.string.error_no_external_application_found)
-            }
-        }
+//        fun shareJsonFile(fragment: Fragment,
+//                          activityResultLauncher: ActivityResultLauncher<Intent>?,
+//                          chooserTitle: String?,
+//                          text: String,
+//                          subject: String? = null,
+//                          extraTitle: String? = null,
+//                          filename: String) {
+//
+//            val jsonFile = createJsonFile(fragment.requireContext(), text, filename)
+//
+//            val share = Intent(Intent.ACTION_SEND)
+//            share.type = "application/json"
+//            share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+//            share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//            // Add data to the intent, the receiving app will decide what to do with it.
+//            share.putExtra(Intent.EXTRA_SUBJECT, subject)
+//            share.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(fragment.requireContext(), BuildConfig.APPLICATION_ID + ".fileProvider", jsonFile))
+//
+//
+//            extraTitle?.let {
+//                share.putExtra(Intent.EXTRA_TITLE, it)
+//            }
+//
+//            val intent = Intent.createChooser(share, chooserTitle)
+//            try {
+//                if (activityResultLauncher != null) {
+//                    activityResultLauncher.launch(intent)
+//                } else {
+//                    fragment.startActivity(intent)
+//                }
+//            } catch (activityNotFoundException: ActivityNotFoundException) {
+//                fragment.activity?.toast(R.string.error_no_external_application_found)
+//            }
+//        }
 
         fun createJsonFile(context: Context, jsonString: String, filename: String):File {
             val rootFolder: File? = context.getExternalFilesDir(null)

@@ -29,6 +29,7 @@ import com.vcard.vchat.utils.Utils.Companion.createJsonFile
 import com.vcard.vchat.utils.Utils.Companion.deleteJsonFile
 import com.vcard.vchat.utils.Utils.Companion.mergeBitmapLogoToQrCode
 import com.vcard.vchat.utils.Utils.Companion.saveJsonFile
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.extensions.registerStartForActivityResult
 import im.vector.app.core.extensions.safeOpenOutputStream
@@ -47,6 +48,7 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class WalletCreateSuccessFragment@Inject constructor(
 ) : VectorBaseFragment<FragmentWalletCreateSuccessBinding>() {
 

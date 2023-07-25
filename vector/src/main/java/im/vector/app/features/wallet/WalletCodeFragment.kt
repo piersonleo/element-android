@@ -22,6 +22,7 @@ import com.airbnb.mvrx.args
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vcard.mesh.sdk.qr.MeshQrUtil
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentWalletCodeBinding
@@ -29,6 +30,7 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class WalletCodeFragment @Inject constructor(
 ) : VectorBaseFragment<FragmentWalletCodeBinding>() {
 

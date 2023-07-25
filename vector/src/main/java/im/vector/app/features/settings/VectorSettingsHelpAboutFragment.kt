@@ -72,7 +72,7 @@ class VectorSettingsHelpAboutFragment :
             it.summary = buildString {
 
                 //vChat: we only want the version name
-                append(BuildConfig.VERSION_NAME)
+                append(buildMeta.versionName)
 //                append(versionProvider.getVersion(longFormat = false, useBuildNumber = true))
 //                if (buildMeta.isDebug) {
 //                    append(" ")

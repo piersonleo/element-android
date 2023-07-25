@@ -48,6 +48,7 @@ import com.vcard.mesh.sdk.database.entity.AccountEntity
 import com.vcard.vchat.utils.MeshSharedPref
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.extensions.registerStartForActivityResult
 import im.vector.app.core.extensions.safeOpenOutputStream
@@ -77,6 +78,7 @@ import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class WalletDetailFragment @Inject constructor(
 ): VectorBaseFragment<FragmentWalletDetailBinding>() {
 

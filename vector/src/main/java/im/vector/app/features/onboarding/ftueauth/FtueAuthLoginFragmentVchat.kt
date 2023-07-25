@@ -29,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vcard.vchat.utils.Constants
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.extensions.hideKeyboard
 import im.vector.app.core.extensions.hidePassword
@@ -67,6 +68,7 @@ import javax.inject.Inject
  * In signup mode:
  * - the user is asked for login and password
  */
+@AndroidEntryPoint
 class FtueAuthLoginFragmentVchat @Inject constructor() : AbstractSSOFtueAuthFragment<FragmentLoginBinding>() {
 
     private var isSignupMode = false

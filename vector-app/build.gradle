@@ -210,6 +210,10 @@ android {
         // Comment to run on Android 12
 //        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
+    
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
 
     signingConfigs {
         debug {
@@ -359,6 +363,8 @@ dependencies {
     implementation libs.dagger.hilt
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation "androidx.sharetarget:sharetarget:1.1.0"
+
+    implementation project(":mesh-sdk-android")
 
     // Flipper, debug builds only
     debugImplementation(libs.flipper.flipper) {

@@ -36,6 +36,7 @@ import com.vcard.vchat.utils.DecimalDigitsInputFilter
 import com.vcard.vchat.utils.MeshSharedPref
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.DialogBaseInputPassphraseBinding
@@ -48,6 +49,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Locale
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class WalletTransferFragment@Inject constructor(
 ) : VectorBaseFragment<FragmentWalletTransferBinding>() {
 

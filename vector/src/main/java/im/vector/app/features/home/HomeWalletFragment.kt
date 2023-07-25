@@ -39,6 +39,7 @@ import com.vcard.vchat.utils.Utils
 import com.vcard.vchat.utils.Utils.Companion.openJsonFileSelection
 import com.vcard.vchat.utils.ViewAnimation
 import com.vcard.vchat.utils.ViewUtil
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.extensions.configureWith
 import im.vector.app.core.extensions.registerStartForActivityResult
@@ -79,10 +80,10 @@ data class WalletDetailsArgs(
         val type: String
 ) : Parcelable
 
-class HomeWalletFragment @Inject constructor(
-        private val homeWalletController: HomeWalletItemController
-): VectorBaseFragment<FragmentWalletHomeBinding>(), HomeWalletItemController.Callback {
+@AndroidEntryPoint
+class HomeWalletFragment: VectorBaseFragment<FragmentWalletHomeBinding>(), HomeWalletItemController.Callback {
 
+    private lateinit var homeWalletController: HomeWalletItemController
     private var accounts: List<AccountEntity> = emptyList()
 
     private var isFabAddClicked = false
@@ -96,7 +97,7 @@ class HomeWalletFragment @Inject constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        homeWalletController = HomeWalletItemController(requireContext())
         setupTestAccounts()
         setupRecyclerView()
         setupSearchView()

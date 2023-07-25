@@ -11,6 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.vcard.mesh.sdk.MeshConstants
 import com.vcard.vchat.utils.StringUtil
 import com.vcard.vchat.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentWalletReceiptBinding
@@ -19,6 +20,7 @@ import java.lang.Exception
 import java.math.BigDecimal
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class WalletReceiptFragment @Inject constructor(
 ) : VectorBaseFragment<FragmentWalletReceiptBinding>() {
     private val fragmentArgs: WalletReceiptActivity.Args by args()

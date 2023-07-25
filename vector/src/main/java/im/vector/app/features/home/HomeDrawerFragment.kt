@@ -61,7 +61,7 @@ class HomeDrawerFragment :
         super.onViewCreated(view, savedInstanceState)
 
         //vChat: add version
-        views.homeDrawerAppVersionView.text = getString(R.string.app_version, BuildConfig.VERSION_NAME)
+        views.homeDrawerAppVersionView.text = getString(R.string.app_version, buildMeta.versionName)
         sharedActionViewModel = activityViewModelProvider.get(HomeSharedActionViewModel::class.java)
 
         if (savedInstanceState == null) {

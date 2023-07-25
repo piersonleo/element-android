@@ -43,7 +43,7 @@ import me.gujun.android.span.span
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.util.toMatrixItem
 
-@EpoxyModelClass(layout = R.layout.item_timeline_event_base_noinfo)
+@EpoxyModelClass
 abstract class MergedRoomCreationItemVchat : BasedMergedItem<MergedRoomCreationItemVchat.Holder>(R.layout.item_timeline_event_base_noinfo) {
 
     @EpoxyAttribute
@@ -220,7 +220,7 @@ abstract class MergedRoomCreationItemVchat : BasedMergedItem<MergedRoomCreationI
     }
 
     companion object {
-        private const val STUB_ID = R.id.messageContentMergedCreationStub
+        private val STUB_ID = R.id.messageContentMergedCreationStub
     }
 
     data class Attributes(
